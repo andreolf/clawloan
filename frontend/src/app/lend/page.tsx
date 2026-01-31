@@ -1,26 +1,140 @@
 "use client";
 
-import { useState } from "react";
-import { useAccount } from "wagmi";
+import { useState, useEffect } from "react";
+import { useAccount, useChainId, useReadContract, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
+import { parseUnits, formatUnits } from "viem";
 import { Button } from "@/components/ui/button";
 import { ConnectButton } from "@/components/wallet/connect-button";
+import { getContractAddress } from "@/config/wagmi";
+import { USDC_ABI, LENDING_POOL_ABI } from "@/lib/contracts";
 
 export default function LendPage() {
-  const { isConnected } = useAccount();
+  const { isConnected, address } = useAccount();
+  const chainId = useChainId();
   const [amount, setAmount] = useState("");
+  const [needsApproval, setNeedsApproval] = useState(true);
 
-  // Mock data
-  const poolStats = {
-    tvl: "$1.2M",
-    apy: "12.4%",
-    utilization: "74%",
+  // Contract addresses
+  const usdcAddress = getContractAddress(chainId, "usdc");
+  const lendingPoolAddress = getContractAddress(chainId, "lendingPool");
+
+  // Read USDC balance
+  const { data: usdcBalance } = useReadContract({
+    address: usdcAddress,
+    abi: USDC_ABI,
+    functionName: "balanceOf",
+    args: address ? [address] : undefined,
+    query: { enabled: !!address && !!usdcAddress },
+  });
+
+  // Read USDC allowance
+  const { data: allowance, refetch: refetchAllowance } = useReadContract({
+    address: usdcAddress,
+    abi: USDC_ABI,
+    functionName: "allowance",
+    args: address && lendingPoolAddress ? [address, lendingPoolAddress] : undefined,
+    query: { enabled: !!address && !!usdcAddress && !!lendingPoolAddress },
+  });
+
+  // Read pool stats
+  const { data: totalDeposits } = useReadContract({
+    address: lendingPoolAddress,
+    abi: LENDING_POOL_ABI,
+    functionName: "totalDeposits",
+    query: { enabled: !!lendingPoolAddress },
+  });
+
+  const { data: totalBorrows } = useReadContract({
+    address: lendingPoolAddress,
+    abi: LENDING_POOL_ABI,
+    functionName: "totalBorrows",
+    query: { enabled: !!lendingPoolAddress },
+  });
+
+  const { data: userShares } = useReadContract({
+    address: lendingPoolAddress,
+    abi: LENDING_POOL_ABI,
+    functionName: "shares",
+    args: address ? [address] : undefined,
+    query: { enabled: !!address && !!lendingPoolAddress },
+  });
+
+  const { data: userDepositValue } = useReadContract({
+    address: lendingPoolAddress,
+    abi: LENDING_POOL_ABI,
+    functionName: "getDepositValue",
+    args: address ? [address] : undefined,
+    query: { enabled: !!address && !!lendingPoolAddress },
+  });
+
+  // Write functions
+  const { writeContract: approve, data: approveHash, isPending: isApproving } = useWriteContract();
+  const { writeContract: deposit, data: depositHash, isPending: isDepositing } = useWriteContract();
+  const { writeContract: withdraw, data: withdrawHash, isPending: isWithdrawing } = useWriteContract();
+
+  // Wait for transactions
+  const { isLoading: isApproveConfirming, isSuccess: isApproveSuccess } = useWaitForTransactionReceipt({ hash: approveHash });
+  const { isLoading: isDepositConfirming, isSuccess: isDepositSuccess } = useWaitForTransactionReceipt({ hash: depositHash });
+  const { isLoading: isWithdrawConfirming } = useWaitForTransactionReceipt({ hash: withdrawHash });
+
+  // Check if approval needed
+  useEffect(() => {
+    if (allowance !== undefined && amount) {
+      const amountWei = parseUnits(amount || "0", 6);
+      setNeedsApproval(allowance < amountWei);
+    }
+  }, [allowance, amount]);
+
+  // Refetch allowance after approval
+  useEffect(() => {
+    if (isApproveSuccess) {
+      refetchAllowance();
+    }
+  }, [isApproveSuccess, refetchAllowance]);
+
+  // Calculate stats
+  const tvl = totalDeposits ? formatUnits(totalDeposits, 6) : "0";
+  const borrowed = totalBorrows ? formatUnits(totalBorrows, 6) : "0";
+  const utilization = totalDeposits && totalDeposits > 0n
+    ? ((Number(totalBorrows || 0n) / Number(totalDeposits)) * 100).toFixed(1)
+    : "0";
+  const balance = usdcBalance ? formatUnits(usdcBalance, 6) : "0";
+  const deposited = userDepositValue ? formatUnits(userDepositValue, 6) : "0";
+
+  const handleApprove = () => {
+    if (!usdcAddress || !lendingPoolAddress) return;
+    const amountWei = parseUnits(amount || "0", 6);
+    approve({
+      address: usdcAddress,
+      abi: USDC_ABI,
+      functionName: "approve",
+      args: [lendingPoolAddress, amountWei],
+    });
   };
 
-  const userPosition = {
-    deposited: 10_000,
-    earned: 150,
-    pendingRewards: 25,
+  const handleDeposit = () => {
+    if (!lendingPoolAddress) return;
+    const amountWei = parseUnits(amount || "0", 6);
+    deposit({
+      address: lendingPoolAddress,
+      abi: LENDING_POOL_ABI,
+      functionName: "deposit",
+      args: [amountWei],
+    });
   };
+
+  const handleWithdraw = () => {
+    if (!lendingPoolAddress || !userShares) return;
+    withdraw({
+      address: lendingPoolAddress,
+      abi: LENDING_POOL_ABI,
+      functionName: "withdraw",
+      args: [userShares], // Withdraw all shares
+    });
+  };
+
+  const isLoading = isApproving || isApproveConfirming || isDepositing || isDepositConfirming;
+  const contractsDeployed = !!usdcAddress && !!lendingPoolAddress;
 
   return (
     <div className="container mx-auto max-w-2xl px-4 py-12">
@@ -35,15 +149,19 @@ export default function LendPage() {
       {/* Pool Stats */}
       <div className="grid grid-cols-3 gap-4 mb-8">
         <div className="bg-[var(--card)] border border-[var(--card-border)] rounded-lg p-4 text-center">
-          <p className="text-xl font-bold text-[var(--primary)]">{poolStats.tvl}</p>
+          <p className="text-xl font-bold text-[var(--primary)]">
+            ${Number(tvl).toLocaleString(undefined, { maximumFractionDigits: 0 })}
+          </p>
           <p className="text-xs text-[var(--muted-foreground)]">TVL</p>
         </div>
         <div className="bg-[var(--card)] border border-[var(--card-border)] rounded-lg p-4 text-center">
-          <p className="text-xl font-bold text-[var(--success)]">{poolStats.apy}</p>
-          <p className="text-xs text-[var(--muted-foreground)]">APY</p>
+          <p className="text-xl font-bold text-[var(--success)]">
+            ${Number(borrowed).toLocaleString(undefined, { maximumFractionDigits: 0 })}
+          </p>
+          <p className="text-xs text-[var(--muted-foreground)]">Borrowed</p>
         </div>
         <div className="bg-[var(--card)] border border-[var(--card-border)] rounded-lg p-4 text-center">
-          <p className="text-xl font-bold">{poolStats.utilization}</p>
+          <p className="text-xl font-bold">{utilization}%</p>
           <p className="text-xs text-[var(--muted-foreground)]">Utilization</p>
         </div>
       </div>
@@ -54,6 +172,15 @@ export default function LendPage() {
             Connect wallet to supply USDC
           </p>
           <ConnectButton />
+        </div>
+      ) : !contractsDeployed ? (
+        <div className="bg-[var(--card)] border border-[var(--card-border)] rounded-lg p-8 text-center">
+          <p className="text-[var(--muted-foreground)] mb-2">
+            Contracts not deployed on this network
+          </p>
+          <p className="text-xs text-[var(--muted-foreground)]">
+            Switch to Base Sepolia (testnet) to test
+          </p>
         </div>
       ) : (
         <div className="space-y-6">
@@ -72,7 +199,7 @@ export default function LendPage() {
                 <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
                   <span className="text-sm text-[var(--muted-foreground)]">USDC</span>
                   <button
-                    onClick={() => setAmount("10000")}
+                    onClick={() => setAmount(balance)}
                     className="text-xs text-[var(--primary)] hover:underline"
                   >
                     MAX
@@ -80,10 +207,33 @@ export default function LendPage() {
                 </div>
               </div>
               <p className="text-xs text-[var(--muted-foreground)] mt-2">
-                Balance: 10,000 USDC
+                Balance: {Number(balance).toLocaleString()} USDC
               </p>
             </div>
-            <Button className="w-full">Supply USDC</Button>
+            
+            {needsApproval ? (
+              <Button 
+                className="w-full" 
+                onClick={handleApprove}
+                disabled={isLoading || !amount || Number(amount) <= 0}
+              >
+                {isApproving || isApproveConfirming ? "Approving..." : "Approve USDC"}
+              </Button>
+            ) : (
+              <Button 
+                className="w-full" 
+                onClick={handleDeposit}
+                disabled={isLoading || !amount || Number(amount) <= 0}
+              >
+                {isDepositing || isDepositConfirming ? "Supplying..." : "Supply USDC"}
+              </Button>
+            )}
+
+            {isDepositSuccess && (
+              <p className="text-xs text-[var(--success)] mt-2 text-center">
+                ✓ Deposit successful!
+              </p>
+            )}
           </div>
 
           {/* Position */}
@@ -92,20 +242,23 @@ export default function LendPage() {
             <div className="space-y-3 text-sm">
               <div className="flex justify-between">
                 <span className="text-[var(--muted-foreground)]">Deposited</span>
-                <span>${userPosition.deposited.toLocaleString()}</span>
+                <span>${Number(deposited).toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-[var(--muted-foreground)]">Interest Earned</span>
-                <span className="text-[var(--success)]">+${userPosition.earned}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-[var(--muted-foreground)]">Pending Rewards</span>
-                <span className="text-[var(--primary)]">${userPosition.pendingRewards}</span>
+                <span className="text-[var(--muted-foreground)]">Shares</span>
+                <span>{userShares ? formatUnits(userShares, 6) : "0"}</span>
               </div>
             </div>
             <div className="flex gap-3 mt-4">
-              <Button variant="outline" size="sm" className="flex-1">Withdraw</Button>
-              <Button variant="secondary" size="sm" className="flex-1">Claim</Button>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="flex-1"
+                onClick={handleWithdraw}
+                disabled={isWithdrawing || isWithdrawConfirming || !userShares || userShares === 0n}
+              >
+                {isWithdrawing || isWithdrawConfirming ? "Withdrawing..." : "Withdraw All"}
+              </Button>
             </div>
           </div>
         </div>
