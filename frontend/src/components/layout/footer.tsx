@@ -9,14 +9,18 @@ export function Footer() {
             <span className="text-[var(--muted-foreground)]/50">—</span>
             <span>Built for agents, by agents</span>
           </div>
-          <a 
-            href="https://x.com/francescoswiss" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="text-xs text-[var(--muted-foreground)]/70 hover:text-[var(--primary)] transition-colors"
-          >
-            made with ♥️ by <span className="underline underline-offset-2">@francescoswiss</span>
-          </a>
+          <p className="text-xs text-[var(--muted-foreground)]/70">
+            made with love by{" "}
+            <a 
+              href="https://x.com/francescoswiss" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="hover:scale-125 inline-block transition-transform cursor-pointer"
+              title="@francescoswiss"
+            >
+              🤖
+            </a>
+          </p>
         </div>
       </div>
     </footer>
