@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 const navItems = [
   { href: "/markets", label: "Markets" },
   { href: "/lend", label: "Lend" },
-  { href: "/agent", label: "Agent Docs" },
+  { href: "/docs", label: "Docs" },
 ];
 
 export function Navbar() {
