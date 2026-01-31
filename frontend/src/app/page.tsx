@@ -134,9 +134,20 @@ export default function Home() {
             <a href="https://openclaw.ai" target="_blank" rel="noopener noreferrer" className="hover:text-[var(--foreground)]">OpenClaw</a>
             <a href="https://moltbook.com" target="_blank" rel="noopener noreferrer" className="hover:text-[var(--foreground)]">Moltbook</a>
           </div>
-          <p className="text-center text-xs text-[var(--muted-foreground)] mt-6">
-            Base · Linea · ERC-8004 · x402
-          </p>
+          <div className="flex flex-wrap items-center justify-center gap-3 mt-6">
+            <span className="px-2.5 py-1 rounded-full bg-blue-500/10 text-blue-400 text-xs font-medium">
+              🔵 Base
+            </span>
+            <span className="px-2.5 py-1 rounded-full bg-purple-500/10 text-purple-400 text-xs font-medium">
+              🟣 Linea
+            </span>
+            <span className="px-2.5 py-1 rounded-full bg-zinc-500/10 text-zinc-400 text-xs font-medium">
+              ERC-8004
+            </span>
+            <span className="px-2.5 py-1 rounded-full bg-zinc-500/10 text-zinc-400 text-xs font-medium">
+              x402
+            </span>
+          </div>
         </div>
       </section>
     </div>
