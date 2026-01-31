@@ -74,18 +74,14 @@ export const LENDING_POOL_ABI = [
     outputs: [{ type: "uint256" }],
   },
   {
-    name: "shares",
+    name: "deposits",
     type: "function",
     stateMutability: "view",
     inputs: [{ name: "account", type: "address" }],
-    outputs: [{ type: "uint256" }],
-  },
-  {
-    name: "getDepositValue",
-    type: "function",
-    stateMutability: "view",
-    inputs: [{ name: "user", type: "address" }],
-    outputs: [{ type: "uint256" }],
+    outputs: [
+      { name: "shares", type: "uint256" },
+      { name: "rewardDebt", type: "uint256" },
+    ],
   },
   {
     name: "getUtilization",

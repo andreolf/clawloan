@@ -55,18 +55,11 @@ export default function LendPage() {
     chainId: baseSepolia.id,
   });
 
-  const { data: userShares, refetch: refetchShares } = useReadContract({
+  // Read user's deposit (returns [shares, rewardDebt])
+  const { data: userDeposit, refetch: refetchUserDeposit } = useReadContract({
     address: lendingPoolAddress,
     abi: LENDING_POOL_ABI,
-    functionName: "shares",
-    args: address ? [address] : undefined,
-    query: { enabled: !!address && !!lendingPoolAddress },
-  });
-
-  const { data: userDepositValue, refetch: refetchDepositValue } = useReadContract({
-    address: lendingPoolAddress,
-    abi: LENDING_POOL_ABI,
-    functionName: "getDepositValue",
+    functionName: "deposits",
     args: address ? [address] : undefined,
     query: { enabled: !!address && !!lendingPoolAddress },
   });
@@ -77,6 +70,16 @@ export default function LendPage() {
     functionName: "totalDeposits",
     query: { enabled: !!lendingPoolAddress },
   });
+
+  const { data: poolTotalShares, refetch: refetchPoolShares } = useReadContract({
+    address: lendingPoolAddress,
+    abi: LENDING_POOL_ABI,
+    functionName: "totalShares",
+    query: { enabled: !!lendingPoolAddress },
+  });
+
+  // Extract user shares from deposit struct
+  const userShares = userDeposit ? (userDeposit as [bigint, bigint])[0] : 0n;
 
   // Write functions
   const { writeContract: approve, data: approveHash, isPending: isApproving } = useWriteContract();
@@ -106,25 +109,25 @@ export default function LendPage() {
   // Refetch position after deposit
   useEffect(() => {
     if (isDepositSuccess) {
-      refetchShares();
-      refetchDepositValue();
+      refetchUserDeposit();
       refetchPoolDeposits();
+      refetchPoolShares();
       refetchGlobalDeposits();
       refetchGlobalBorrows();
       setAmount("");
     }
-  }, [isDepositSuccess, refetchShares, refetchDepositValue, refetchPoolDeposits, refetchGlobalDeposits, refetchGlobalBorrows]);
+  }, [isDepositSuccess, refetchUserDeposit, refetchPoolDeposits, refetchPoolShares, refetchGlobalDeposits, refetchGlobalBorrows]);
 
   // Refetch position after withdraw
   useEffect(() => {
     if (isWithdrawSuccess) {
-      refetchShares();
-      refetchDepositValue();
+      refetchUserDeposit();
       refetchPoolDeposits();
+      refetchPoolShares();
       refetchGlobalDeposits();
       refetchGlobalBorrows();
     }
-  }, [isWithdrawSuccess, refetchShares, refetchDepositValue, refetchPoolDeposits, refetchGlobalDeposits, refetchGlobalBorrows]);
+  }, [isWithdrawSuccess, refetchUserDeposit, refetchPoolDeposits, refetchPoolShares, refetchGlobalDeposits, refetchGlobalBorrows]);
 
   // Calculate stats (use global stats for display, local for user position)
   const tvl = globalTotalDeposits ? formatUnits(globalTotalDeposits, 6) : "0";
@@ -133,6 +136,11 @@ export default function LendPage() {
     ? ((Number(globalTotalBorrows || 0n) / Number(globalTotalDeposits)) * 100).toFixed(1)
     : "0";
   const balance = usdcBalance ? formatUnits(usdcBalance, 6) : "0";
+  
+  // Calculate user deposit value: shares * totalDeposits / totalShares
+  const userDepositValue = (userShares && poolTotalDeposits && poolTotalShares && poolTotalShares > 0n)
+    ? (userShares * poolTotalDeposits) / poolTotalShares
+    : 0n;
   const deposited = userDepositValue ? formatUnits(userDepositValue, 6) : "0";
 
   const handleApprove = () => {
