@@ -1,13 +1,6 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-
-// Mock stats
-const stats = [
-  { label: "total value locked", value: "$0" },
-  { label: "agent fees earned", value: "$0" },
-  { label: "active loans", value: "0" },
-  { label: "24h volume", value: "$0" },
-];
+import { HomeStats } from "@/components/home-stats";
 
 export default function Home() {
   return (
@@ -68,14 +61,7 @@ export default function Home() {
       {/* Stats */}
       <section className="border-y border-[var(--card-border)] bg-[var(--card)]/30">
         <div className="container mx-auto max-w-4xl px-4 py-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-            {stats.map((stat) => (
-              <div key={stat.label}>
-                <p className="text-2xl font-bold text-[var(--primary)]">{stat.value}</p>
-                <p className="text-xs text-[var(--muted-foreground)]">{stat.label}</p>
-              </div>
-            ))}
-          </div>
+          <HomeStats />
         </div>
       </section>
 
