@@ -51,11 +51,11 @@ export function ChainSwitcher() {
           
           {/* Dropdown */}
           <div 
-            className="absolute right-0 top-full mt-1 z-50 min-w-[180px] bg-[var(--card)] border border-[var(--card-border)] rounded-lg shadow-lg overflow-hidden"
+            className="absolute right-0 top-full mt-2 z-50 w-52 bg-[var(--card)] border border-[var(--card-border)] rounded-lg shadow-xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="p-1">
-              <p className="px-2 py-1 text-[10px] text-[var(--muted-foreground)] uppercase tracking-wider">
+            <div className="p-2">
+              <p className="px-2 py-1.5 text-[10px] text-[var(--muted-foreground)] uppercase tracking-wider font-medium">
                 Testnets
               </p>
               {availableChains.filter(c => c.testnet).map(chain => (
@@ -65,24 +65,27 @@ export function ChainSwitcher() {
                     switchChain?.({ chainId: chain.id });
                     setIsOpen(false);
                   }}
-                  className={`w-full flex items-center gap-2 px-2 py-1.5 text-sm rounded hover:bg-[var(--muted)] transition-colors ${
+                  className={`w-full flex items-center gap-3 px-3 py-2 text-sm rounded-md hover:bg-[var(--muted)] transition-colors whitespace-nowrap ${
                     chain.id === chainId ? "bg-[var(--muted)]" : ""
                   }`}
                 >
-                  <span>{chain.icon}</span>
-                  <span>{chain.name}</span>
+                  <span className="text-base">{chain.icon}</span>
+                  <span className="flex-1 text-left">{chain.name}</span>
                   {chain.id === 84532 && (
-                    <span className="ml-auto text-[10px] text-green-400">● Live</span>
+                    <span className="text-[10px] text-green-400 font-medium">● Live</span>
                   )}
-                  {chain.id === chainId && (
-                    <span className="ml-auto text-[10px] text-[var(--primary)]">✓</span>
+                  {chain.id === chainId && chain.id !== 84532 && (
+                    <span className="text-[var(--primary)]">✓</span>
+                  )}
+                  {chain.id === chainId && chain.id === 84532 && (
+                    <span className="text-[var(--primary)] ml-1">✓</span>
                   )}
                 </button>
               ))}
               
-              <div className="border-t border-[var(--border)] my-1" />
+              <div className="border-t border-[var(--border)] my-2" />
               
-              <p className="px-2 py-1 text-[10px] text-[var(--muted-foreground)] uppercase tracking-wider">
+              <p className="px-2 py-1.5 text-[10px] text-[var(--muted-foreground)] uppercase tracking-wider font-medium">
                 Mainnets
               </p>
               {availableChains.filter(c => !c.testnet).map(chain => (
@@ -92,13 +95,13 @@ export function ChainSwitcher() {
                     switchChain?.({ chainId: chain.id });
                     setIsOpen(false);
                   }}
-                  className={`w-full flex items-center gap-2 px-2 py-1.5 text-sm rounded hover:bg-[var(--muted)] transition-colors ${
+                  className={`w-full flex items-center gap-3 px-3 py-2 text-sm rounded-md hover:bg-[var(--muted)] transition-colors whitespace-nowrap opacity-60 ${
                     chain.id === chainId ? "bg-[var(--muted)]" : ""
                   }`}
                 >
-                  <span>{chain.icon}</span>
-                  <span>{chain.name}</span>
-                  <span className="ml-auto text-[10px] text-[var(--muted-foreground)]">Soon</span>
+                  <span className="text-base">{chain.icon}</span>
+                  <span className="flex-1 text-left">{chain.name}</span>
+                  <span className="text-[10px] text-[var(--muted-foreground)]">Soon</span>
                 </button>
               ))}
             </div>
