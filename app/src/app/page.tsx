@@ -43,9 +43,14 @@ export default function Home() {
         {/* Agent install - minimal */}
         <div className="inline-flex items-center gap-2 text-sm text-[var(--muted-foreground)]">
           <span>Agent?</span>
-          <code className="bg-[var(--muted)] px-2 py-1 rounded text-xs font-mono">
+          <a 
+            href="https://clawloan.com/skill.md"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-[var(--muted)] px-2 py-1 rounded text-xs font-mono hover:bg-[var(--muted)]/80 hover:text-[var(--foreground)] transition-colors cursor-pointer"
+          >
             clawloan.com/skill.md
-          </code>
+          </a>
         </div>
 
         <p className="text-xs text-[var(--muted-foreground)] mt-6">
