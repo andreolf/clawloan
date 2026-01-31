@@ -1,7 +1,7 @@
 "use client";
 
 import { useAccount, useChainId, useSwitchChain } from "wagmi";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { SUPPORTED_CHAINS } from "@/config/wagmi";
 
 export function ChainSwitcher() {
@@ -9,21 +9,30 @@ export function ChainSwitcher() {
   const chainId = useChainId();
   const { switchChain, isPending } = useSwitchChain();
   const [isOpen, setIsOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Close dropdown when clicking outside
+  // Close on escape key
+  const handleEscape = useCallback((e: KeyboardEvent) => {
+    if (e.key === "Escape") setIsOpen(false);
+  }, []);
+
+  // Close dropdown when clicking anywhere
   useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    }
+    if (!isOpen) return;
 
-    if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-      return () => document.removeEventListener("mousedown", handleClickOutside);
-    }
-  }, [isOpen]);
+    const handleClick = () => setIsOpen(false);
+    
+    // Use timeout to avoid closing immediately when opening
+    const timer = setTimeout(() => {
+      window.addEventListener("click", handleClick);
+      window.addEventListener("keydown", handleEscape);
+    }, 0);
+
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("click", handleClick);
+      window.removeEventListener("keydown", handleEscape);
+    };
+  }, [isOpen, handleEscape]);
 
   if (!isConnected) return null;
 
@@ -40,9 +49,12 @@ export function ChainSwitcher() {
   );
 
   return (
-    <div className="relative" ref={dropdownRef}>
+    <div className="relative">
       <button
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={(e) => {
+          e.stopPropagation();
+          setIsOpen(!isOpen);
+        }}
         className="flex items-center gap-1.5 px-2 py-1 text-xs rounded-md border border-[var(--border)] hover:bg-[var(--muted)] transition-colors"
         disabled={isPending}
       >
@@ -54,12 +66,19 @@ export function ChainSwitcher() {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 top-full mt-2 z-50 w-52 bg-[var(--card)] border border-[var(--card-border)] rounded-lg shadow-xl">
-            <div className="p-2">
-              <p className="px-2 py-1.5 text-[10px] text-[var(--muted-foreground)] uppercase tracking-wider font-medium">
-                Testnets
-              </p>
-              {availableChains.filter(c => c.testnet).map(chain => (
+        <div 
+          className="absolute right-0 top-full mt-2 z-50 w-52 bg-[var(--card)] border border-[var(--card-border)] rounded-lg shadow-xl"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="p-2">
+            <p className="px-2 py-1.5 text-[10px] text-[var(--muted-foreground)] uppercase tracking-wider font-medium">
+              Testnets
+            </p>
+            {availableChains.filter(c => c.testnet).map(chain => {
+              const isSelected = chain.id === chainId;
+              const isLive = chain.id === 84532;
+              
+              return (
                 <button
                   key={chain.id}
                   onClick={() => {
@@ -67,46 +86,41 @@ export function ChainSwitcher() {
                     setIsOpen(false);
                   }}
                   className={`w-full flex items-center gap-3 px-3 py-2 text-sm rounded-md hover:bg-[var(--muted)] transition-colors whitespace-nowrap ${
-                    chain.id === chainId ? "bg-[var(--muted)]" : ""
+                    isSelected ? "bg-[var(--muted)]" : ""
                   }`}
                 >
                   <span className="text-base">{chain.icon}</span>
                   <span className="flex-1 text-left">{chain.name}</span>
-                  {chain.id === 84532 && (
+                  {isLive && (
                     <span className="text-[10px] text-green-400 font-medium">● Live</span>
                   )}
-                  {chain.id === chainId && chain.id !== 84532 && (
-                    <span className="text-[var(--primary)]">✓</span>
-                  )}
-                  {chain.id === chainId && chain.id === 84532 && (
-                    <span className="text-[var(--primary)] ml-1">✓</span>
-                  )}
                 </button>
-              ))}
-              
-              <div className="border-t border-[var(--border)] my-2" />
-              
-              <p className="px-2 py-1.5 text-[10px] text-[var(--muted-foreground)] uppercase tracking-wider font-medium">
-                Mainnets
-              </p>
-              {availableChains.filter(c => !c.testnet).map(chain => (
-                <button
-                  key={chain.id}
-                  onClick={() => {
-                    switchChain?.({ chainId: chain.id });
-                    setIsOpen(false);
-                  }}
-                  className={`w-full flex items-center gap-3 px-3 py-2 text-sm rounded-md hover:bg-[var(--muted)] transition-colors whitespace-nowrap opacity-60 ${
-                    chain.id === chainId ? "bg-[var(--muted)]" : ""
-                  }`}
-                >
-                  <span className="text-base">{chain.icon}</span>
-                  <span className="flex-1 text-left">{chain.name}</span>
-                  <span className="text-[10px] text-[var(--muted-foreground)]">Soon</span>
-                </button>
-              ))}
-            </div>
+              );
+            })}
+            
+            <div className="border-t border-[var(--border)] my-2" />
+            
+            <p className="px-2 py-1.5 text-[10px] text-[var(--muted-foreground)] uppercase tracking-wider font-medium">
+              Mainnets
+            </p>
+            {availableChains.filter(c => !c.testnet).map(chain => (
+              <button
+                key={chain.id}
+                onClick={() => {
+                  switchChain?.({ chainId: chain.id });
+                  setIsOpen(false);
+                }}
+                className={`w-full flex items-center gap-3 px-3 py-2 text-sm rounded-md hover:bg-[var(--muted)] transition-colors whitespace-nowrap opacity-60 ${
+                  chain.id === chainId ? "bg-[var(--muted)]" : ""
+                }`}
+              >
+                <span className="text-base">{chain.icon}</span>
+                <span className="flex-1 text-left">{chain.name}</span>
+                <span className="text-[10px] text-[var(--muted-foreground)]">Soon</span>
+              </button>
+            ))}
           </div>
+        </div>
       )}
     </div>
   );
