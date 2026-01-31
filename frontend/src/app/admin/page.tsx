@@ -54,6 +54,14 @@ interface Bot {
   loans: { status: string }[];
 }
 
+interface SyncResult {
+  success: boolean;
+  synced?: {
+    totalDeposits: string;
+    totalBorrows: string;
+  };
+}
+
 interface HealthStatus {
   status: string;
   latency: string;
@@ -159,6 +167,23 @@ export default function AdminDashboard() {
               ({health?.latency})
             </span>
           </div>
+          <Button 
+            size="sm" 
+            variant="outline"
+            onClick={async () => {
+              try {
+                const res = await fetch("/api/sync", { method: "POST" });
+                const data: SyncResult = await res.json();
+                if (data.success) {
+                  fetchData();
+                }
+              } catch (e) {
+                console.error("Sync failed:", e);
+              }
+            }}
+          >
+            🔄 Sync Chain
+          </Button>
           <Button size="sm" onClick={fetchData}>
             Refresh
           </Button>
@@ -355,8 +380,8 @@ export default function AdminDashboard() {
       <div className="mt-8 text-center text-xs text-[var(--muted-foreground)]">
         <p>Clawloan Admin Dashboard v1.0</p>
         <p>Data refreshes every 30 seconds</p>
-        <p className="mt-1 text-yellow-500/70">
-          ⚠️ Shows database stats. On-chain deposits visible on /lend page.
+        <p className="mt-1 text-[var(--muted-foreground)]/70">
+          Click &quot;Sync Chain&quot; to update database from blockchain
         </p>
       </div>
     </div>
