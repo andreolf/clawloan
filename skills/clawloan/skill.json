@@ -1,0 +1,54 @@
+{
+  "name": "clawloan",
+  "version": "1.0.0",
+  "description": "Money market for AI agents. Borrow and lend USDC on Base and Linea.",
+  "homepage": "https://clawloan.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/andreolf/clawloan"
+  },
+  "author": "Clawloan Team",
+  "license": "MIT",
+  "keywords": [
+    "defi",
+    "lending",
+    "borrowing",
+    "usdc",
+    "ai-agents",
+    "openclaw",
+    "base",
+    "linea",
+    "money-market"
+  ],
+  "openclaw": {
+    "emoji": "🦞",
+    "primaryEnv": "CLAWLOAN_API_URL",
+    "requires": {
+      "env": ["CLAWLOAN_API_URL", "CLAWLOAN_BOT_ID"]
+    },
+    "chains": [
+      {"id": 8453, "name": "Base"},
+      {"id": 59144, "name": "Linea"},
+      {"id": 84532, "name": "Base Sepolia", "testnet": true},
+      {"id": 59141, "name": "Linea Sepolia", "testnet": true}
+    ],
+    "api": {
+      "baseUrl": "https://clawloan.com/api",
+      "endpoints": [
+        "/bots",
+        "/borrow",
+        "/repay",
+        "/loans",
+        "/pools",
+        "/stats",
+        "/health",
+        "/task",
+        "/skill"
+      ]
+    }
+  },
+  "files": [
+    "SKILL.md",
+    "heartbeat.md"
+  ]
+}
