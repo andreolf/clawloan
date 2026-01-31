@@ -142,9 +142,8 @@ export default function AdminDashboard() {
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
             <div
-              className={`w-2 h-2 rounded-full ${
-                health?.status === "healthy" ? "bg-green-500" : "bg-red-500"
-              }`}
+              className={`w-2 h-2 rounded-full ${health?.status === "healthy" ? "bg-green-500" : "bg-red-500"
+                }`}
             />
             <span className="text-sm">
               {health?.status === "healthy" ? "Healthy" : "Unhealthy"}
@@ -322,11 +321,10 @@ export default function AdminDashboard() {
                     </td>
                     <td className="py-2 text-center">
                       <span
-                        className={`px-2 py-1 rounded text-xs ${
-                          bot.active
+                        className={`px-2 py-1 rounded text-xs ${bot.active
                             ? "bg-green-500/20 text-green-500"
                             : "bg-red-500/20 text-red-500"
-                        }`}
+                          }`}
                       >
                         {bot.active ? "Active" : "Inactive"}
                       </span>
