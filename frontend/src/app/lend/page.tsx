@@ -37,13 +37,6 @@ export default function LendPage() {
   });
 
   // Read pool stats
-  const { data: totalDeposits } = useReadContract({
-    address: lendingPoolAddress,
-    abi: LENDING_POOL_ABI,
-    functionName: "totalDeposits",
-    query: { enabled: !!lendingPoolAddress },
-  });
-
   const { data: totalBorrows } = useReadContract({
     address: lendingPoolAddress,
     abi: LENDING_POOL_ABI,
@@ -51,7 +44,7 @@ export default function LendPage() {
     query: { enabled: !!lendingPoolAddress },
   });
 
-  const { data: userShares } = useReadContract({
+  const { data: userShares, refetch: refetchShares } = useReadContract({
     address: lendingPoolAddress,
     abi: LENDING_POOL_ABI,
     functionName: "shares",
@@ -59,12 +52,19 @@ export default function LendPage() {
     query: { enabled: !!address && !!lendingPoolAddress },
   });
 
-  const { data: userDepositValue } = useReadContract({
+  const { data: userDepositValue, refetch: refetchDepositValue } = useReadContract({
     address: lendingPoolAddress,
     abi: LENDING_POOL_ABI,
     functionName: "getDepositValue",
     args: address ? [address] : undefined,
     query: { enabled: !!address && !!lendingPoolAddress },
+  });
+
+  const { data: poolTotalDeposits, refetch: refetchPoolDeposits } = useReadContract({
+    address: lendingPoolAddress,
+    abi: LENDING_POOL_ABI,
+    functionName: "totalDeposits",
+    query: { enabled: !!lendingPoolAddress },
   });
 
   // Write functions
@@ -75,7 +75,7 @@ export default function LendPage() {
   // Wait for transactions
   const { isLoading: isApproveConfirming, isSuccess: isApproveSuccess } = useWaitForTransactionReceipt({ hash: approveHash });
   const { isLoading: isDepositConfirming, isSuccess: isDepositSuccess } = useWaitForTransactionReceipt({ hash: depositHash });
-  const { isLoading: isWithdrawConfirming } = useWaitForTransactionReceipt({ hash: withdrawHash });
+  const { isLoading: isWithdrawConfirming, isSuccess: isWithdrawSuccess } = useWaitForTransactionReceipt({ hash: withdrawHash });
 
   // Check if approval needed
   useEffect(() => {
@@ -92,11 +92,30 @@ export default function LendPage() {
     }
   }, [isApproveSuccess, refetchAllowance]);
 
+  // Refetch position after deposit
+  useEffect(() => {
+    if (isDepositSuccess) {
+      refetchShares();
+      refetchDepositValue();
+      refetchPoolDeposits();
+      setAmount("");
+    }
+  }, [isDepositSuccess, refetchShares, refetchDepositValue, refetchPoolDeposits]);
+
+  // Refetch position after withdraw
+  useEffect(() => {
+    if (isWithdrawSuccess) {
+      refetchShares();
+      refetchDepositValue();
+      refetchPoolDeposits();
+    }
+  }, [isWithdrawSuccess, refetchShares, refetchDepositValue, refetchPoolDeposits]);
+
   // Calculate stats
-  const tvl = totalDeposits ? formatUnits(totalDeposits, 6) : "0";
+  const tvl = poolTotalDeposits ? formatUnits(poolTotalDeposits, 6) : "0";
   const borrowed = totalBorrows ? formatUnits(totalBorrows, 6) : "0";
-  const utilization = totalDeposits && totalDeposits > 0n
-    ? ((Number(totalBorrows || 0n) / Number(totalDeposits)) * 100).toFixed(1)
+  const utilization = poolTotalDeposits && poolTotalDeposits > 0n
+    ? ((Number(totalBorrows || 0n) / Number(poolTotalDeposits)) * 100).toFixed(1)
     : "0";
   const balance = usdcBalance ? formatUnits(usdcBalance, 6) : "0";
   const deposited = userDepositValue ? formatUnits(userDepositValue, 6) : "0";
