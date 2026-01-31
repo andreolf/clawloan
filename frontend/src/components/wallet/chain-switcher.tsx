@@ -1,7 +1,7 @@
 "use client";
 
 import { useAccount, useChainId, useSwitchChain } from "wagmi";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { SUPPORTED_CHAINS } from "@/config/wagmi";
 
 export function ChainSwitcher() {
@@ -9,6 +9,21 @@ export function ChainSwitcher() {
   const chainId = useChainId();
   const { switchChain, isPending } = useSwitchChain();
   const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    }
+
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => document.removeEventListener("mousedown", handleClickOutside);
+    }
+  }, [isOpen]);
 
   if (!isConnected) return null;
 
@@ -25,7 +40,7 @@ export function ChainSwitcher() {
   );
 
   return (
-    <div className="relative">
+    <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center gap-1.5 px-2 py-1 text-xs rounded-md border border-[var(--border)] hover:bg-[var(--muted)] transition-colors"
@@ -39,21 +54,7 @@ export function ChainSwitcher() {
       </button>
 
       {isOpen && (
-        <>
-          {/* Backdrop - covers entire screen to catch clicks */}
-          <div 
-            className="fixed inset-0 z-40 bg-transparent" 
-            onClick={(e) => {
-              e.stopPropagation();
-              setIsOpen(false);
-            }}
-          />
-          
-          {/* Dropdown */}
-          <div 
-            className="absolute right-0 top-full mt-2 z-50 w-52 bg-[var(--card)] border border-[var(--card-border)] rounded-lg shadow-xl"
-            onClick={(e) => e.stopPropagation()}
-          >
+        <div className="absolute right-0 top-full mt-2 z-50 w-52 bg-[var(--card)] border border-[var(--card-border)] rounded-lg shadow-xl">
             <div className="p-2">
               <p className="px-2 py-1.5 text-[10px] text-[var(--muted-foreground)] uppercase tracking-wider font-medium">
                 Testnets
@@ -106,7 +107,6 @@ export function ChainSwitcher() {
               ))}
             </div>
           </div>
-        </>
       )}
     </div>
   );
