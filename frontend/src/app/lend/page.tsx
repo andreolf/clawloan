@@ -6,21 +6,26 @@ import { parseUnits, formatUnits } from "viem";
 import { baseSepolia } from "wagmi/chains";
 import { Button } from "@/components/ui/button";
 import { ConnectButton } from "@/components/wallet/connect-button";
-import { getContractAddress, CONTRACT_ADDRESSES } from "@/config/wagmi";
+import { getTokenAddress, getLendingPoolAddress, SUPPORTED_TOKENS, type TokenSymbol } from "@/config/wagmi";
 import { USDC_ABI, LENDING_POOL_ABI } from "@/lib/contracts";
 
-// Fixed addresses for Base Sepolia (for reading pool stats always)
-const POOL_ADDRESS = CONTRACT_ADDRESSES[84532].lendingPool;
+// Default pool for stats display (Base Sepolia USDC)
+const DEFAULT_CHAIN_ID = 84532;
+const DEFAULT_TOKEN: TokenSymbol = "USDC";
 
 export default function LendPage() {
   const { isConnected, address } = useAccount();
   const chainId = useChainId();
   const [amount, setAmount] = useState("");
   const [needsApproval, setNeedsApproval] = useState(true);
+  const [selectedToken, setSelectedToken] = useState<TokenSymbol>("USDC");
 
   // Contract addresses for user's current chain
-  const usdcAddress = getContractAddress(chainId, "usdc");
-  const lendingPoolAddress = getContractAddress(chainId, "lendingPool");
+  const tokenAddress = getTokenAddress(chainId, selectedToken);
+  const lendingPoolAddress = getLendingPoolAddress(chainId, selectedToken);
+  
+  // For backwards compatibility
+  const usdcAddress = tokenAddress;
 
   // Read USDC balance
   const { data: usdcBalance } = useReadContract({
@@ -40,19 +45,23 @@ export default function LendPage() {
     query: { enabled: !!address && !!usdcAddress && !!lendingPoolAddress },
   });
 
-  // Read pool stats (always from Base Sepolia for display)
+  // Read pool stats (always from Base Sepolia for display when no wallet)
+  const defaultPoolAddress = getLendingPoolAddress(DEFAULT_CHAIN_ID, DEFAULT_TOKEN);
+  
   const { data: globalTotalDeposits, refetch: refetchGlobalDeposits } = useReadContract({
-    address: POOL_ADDRESS,
+    address: defaultPoolAddress,
     abi: LENDING_POOL_ABI,
     functionName: "totalDeposits",
     chainId: baseSepolia.id,
+    query: { enabled: !!defaultPoolAddress },
   });
 
   const { data: globalTotalBorrows, refetch: refetchGlobalBorrows } = useReadContract({
-    address: POOL_ADDRESS,
+    address: defaultPoolAddress,
     abi: LENDING_POOL_ABI,
     functionName: "totalBorrows",
     chainId: baseSepolia.id,
+    query: { enabled: !!defaultPoolAddress },
   });
 
   // Read user's deposit (returns [shares, rewardDebt])

@@ -3,10 +3,10 @@
 import { useReadContract } from "wagmi";
 import { formatUnits } from "viem";
 import { baseSepolia } from "wagmi/chains";
-import { CONTRACT_ADDRESSES } from "@/config/wagmi";
+import { getLendingPoolAddress } from "@/config/wagmi";
 import { LENDING_POOL_ABI } from "@/lib/contracts";
 
-const POOL_ADDRESS = CONTRACT_ADDRESSES[84532].lendingPool;
+const POOL_ADDRESS = getLendingPoolAddress(84532, "USDC");
 
 export function HomeStats() {
   const { data: totalDeposits } = useReadContract({
