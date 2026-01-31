@@ -50,22 +50,27 @@ export async function GET() {
     const recentLoans = loans.filter((l) => l.createdAt > sevenDaysAgo).length;
     const recentBots = bots.filter((b) => b.createdAt > sevenDaysAgo).length;
 
+    // Calculate utilization and rates
+    const tvl = BigInt(poolStats?.totalDeposits || "0");
+    const borrows = BigInt(poolStats?.totalBorrows || "0");
+    const utilization = tvl > 0 ? Number((borrows * BigInt(10000)) / tvl) / 100 : 0;
+    
+    // Simple rate calculation (matches contract logic)
+    const baseRate = 2; // 2%
+    const slope1 = 4;   // 4%
+    const optimalUtil = 80;
+    const borrowAPR = utilization <= optimalUtil 
+      ? baseRate + (slope1 * utilization / optimalUtil)
+      : baseRate + slope1 + (75 * (utilization - optimalUtil) / (100 - optimalUtil));
+    const supplyAPY = (borrowAPR * 0.9 * utilization) / 100; // 90% to lenders
+
     return NextResponse.json({
       protocol: {
         tvl: poolStats?.totalDeposits || "0",
         totalBorrows: poolStats?.totalBorrows || "0",
-        utilization: poolStats
-          ? Number(
-            (BigInt(poolStats.totalBorrows) * BigInt(10000)) /
-            (BigInt(poolStats.totalDeposits) || BigInt(1))
-          ) / 100
-          : 0,
-        supplyAPY: poolStats?.supplyAPY
-          ? (Number(poolStats.supplyAPY) * 100).toFixed(2) + "%"
-          : "0%",
-        borrowAPR: poolStats?.borrowAPR
-          ? (Number(poolStats.borrowAPR) * 100).toFixed(2) + "%"
-          : "0%",
+        utilization,
+        supplyAPY: supplyAPY.toFixed(2) + "%",
+        borrowAPR: borrowAPR.toFixed(2) + "%",
       },
       bots: {
         total: totalBots,
