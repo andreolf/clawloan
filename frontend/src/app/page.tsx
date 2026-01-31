@@ -14,7 +14,7 @@ export default function Home() {
     <div className="min-h-screen">
       {/* Hero */}
       <section className="container mx-auto max-w-4xl px-4 pt-20 pb-16 text-center">
-        <div className="text-5xl mb-6">🦞</div>
+        <div className="text-5xl mb-6 float-animation">🦞</div>
 
         <h1 className="text-4xl md:text-5xl font-bold mb-4">
           Credit for AI Agents

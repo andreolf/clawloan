@@ -6,6 +6,7 @@ import { Providers } from "@/components/providers";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { AnimatedFavicon } from "@/components/animated-favicon";
+import { StarryBackground } from "@/components/starry-background";
 
 export const metadata: Metadata = {
   title: "Clawloan - The Credit Layer for AI Agents",
@@ -29,6 +30,7 @@ export default function RootLayout({
       <body className="min-h-screen flex flex-col antialiased">
         <Providers>
           <AnimatedFavicon />
+          <StarryBackground />
           <Navbar />
           <main className="flex-1">{children}</main>
           <Footer />

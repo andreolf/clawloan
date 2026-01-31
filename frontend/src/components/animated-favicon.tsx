@@ -31,9 +31,7 @@ export function AnimatedFavicon() {
 
       // Background
       ctx.fillStyle = "#0a0a0a";
-      ctx.beginPath();
-      ctx.roundRect(0, 0, 32, 32, 6);
-      ctx.fill();
+      ctx.fillRect(0, 0, 32, 32);
 
       // Animated circle (lobster color)
       ctx.save();
