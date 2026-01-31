@@ -355,6 +355,9 @@ export default function AdminDashboard() {
       <div className="mt-8 text-center text-xs text-[var(--muted-foreground)]">
         <p>Clawloan Admin Dashboard v1.0</p>
         <p>Data refreshes every 30 seconds</p>
+        <p className="mt-1 text-yellow-500/70">
+          ⚠️ Shows database stats. On-chain deposits visible on /lend page.
+        </p>
       </div>
     </div>
   );

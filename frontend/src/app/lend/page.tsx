@@ -135,7 +135,7 @@ export default function LendPage() {
 
   const isLoading = isApproving || isApproveConfirming || isDepositing || isDepositConfirming;
   const contractsDeployed = !!usdcAddress && !!lendingPoolAddress;
-  
+
   // Network names
   const networkNames: Record<number, string> = {
     84532: "Base Sepolia",
@@ -238,29 +238,29 @@ export default function LendPage() {
                 )}
               </p>
             </div>
-            
+
             {needsApproval ? (
-              <Button 
-                className="w-full" 
+              <Button
+                className="w-full"
                 onClick={handleApprove}
                 disabled={isLoading || !amount || Number(amount) <= 0}
               >
-                {isApproving || isApproveConfirming 
-                  ? "Approving..." 
-                  : !amount || Number(amount) <= 0 
-                    ? "Enter amount to approve" 
+                {isApproving || isApproveConfirming
+                  ? "Approving..."
+                  : !amount || Number(amount) <= 0
+                    ? "Enter amount to approve"
                     : "Approve USDC"}
               </Button>
             ) : (
-              <Button 
-                className="w-full" 
+              <Button
+                className="w-full"
                 onClick={handleDeposit}
                 disabled={isLoading || !amount || Number(amount) <= 0}
               >
-                {isDepositing || isDepositConfirming 
-                  ? "Supplying..." 
-                  : !amount || Number(amount) <= 0 
-                    ? "Enter amount to supply" 
+                {isDepositing || isDepositConfirming
+                  ? "Supplying..."
+                  : !amount || Number(amount) <= 0
+                    ? "Enter amount to supply"
                     : "Supply USDC"}
               </Button>
             )}
@@ -286,9 +286,9 @@ export default function LendPage() {
               </div>
             </div>
             <div className="flex gap-3 mt-4">
-              <Button 
-                variant="outline" 
-                size="sm" 
+              <Button
+                variant="outline"
+                size="sm"
                 className="flex-1"
                 onClick={handleWithdraw}
                 disabled={isWithdrawing || isWithdrawConfirming || !userShares || userShares === 0n}
