@@ -95,14 +95,12 @@ export async function GET() {
       update: {
         totalDeposits: tvl,
         totalBorrows: borrowed,
-        utilization: util,
         lastUpdated: new Date(),
       },
       create: {
         id: "main",
         totalDeposits: tvl,
         totalBorrows: borrowed,
-        utilization: util,
         rewardPool: "0",
       },
     });
