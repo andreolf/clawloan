@@ -14,19 +14,26 @@ export default function Icon() {
     (
       <div
         style={{
-          fontSize: 24,
-          background: '#e74c3c',
           width: '100%',
           height: '100%',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          color: 'white',
-          borderRadius: 6,
-          fontWeight: 'bold',
+          background: '#0a0a0a',
+          borderRadius: 8,
         }}
       >
-        CL
+        <div
+          style={{
+            width: 20,
+            height: 20,
+            background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        />
       </div>
     ),
     {
