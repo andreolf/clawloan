@@ -208,6 +208,11 @@ export default function LendPage() {
               </div>
               <p className="text-xs text-[var(--muted-foreground)] mt-2">
                 Balance: {Number(balance).toLocaleString()} USDC
+                {Number(balance) === 0 && (
+                  <span className="text-[var(--warning)] ml-2">
+                    (Switch to Base Sepolia for test USDC)
+                  </span>
+                )}
               </p>
             </div>
             
@@ -217,7 +222,11 @@ export default function LendPage() {
                 onClick={handleApprove}
                 disabled={isLoading || !amount || Number(amount) <= 0}
               >
-                {isApproving || isApproveConfirming ? "Approving..." : "Approve USDC"}
+                {isApproving || isApproveConfirming 
+                  ? "Approving..." 
+                  : !amount || Number(amount) <= 0 
+                    ? "Enter amount to approve" 
+                    : "Approve USDC"}
               </Button>
             ) : (
               <Button 
@@ -225,7 +234,11 @@ export default function LendPage() {
                 onClick={handleDeposit}
                 disabled={isLoading || !amount || Number(amount) <= 0}
               >
-                {isDepositing || isDepositConfirming ? "Supplying..." : "Supply USDC"}
+                {isDepositing || isDepositConfirming 
+                  ? "Supplying..." 
+                  : !amount || Number(amount) <= 0 
+                    ? "Enter amount to supply" 
+                    : "Supply USDC"}
               </Button>
             )}
 
