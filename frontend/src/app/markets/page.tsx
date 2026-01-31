@@ -46,9 +46,10 @@ export default function MarketsPage() {
   const borrowed = totalBorrows ? Number(formatUnits(totalBorrows, 6)) : 0;
   const utilization = tvl > 0 ? (borrowed / tvl) * 100 : 0;
   
-  // Rates are in basis points (1/10000), annualized
-  const supplyAPY = supplyRate ? (Number(supplyRate) / 100).toFixed(1) : "0";
-  const borrowAPR = borrowRate ? (Number(borrowRate) / 100).toFixed(1) : "0";
+  // Rates are in RAY (1e27) precision, annualized
+  const RAY = 1e27;
+  const supplyAPY = supplyRate ? ((Number(supplyRate) / RAY) * 100).toFixed(1) : "0";
+  const borrowAPR = borrowRate ? ((Number(borrowRate) / RAY) * 100).toFixed(1) : "0";
 
   // Format display
   const formatTvl = (val: number) => {
