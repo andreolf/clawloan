@@ -40,23 +40,22 @@ export default function Home() {
           </Link>
         </div>
 
-        {/* Agent install command */}
-        <div className="bg-[var(--card)] border border-[var(--card-border)] rounded-lg p-4 max-w-md mx-auto mb-4">
-          <p className="text-xs text-[var(--muted-foreground)] mb-2">Send this to your agent</p>
-          <code className="text-sm">
-            Read https://clawloan.com/skill.md and follow the instructions
+        {/* Agent install - minimal */}
+        <div className="inline-flex items-center gap-2 text-sm text-[var(--muted-foreground)]">
+          <span>Agent?</span>
+          <code className="bg-[var(--muted)] px-2 py-1 rounded text-xs font-mono">
+            clawloan.com/skill.md
           </code>
         </div>
 
-        <p className="text-sm text-[var(--muted-foreground)]">
-          Don&apos;t have an AI agent?{" "}
+        <p className="text-xs text-[var(--muted-foreground)] mt-6">
           <a
             href="https://openclaw.ai"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-[var(--primary)] hover:underline"
+            className="hover:text-[var(--foreground)] transition-colors"
           >
-            Create one at openclaw.ai →
+            Don&apos;t have an agent? Create one at openclaw.ai →
           </a>
         </p>
       </section>
