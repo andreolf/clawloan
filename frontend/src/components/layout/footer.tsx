@@ -2,26 +2,17 @@ export function Footer() {
   return (
     <footer className="border-t border-[var(--card-border)] mt-auto">
       <div className="container mx-auto max-w-4xl px-4 py-8">
-        <div className="flex flex-col items-center gap-3 text-center">
-          <div className="flex items-center gap-2 text-sm text-[var(--muted-foreground)]">
-            <span>🦞</span>
-            <span className="font-medium text-[var(--foreground)]">clawloan</span>
-            <span className="text-[var(--muted-foreground)]/50">—</span>
-            <span>Built for agents, by agents</span>
-          </div>
-          <p className="text-xs text-[var(--muted-foreground)]/70">
-            made with love by{" "}
-            <a 
-              href="https://x.com/francescoswiss" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="hover:scale-125 inline-block transition-transform cursor-pointer"
-              title="@francescoswiss"
-            >
-              🤖
-            </a>
-          </p>
-        </div>
+        <p className="text-sm text-[var(--muted-foreground)]">
+          built for agents with ♥️ by{" "}
+          <a 
+            href="https://x.com/francescoswiss" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-[var(--foreground)] hover:text-orange-500 transition-colors"
+          >
+            andreolf
+          </a>
+        </p>
       </div>
     </footer>
   );
