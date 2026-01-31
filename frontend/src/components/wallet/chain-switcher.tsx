@@ -1,0 +1,104 @@
+"use client";
+
+import { useAccount, useChainId, useSwitchChain } from "wagmi";
+import { useState } from "react";
+import { SUPPORTED_CHAINS } from "@/config/wagmi";
+
+export function ChainSwitcher() {
+  const { isConnected } = useAccount();
+  const chainId = useChainId();
+  const { switchChain, isPending } = useSwitchChain();
+  const [isOpen, setIsOpen] = useState(false);
+
+  if (!isConnected) return null;
+
+  const currentChain = SUPPORTED_CHAINS.find(c => c.id === chainId);
+  
+  // Filter to show only chains with deployed contracts or testnets
+  const availableChains = SUPPORTED_CHAINS.filter(c => 
+    c.id === 84532 || // Base Sepolia (live)
+    c.id === 421614 || // Arbitrum Sepolia
+    c.id === 11155420 || // Optimism Sepolia
+    c.id === 8453 || // Base Mainnet
+    c.id === 42161 || // Arbitrum
+    c.id === 10 // Optimism
+  );
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex items-center gap-1.5 px-2 py-1 text-xs rounded-md border border-[var(--border)] hover:bg-[var(--muted)] transition-colors"
+        disabled={isPending}
+      >
+        <span>{currentChain?.icon || "🔗"}</span>
+        <span className="hidden sm:inline">{currentChain?.name || "Unknown"}</span>
+        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+
+      {isOpen && (
+        <>
+          {/* Backdrop */}
+          <div 
+            className="fixed inset-0 z-40" 
+            onClick={() => setIsOpen(false)}
+          />
+          
+          {/* Dropdown */}
+          <div className="absolute right-0 top-full mt-1 z-50 min-w-[180px] bg-[var(--card)] border border-[var(--card-border)] rounded-lg shadow-lg overflow-hidden">
+            <div className="p-1">
+              <p className="px-2 py-1 text-[10px] text-[var(--muted-foreground)] uppercase tracking-wider">
+                Testnets
+              </p>
+              {availableChains.filter(c => c.testnet).map(chain => (
+                <button
+                  key={chain.id}
+                  onClick={() => {
+                    switchChain?.({ chainId: chain.id });
+                    setIsOpen(false);
+                  }}
+                  className={`w-full flex items-center gap-2 px-2 py-1.5 text-sm rounded hover:bg-[var(--muted)] transition-colors ${
+                    chain.id === chainId ? "bg-[var(--muted)]" : ""
+                  }`}
+                >
+                  <span>{chain.icon}</span>
+                  <span>{chain.name}</span>
+                  {chain.id === 84532 && (
+                    <span className="ml-auto text-[10px] text-green-400">● Live</span>
+                  )}
+                  {chain.id === chainId && (
+                    <span className="ml-auto text-[10px] text-[var(--primary)]">✓</span>
+                  )}
+                </button>
+              ))}
+              
+              <div className="border-t border-[var(--border)] my-1" />
+              
+              <p className="px-2 py-1 text-[10px] text-[var(--muted-foreground)] uppercase tracking-wider">
+                Mainnets
+              </p>
+              {availableChains.filter(c => !c.testnet).map(chain => (
+                <button
+                  key={chain.id}
+                  onClick={() => {
+                    switchChain?.({ chainId: chain.id });
+                    setIsOpen(false);
+                  }}
+                  className={`w-full flex items-center gap-2 px-2 py-1.5 text-sm rounded hover:bg-[var(--muted)] transition-colors ${
+                    chain.id === chainId ? "bg-[var(--muted)]" : ""
+                  }`}
+                >
+                  <span>{chain.icon}</span>
+                  <span>{chain.name}</span>
+                  <span className="ml-auto text-[10px] text-[var(--muted-foreground)]">Soon</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}

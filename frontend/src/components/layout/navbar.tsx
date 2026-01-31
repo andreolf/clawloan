@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { ConnectButton } from "@/components/wallet/connect-button";
+import { ChainSwitcher } from "@/components/wallet/chain-switcher";
 
 const navItems = [
   { href: "/markets", label: "Markets" },
@@ -15,7 +17,7 @@ export function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-[var(--card-border)] bg-[var(--background)]/95 backdrop-blur supports-[backdrop-filter]:bg-[var(--background)]/60">
-      <div className="container flex h-14 items-center justify-between px-4 mx-auto max-w-4xl">
+      <div className="container flex h-14 items-center justify-between px-4 mx-auto max-w-5xl">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
           <span className="text-xl">🦞</span>
@@ -42,6 +44,12 @@ export function Navbar() {
             </Link>
           ))}
         </nav>
+
+        {/* Wallet */}
+        <div className="flex items-center gap-2">
+          <ChainSwitcher />
+          <ConnectButton />
+        </div>
       </div>
     </header>
   );
