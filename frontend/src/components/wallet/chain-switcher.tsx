@@ -40,14 +40,20 @@ export function ChainSwitcher() {
 
       {isOpen && (
         <>
-          {/* Backdrop */}
+          {/* Backdrop - covers entire screen to catch clicks */}
           <div 
-            className="fixed inset-0 z-40" 
-            onClick={() => setIsOpen(false)}
+            className="fixed inset-0 z-40 bg-transparent" 
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsOpen(false);
+            }}
           />
           
           {/* Dropdown */}
-          <div className="absolute right-0 top-full mt-1 z-50 min-w-[180px] bg-[var(--card)] border border-[var(--card-border)] rounded-lg shadow-lg overflow-hidden">
+          <div 
+            className="absolute right-0 top-full mt-1 z-50 min-w-[180px] bg-[var(--card)] border border-[var(--card-border)] rounded-lg shadow-lg overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="p-1">
               <p className="px-2 py-1 text-[10px] text-[var(--muted-foreground)] uppercase tracking-wider">
                 Testnets
