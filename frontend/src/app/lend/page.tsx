@@ -3,10 +3,14 @@
 import { useState, useEffect } from "react";
 import { useAccount, useChainId, useReadContract, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 import { parseUnits, formatUnits } from "viem";
+import { baseSepolia } from "wagmi/chains";
 import { Button } from "@/components/ui/button";
 import { ConnectButton } from "@/components/wallet/connect-button";
-import { getContractAddress } from "@/config/wagmi";
+import { getContractAddress, CONTRACT_ADDRESSES } from "@/config/wagmi";
 import { USDC_ABI, LENDING_POOL_ABI } from "@/lib/contracts";
+
+// Fixed addresses for Base Sepolia (for reading pool stats always)
+const POOL_ADDRESS = CONTRACT_ADDRESSES[84532].lendingPool;
 
 export default function LendPage() {
   const { isConnected, address } = useAccount();
@@ -14,7 +18,7 @@ export default function LendPage() {
   const [amount, setAmount] = useState("");
   const [needsApproval, setNeedsApproval] = useState(true);
 
-  // Contract addresses
+  // Contract addresses for user's current chain
   const usdcAddress = getContractAddress(chainId, "usdc");
   const lendingPoolAddress = getContractAddress(chainId, "lendingPool");
 
@@ -36,12 +40,19 @@ export default function LendPage() {
     query: { enabled: !!address && !!usdcAddress && !!lendingPoolAddress },
   });
 
-  // Read pool stats
-  const { data: totalBorrows } = useReadContract({
-    address: lendingPoolAddress,
+  // Read pool stats (always from Base Sepolia for display)
+  const { data: globalTotalDeposits, refetch: refetchGlobalDeposits } = useReadContract({
+    address: POOL_ADDRESS,
+    abi: LENDING_POOL_ABI,
+    functionName: "totalDeposits",
+    chainId: baseSepolia.id,
+  });
+
+  const { data: globalTotalBorrows, refetch: refetchGlobalBorrows } = useReadContract({
+    address: POOL_ADDRESS,
     abi: LENDING_POOL_ABI,
     functionName: "totalBorrows",
-    query: { enabled: !!lendingPoolAddress },
+    chainId: baseSepolia.id,
   });
 
   const { data: userShares, refetch: refetchShares } = useReadContract({
@@ -98,9 +109,11 @@ export default function LendPage() {
       refetchShares();
       refetchDepositValue();
       refetchPoolDeposits();
+      refetchGlobalDeposits();
+      refetchGlobalBorrows();
       setAmount("");
     }
-  }, [isDepositSuccess, refetchShares, refetchDepositValue, refetchPoolDeposits]);
+  }, [isDepositSuccess, refetchShares, refetchDepositValue, refetchPoolDeposits, refetchGlobalDeposits, refetchGlobalBorrows]);
 
   // Refetch position after withdraw
   useEffect(() => {
@@ -108,14 +121,16 @@ export default function LendPage() {
       refetchShares();
       refetchDepositValue();
       refetchPoolDeposits();
+      refetchGlobalDeposits();
+      refetchGlobalBorrows();
     }
-  }, [isWithdrawSuccess, refetchShares, refetchDepositValue, refetchPoolDeposits]);
+  }, [isWithdrawSuccess, refetchShares, refetchDepositValue, refetchPoolDeposits, refetchGlobalDeposits, refetchGlobalBorrows]);
 
-  // Calculate stats
-  const tvl = poolTotalDeposits ? formatUnits(poolTotalDeposits, 6) : "0";
-  const borrowed = totalBorrows ? formatUnits(totalBorrows, 6) : "0";
-  const utilization = poolTotalDeposits && poolTotalDeposits > 0n
-    ? ((Number(totalBorrows || 0n) / Number(poolTotalDeposits)) * 100).toFixed(1)
+  // Calculate stats (use global stats for display, local for user position)
+  const tvl = globalTotalDeposits ? formatUnits(globalTotalDeposits, 6) : "0";
+  const borrowed = globalTotalBorrows ? formatUnits(globalTotalBorrows, 6) : "0";
+  const utilization = globalTotalDeposits && globalTotalDeposits > 0n
+    ? ((Number(globalTotalBorrows || 0n) / Number(globalTotalDeposits)) * 100).toFixed(1)
     : "0";
   const balance = usdcBalance ? formatUnits(usdcBalance, 6) : "0";
   const deposited = userDepositValue ? formatUnits(userDepositValue, 6) : "0";
@@ -315,6 +330,11 @@ export default function LendPage() {
                 {isWithdrawing || isWithdrawConfirming ? "Withdrawing..." : "Withdraw All"}
               </Button>
             </div>
+            {isWithdrawSuccess && (
+              <p className="text-xs text-[var(--success)] mt-2 text-center">
+                ✓ Withdrawal successful!
+              </p>
+            )}
           </div>
         </div>
       )}
