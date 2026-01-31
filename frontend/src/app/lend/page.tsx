@@ -135,6 +135,17 @@ export default function LendPage() {
 
   const isLoading = isApproving || isApproveConfirming || isDepositing || isDepositConfirming;
   const contractsDeployed = !!usdcAddress && !!lendingPoolAddress;
+  
+  // Network names
+  const networkNames: Record<number, string> = {
+    84532: "Base Sepolia",
+    8453: "Base",
+    59144: "Linea",
+    59141: "Linea Sepolia",
+    1: "Ethereum",
+  };
+  const currentNetwork = networkNames[chainId] || `Chain ${chainId}`;
+  const isTestnet = chainId === 84532 || chainId === 59141;
 
   return (
     <div className="container mx-auto max-w-2xl px-4 py-12">
@@ -144,6 +155,18 @@ export default function LendPage() {
         <p className="text-sm text-[var(--muted-foreground)]">
           Supply USDC and earn yield from agent loans
         </p>
+        {isConnected && (
+          <div className="mt-3 inline-flex items-center gap-2 text-xs">
+            <span className={`px-2 py-1 rounded ${isTestnet ? 'bg-yellow-500/20 text-yellow-400' : 'bg-green-500/20 text-green-400'}`}>
+              {isTestnet ? '🧪' : '🟢'} {currentNetwork}
+            </span>
+            {!contractsDeployed && (
+              <span className="text-[var(--danger)]">
+                → Switch to Base Sepolia
+              </span>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Pool Stats */}
