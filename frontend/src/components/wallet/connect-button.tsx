@@ -20,29 +20,31 @@ export function ConnectButton() {
   useEffect(() => {
     if (!showMenu) return;
 
-    const handleClick = () => setShowMenu(false);
+    const handleClickOutside = (e: PointerEvent) => {
+      const target = e.target as HTMLElement;
+      if (!target.closest('[data-wallet-menu]')) {
+        setShowMenu(false);
+      }
+    };
     
     const timer = setTimeout(() => {
-      window.addEventListener("click", handleClick);
-      window.addEventListener("keydown", handleEscape);
-    }, 0);
+      document.addEventListener("pointerdown", handleClickOutside);
+      document.addEventListener("keydown", handleEscape);
+    }, 10);
 
     return () => {
       clearTimeout(timer);
-      window.removeEventListener("click", handleClick);
-      window.removeEventListener("keydown", handleEscape);
+      document.removeEventListener("pointerdown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscape);
     };
   }, [showMenu, handleEscape]);
 
   if (isConnected && address) {
     return (
-      <div className="relative">
+      <div className="relative" data-wallet-menu>
         <Button
           variant="outline"
-          onClick={(e) => {
-            e.stopPropagation();
-            setShowMenu(!showMenu);
-          }}
+          onClick={() => setShowMenu(!showMenu)}
           className="flex items-center gap-2"
         >
           <span className="w-2 h-2 rounded-full bg-green-400"></span>
@@ -50,10 +52,7 @@ export function ConnectButton() {
         </Button>
 
         {showMenu && (
-          <div 
-            className="absolute right-0 top-full mt-2 w-48 bg-[var(--card)] border border-[var(--card-border)] rounded-lg shadow-xl z-50"
-            onClick={(e) => e.stopPropagation()}
-          >
+          <div className="absolute right-0 top-full mt-2 w-48 bg-[var(--card)] border border-[var(--card-border)] rounded-lg shadow-xl z-50">
             <div className="p-3 border-b border-[var(--card-border)]">
               <p className="text-xs text-[var(--muted-foreground)]">Connected</p>
               <p className="font-mono text-sm">{shortenAddress(address)}</p>

@@ -19,18 +19,24 @@ export function ChainSwitcher() {
   useEffect(() => {
     if (!isOpen) return;
 
-    const handleClick = () => setIsOpen(false);
+    const handleClickOutside = (e: PointerEvent) => {
+      const target = e.target as HTMLElement;
+      // Check if click is outside the dropdown
+      if (!target.closest('[data-chain-switcher]')) {
+        setIsOpen(false);
+      }
+    };
     
-    // Use timeout to avoid closing immediately when opening
+    // Small delay to prevent immediate close
     const timer = setTimeout(() => {
-      window.addEventListener("click", handleClick);
-      window.addEventListener("keydown", handleEscape);
-    }, 0);
+      document.addEventListener("pointerdown", handleClickOutside);
+      document.addEventListener("keydown", handleEscape);
+    }, 10);
 
     return () => {
       clearTimeout(timer);
-      window.removeEventListener("click", handleClick);
-      window.removeEventListener("keydown", handleEscape);
+      document.removeEventListener("pointerdown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscape);
     };
   }, [isOpen, handleEscape]);
 
@@ -49,12 +55,9 @@ export function ChainSwitcher() {
   );
 
   return (
-    <div className="relative">
+    <div className="relative" data-chain-switcher>
       <button
-        onClick={(e) => {
-          e.stopPropagation();
-          setIsOpen(!isOpen);
-        }}
+        onClick={() => setIsOpen(!isOpen)}
         className="flex items-center gap-1.5 px-2 py-1 text-xs rounded-md border border-[var(--border)] hover:bg-[var(--muted)] transition-colors"
         disabled={isPending}
       >
@@ -66,10 +69,7 @@ export function ChainSwitcher() {
       </button>
 
       {isOpen && (
-        <div 
-          className="absolute right-0 top-full mt-2 z-50 w-52 bg-[var(--card)] border border-[var(--card-border)] rounded-lg shadow-xl"
-          onClick={(e) => e.stopPropagation()}
-        >
+        <div className="absolute right-0 top-full mt-2 z-50 w-52 bg-[var(--card)] border border-[var(--card-border)] rounded-lg shadow-xl">
           <div className="p-2">
             <p className="px-2 py-1.5 text-[10px] text-[var(--muted-foreground)] uppercase tracking-wider font-medium">
               Testnets
