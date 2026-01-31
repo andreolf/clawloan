@@ -66,9 +66,9 @@ contract DeployOptimism is Script {
         console.log("   USDC address:", usdcAddress);
         
         LendingPool poolUSDC = new LendingPool(
-            IERC20(usdcAddress),
-            botRegistry,
-            permRegistry
+            usdcAddress,
+            address(botRegistry),
+            address(permRegistry)
         );
         console.log("   LendingPool USDC:", address(poolUSDC));
 
@@ -76,17 +76,17 @@ contract DeployOptimism is Script {
         if (!isTestnet) {
             console.log("\n4. Deploying LendingPool (USDT)...");
             LendingPool poolUSDT = new LendingPool(
-                IERC20(USDT_MAINNET),
-                botRegistry,
-                permRegistry
+                USDT_MAINNET,
+                address(botRegistry),
+                address(permRegistry)
             );
             console.log("   LendingPool USDT:", address(poolUSDT));
 
             console.log("\n5. Deploying LendingPool (DAI)...");
             LendingPool poolDAI = new LendingPool(
-                IERC20(DAI_MAINNET),
-                botRegistry,
-                permRegistry
+                DAI_MAINNET,
+                address(botRegistry),
+                address(permRegistry)
             );
             console.log("   LendingPool DAI:", address(poolDAI));
         }

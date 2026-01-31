@@ -113,7 +113,7 @@ export const CONTRACT_ADDRESSES = {
     lendingPoolWETH: "" as const,
     clawloanToken: "" as const,
   },
-  // Arbitrum Sepolia (to deploy)
+  // Arbitrum Sepolia (pending - need Arb Sepolia ETH to deploy)
   421614: {
     botRegistry: "" as const,
     permissionsRegistry: "" as const,
