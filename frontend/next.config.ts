@@ -7,6 +7,14 @@ const nextConfig: NextConfig = {
         source: "/skill.md",
         destination: "/api/skill",
       },
+      {
+        source: "/heartbeat.md",
+        destination: "/api/heartbeat",
+      },
+      {
+        source: "/skill.json",
+        destination: "/api/skill-json",
+      },
     ];
   },
 };
