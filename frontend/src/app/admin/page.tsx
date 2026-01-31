@@ -167,8 +167,8 @@ export default function AdminDashboard() {
               ({health?.latency})
             </span>
           </div>
-          <Button 
-            size="sm" 
+          <Button
+            size="sm"
             variant="outline"
             onClick={async () => {
               try {
@@ -354,8 +354,8 @@ export default function AdminDashboard() {
                     <td className="py-2 text-center">
                       <span
                         className={`px-2 py-1 rounded text-xs ${bot.active
-                            ? "bg-green-500/20 text-green-500"
-                            : "bg-red-500/20 text-red-500"
+                          ? "bg-green-500/20 text-green-500"
+                          : "bg-red-500/20 text-red-500"
                           }`}
                       >
                         {bot.active ? "Active" : "Inactive"}
