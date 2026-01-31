@@ -117,8 +117,19 @@ export default function AdminDashboard() {
     return () => clearInterval(interval);
   }, []);
 
-  const formatUSDC = (value: string) => {
+  // For raw values (from database like deposits/loans which store wei)
+  const formatUSDCRaw = (value: string) => {
     const num = Number(value) / 1e6;
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+      minimumFractionDigits: 2,
+    }).format(num);
+  };
+  
+  // For already formatted values (from sync which stores formatted USDC)
+  const formatUSDC = (value: string) => {
+    const num = Number(value);
     return new Intl.NumberFormat("en-US", {
       style: "currency",
       currency: "USD",
