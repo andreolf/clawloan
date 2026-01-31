@@ -8,6 +8,28 @@
 
 The money market where AI agents lend and borrow USDC. Built for the OpenClaw ecosystem on Base & Linea.
 
+## Repository Structure
+
+```
+clawloan/
+├── frontend/          # Next.js app (UI + API routes)
+│   ├── src/
+│   │   ├── app/       # Pages & API routes
+│   │   ├── components/# React components
+│   │   └── lib/       # Utilities
+│   └── prisma/        # Database schema
+├── contracts/         # Solidity smart contracts
+│   ├── src/           # Contract source
+│   ├── test/          # Foundry tests
+│   └── script/        # Deploy scripts
+├── docs/              # Documentation
+│   └── WHITEPAPER.md  # Technical paper
+├── scripts/           # Utility scripts
+│   └── e2e-test.sh    # End-to-end tests
+└── skills/            # Agent skills
+    └── clawloan/      # OpenClaw skill
+```
+
 ## Quick Start
 
 ### For Agents
@@ -17,11 +39,6 @@ Send this to your agent:
 Read https://clawloan.com/skill.md and follow the instructions
 ```
 
-Or install directly:
-```bash
-clawhub install clawloan
-```
-
 ### For Humans
 
 1. Go to https://clawloan.com/lend
@@ -29,81 +46,64 @@ clawhub install clawloan
 3. Supply USDC
 4. Earn yield from agent loans
 
-## Features
-
-- **Agents Borrow** - Micro-loans for tasks, no collateral for verified agents
-- **Agents Lend** - Agents can also be LPs and earn yield
-- **Humans Lend** - Supply USDC and earn from agent activity
-- **Revenue Share** - 5% of agent task profits go to lenders
-- **x402 Compatible** - Pay-per-request support
-
 ## Local Development
 
 ```bash
-# Start local chain
+# 1. Start local blockchain
 anvil
 
-# Deploy contracts
+# 2. Deploy contracts
 cd contracts
-export PRIVATE_KEY=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
 forge script script/Deploy.s.sol --rpc-url http://localhost:8545 --broadcast
 
-# Setup app
-cd ../app
+# 3. Run frontend
+cd ../frontend
 npm install
+cp .env.example .env  # Configure database
 npx prisma db push
-npx tsx prisma/seed.ts
 npm run dev
 ```
 
 Open http://localhost:3000
 
-## Pages
+## Smart Contracts
 
-| Route | Description |
-|-------|-------------|
-| `/` | Landing page |
-| `/markets` | Pool stats |
-| `/lend` | Supply USDC (humans) |
-| `/agent` | Agent documentation |
-| `/skill.md` | Raw skill file for agents |
+| Contract | Description |
+|----------|-------------|
+| `LendingPool.sol` | Core lending logic (deposit, borrow, repay) |
+| `BotRegistry.sol` | Agent identity (ERC-721) |
+| `PermissionsRegistry.sol` | ERC-8004 permission scopes |
+| `ClawloanToken.sol` | $CLAWLOAN governance token |
+| `StakingModule.sol` | Safety module for staking |
+| `LPIncentives.sol` | Early LP reward tracking |
+| `MockUSDC.sol` | Test USDC (6 decimals) |
 
-## API
+## API Endpoints
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
 | `/api/pools` | GET | Pool statistics |
-| `/api/bots` | GET/POST | List/register bots |
+| `/api/bots` | GET/POST | List/register agents |
 | `/api/borrow` | POST | Request a loan |
-| `/api/repay` | POST/PUT | Repay (with profit share) |
+| `/api/repay` | POST | Repay loan |
 | `/api/loans` | GET | List loans |
-| `/api/task` | POST | x402 task execution |
-| `/api/skill` | GET | Skill file |
+| `/api/health` | GET | Protocol health |
+| `/api/stats` | GET | Protocol metrics |
 
-## Contracts
-
-| Contract | Description |
-|----------|-------------|
-| `MockUSDC` | Test USDC (6 decimals) |
-| `BotRegistry` | Agent identity (ERC-8004) |
-| `PermissionsRegistry` | Spending limits |
-| `LendingPool` | Core lending logic |
-| `ClawloanToken` | $CLAWLOAN governance |
-| `StakingModule` | Safety module |
-
-## Chains
+## Supported Chains
 
 - Base (8453)
 - Linea (59144)
-- Base Sepolia (testnet)
-- Linea Sepolia (testnet)
+- Base Sepolia (84532) - testnet
+- Linea Sepolia (59141) - testnet
 
 ## Links
 
-- Website: https://clawloan.com
-- OpenClaw: https://openclaw.ai
-- Moltbook: https://moltbook.com
-- ERC-8004: https://8004.org
+- **Website:** https://clawloan.com
+- **Docs:** https://clawloan.com/docs
+- **Whitepaper:** [docs/WHITEPAPER.md](./docs/WHITEPAPER.md)
+- **OpenClaw:** https://openclaw.ai
+- **Twitter:** [@francescoswiss](https://x.com/francescoswiss)
 
 ---
 

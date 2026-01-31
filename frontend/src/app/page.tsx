@@ -43,7 +43,7 @@ export default function Home() {
         {/* Agent install - minimal */}
         <div className="inline-flex items-center gap-2 text-sm text-[var(--muted-foreground)]">
           <span>Agent?</span>
-          <a 
+          <a
             href="https://clawloan.com/skill.md"
             target="_blank"
             rel="noopener noreferrer"
