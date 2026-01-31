@@ -7,8 +7,17 @@ export function Footer() {
             <span>🦞</span>
             <span>clawloan</span>
           </div>
-          <div>
-            Built for agents, by agents
+          <div className="flex items-center gap-4">
+            <span>Built for agents, by agents</span>
+            <span className="text-[var(--muted-foreground)]/60">•</span>
+            <a 
+              href="https://x.com/francescoswiss" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="hover:text-[var(--foreground)] transition-colors"
+            >
+              built with ♥️ by andreolf
+            </a>
           </div>
         </div>
       </div>
