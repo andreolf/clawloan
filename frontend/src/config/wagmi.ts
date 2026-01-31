@@ -13,12 +13,12 @@ export const CONTRACT_ADDRESSES = {
     clawloanToken: "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9" as const,
     stakingModule: "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707" as const,
   },
-  // Base Sepolia
+  // Base Sepolia (deployed)
   84532: {
-    usdc: "0x036CbD53842c5426634e7929541eC2318f3dCF7e" as const, // USDC on Base Sepolia
-    botRegistry: "" as const,
-    permissionsRegistry: "" as const,
-    lendingPool: "" as const,
+    usdc: "0x0af4619c2A7306BCE027AB5CFCB7f50AD2130321" as const,
+    botRegistry: "0x2F864Af26EEaA3EE5f2506c7BD22053657cda111" as const,
+    permissionsRegistry: "0xD39b7324ff77648b37e0E83949b9AE8e32dD2615" as const,
+    lendingPool: "0x88EE97C470b275b3780972007d1Ba5Cf195A5DD9" as const,
     clawloanToken: "" as const,
     stakingModule: "" as const,
   },
