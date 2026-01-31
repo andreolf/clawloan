@@ -71,23 +71,30 @@ export default function AdminDashboard() {
   const fetchData = async () => {
     try {
       const [statsRes, loansRes, botsRes, healthRes] = await Promise.all([
-        fetch("/api/stats"),
-        fetch("/api/loans"),
-        fetch("/api/bots"),
-        fetch("/api/health"),
+        fetch("/api/stats").catch(() => null),
+        fetch("/api/loans").catch(() => null),
+        fetch("/api/bots").catch(() => null),
+        fetch("/api/health").catch(() => null),
       ]);
 
-      const [statsData, loansData, botsData, healthData] = await Promise.all([
-        statsRes.json(),
-        loansRes.json(),
-        botsRes.json(),
-        healthRes.json(),
-      ]);
-
-      setStats(statsData);
-      setLoans(loansData.loans || []);
-      setBots(botsData.bots || []);
-      setHealth(healthData);
+      if (statsRes?.ok) {
+        const statsData = await statsRes.json();
+        setStats(statsData);
+      }
+      if (loansRes?.ok) {
+        const loansData = await loansRes.json();
+        setLoans(loansData.loans || []);
+      }
+      if (botsRes?.ok) {
+        const botsData = await botsRes.json();
+        setBots(botsData.bots || []);
+      }
+      if (healthRes?.ok) {
+        const healthData = await healthRes.json();
+        setHealth(healthData);
+      } else {
+        setHealth({ status: "unhealthy", latency: "N/A", database: "error" });
+      }
       setLastRefresh(new Date());
     } catch (error) {
       console.error("Failed to fetch data:", error);
