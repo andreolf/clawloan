@@ -1,0 +1,103 @@
+// Prisma schema for Moltloan
+// Bot-native money market for AI agents
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Bot - AI agent identity
+model Bot {
+  id              String   @id @default(cuid())
+  onchainId       Int?     @unique // ID from BotRegistry contract
+  name            String
+  description     String?
+  tags            String   // JSON array of capability tags
+  operatorAddress String
+  metadataHash    String?  // IPFS hash to full profile
+  active          Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  loans       Loan[]
+  permissions Permission?
+  usages      Usage[]
+
+  @@index([operatorAddress])
+}
+
+// Loan - Active borrowing position
+model Loan {
+  id              String   @id @default(cuid())
+  botId           String
+  bot             Bot      @relation(fields: [botId], references: [id])
+  principal       String   // BigInt as string (78 digits max)
+  interestIndex   String   // BigInt as string
+  startTime       DateTime
+  lastAccruedTime DateTime
+  status          String   @default("ACTIVE") // ACTIVE, REPAID, LIQUIDATED
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([botId])
+  @@index([status])
+}
+
+// Deposit - Liquidity provider position
+model Deposit {
+  id            String   @id @default(cuid())
+  lenderAddress String
+  amount        String   // BigInt as string
+  shares        String   // BigInt as string
+  rewardDebt    String   @default("0") // For reward tracking
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([lenderAddress])
+}
+
+// Permission - ERC-8004 aligned permissions (offchain for MVP)
+model Permission {
+  id              String    @id @default(cuid())
+  botId           String    @unique
+  bot             Bot       @relation(fields: [botId], references: [id])
+  permissionsHash String    // Hash stored onchain
+  permissionsJson String    // Full permission scope JSON
+  maxSpend        String    // BigInt as string
+  expiry          DateTime?
+  status          String    @default("ACTIVE") // ACTIVE, REVOKED, EXPIRED
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+// Usage - x402 pay-per-call tracking
+model Usage {
+  id         String    @id @default(cuid())
+  botId      String
+  bot        Bot       @relation(fields: [botId], references: [id])
+  endpoint   String
+  calls      Int       @default(0)
+  totalOwed  String    @default("0") // BigInt as string
+  lastCallAt DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@unique([botId, endpoint])
+  @@index([botId])
+}
+
+// PoolStats - Cached pool statistics
+model PoolStats {
+  id            String   @id @default("main")
+  totalDeposits String   @default("0")
+  totalBorrows  String   @default("0")
+  totalShares   String   @default("0")
+  borrowIndex   String   @default("1000000000000000000000000000") // 1e27 (RAY)
+  rewardPool    String   @default("0")
+  rewardIndex   String   @default("0")
+  lastUpdated   DateTime @default(now())
+}
