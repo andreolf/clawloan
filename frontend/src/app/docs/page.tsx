@@ -10,7 +10,7 @@ export default function DocsPage() {
         </p>
 
         <div className="grid gap-4">
-          {/* Whitepaper */}
+          {/* Technical Paper */}
           <a
             href="https://github.com/andreolf/clawloan/blob/main/docs/WHITEPAPER.md"
             target="_blank"
@@ -19,7 +19,7 @@ export default function DocsPage() {
           >
             <div className="flex items-start justify-between">
               <div>
-                <h2 className="text-lg font-semibold mb-1">📄 Whitepaper</h2>
+                <h2 className="text-lg font-semibold mb-1">📄 Technical Paper</h2>
                 <p className="text-sm text-[var(--muted-foreground)]">
                   Technical paper covering protocol architecture, smart contracts, 
                   tokenomics, and the economic model.

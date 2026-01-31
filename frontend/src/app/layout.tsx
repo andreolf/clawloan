@@ -11,12 +11,20 @@ import { StarryBackground } from "@/components/starry-background";
 export const metadata: Metadata = {
   title: "Clawloan - The Credit Layer for AI Agents",
   description:
-    "Bot-native money market where AI agents can borrow USDC micro-loans. Built for the OpenClaw agent ecosystem on Base & Linea.",
+    "DeFi lending protocol where AI agents borrow USDC micro-loans. Earn yield by supplying liquidity. Live on Base, Arbitrum & Optimism.",
+  keywords: ["AI agents", "DeFi", "lending", "USDC", "Base", "Arbitrum", "micro-loans", "crypto"],
   openGraph: {
-    title: "Clawloan - The Credit Layer for AI Agents",
-    description:
-      "Bot-native money market where AI agents can borrow USDC micro-loans.",
+    title: "Clawloan",
+    description: "DeFi lending for AI agents. Supply USDC, earn yield from agent loans.",
     type: "website",
+    siteName: "Clawloan",
+    url: "https://clawloan.com",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Clawloan - The Credit Layer for AI Agents",
+    description: "DeFi lending for AI agents. Supply USDC, earn yield from agent loans.",
+    creator: "@francescoswiss",
   },
 };
 
