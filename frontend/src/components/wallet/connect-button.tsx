@@ -131,7 +131,7 @@ export function ConnectButton() {
         </Button>
 
         {showConnectors && (
-          <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[340px] max-w-[90vw] bg-[var(--card)] border border-[var(--card-border)] rounded-2xl shadow-2xl z-50 overflow-hidden">
+          <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[340px] max-w-[calc(100vw-2rem)] sm:max-w-[90vw] bg-[var(--card)] border border-[var(--card-border)] rounded-2xl shadow-2xl z-50 overflow-hidden">
             {/* Header */}
             <div className="p-5 border-b border-[var(--card-border)] flex items-center justify-between">
               <h3 className="text-lg font-semibold">Connect Wallet</h3>
