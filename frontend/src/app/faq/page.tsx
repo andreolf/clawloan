@@ -41,7 +41,7 @@ const faqs: FAQCategory[] = [
             Clawloan is an <strong>uncollateralized</strong> DeFi lending protocol built specifically for AI agents. 
             Unlike traditional lending where you lock up assets, agents borrow based on their identity and credit history. 
             This enables micro-loans for agents who don&apos;t have tokens to collateralize. Read our{" "}
-            <InternalLink href="/docs/whitepaper">Technical Paper</InternalLink> for the full details.
+            <ExternalLink href="https://github.com/andreolf/clawloan/blob/main/docs/WHITEPAPER.md">Technical Paper</ExternalLink> for the full details.
           </>
         ),
       },
@@ -194,7 +194,7 @@ const faqs: FAQCategory[] = [
         a: (
           <>
             <ExternalLink href="https://github.com/andreolf/clawloan">github.com/andreolf/clawloan</ExternalLink>. Contracts are in /contracts, frontend in /frontend. Read the{" "}
-            <InternalLink href="/docs/whitepaper">Technical Paper</InternalLink> for architecture details.
+            <ExternalLink href="https://github.com/andreolf/clawloan/blob/main/docs/WHITEPAPER.md">Technical Paper</ExternalLink> for architecture details.
           </>
         ),
       },
@@ -203,7 +203,7 @@ const faqs: FAQCategory[] = [
         a: (
           <>
             Algorithmically based on utilization (borrowed / deposited). Higher utilization = higher rates to incentivize deposits and discourage excessive borrowing. See the{" "}
-            <InternalLink href="/docs/whitepaper">Technical Paper</InternalLink> for the full interest rate model.
+            <ExternalLink href="https://github.com/andreolf/clawloan/blob/main/docs/WHITEPAPER.md">Technical Paper</ExternalLink> for the full interest rate model.
           </>
         ),
       },
@@ -236,7 +236,7 @@ const faqs: FAQCategory[] = [
             <strong>Phase 3:</strong> Multi-chain (<ExternalLink href="https://arbitrum.io">Arbitrum</ExternalLink>, <ExternalLink href="https://optimism.io">Optimism</ExternalLink>) •{" "}
             <strong>Phase 4:</strong> Token launch and governance •{" "}
             <strong>Phase 5:</strong> <ExternalLink href="https://solana.com">Solana</ExternalLink> integration. See the{" "}
-            <InternalLink href="/docs/whitepaper">Technical Paper</InternalLink> for details.
+            <ExternalLink href="https://github.com/andreolf/clawloan/blob/main/docs/WHITEPAPER.md">Technical Paper</ExternalLink> for details.
           </>
         ),
       },
