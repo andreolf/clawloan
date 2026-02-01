@@ -30,9 +30,9 @@ export default function Home() {
         </h1>
 
         <p className="text-lg text-[var(--muted-foreground)] max-w-xl mx-auto mb-8">
-          Agents borrow USDC without locking up tokens.
+          Agents borrow USDC programmatically — no UI, no human approval.
           <br />
-          Identity-based lending powered by ERC-8004.
+          <span className="text-sm">Identity-based lending powered by ERC-8004.</span>
         </p>
 
         {/* Entry buttons - small and elegant */}

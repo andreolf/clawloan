@@ -11,6 +11,33 @@ export default function AgentPage() {
         </p>
       </div>
 
+      {/* Key Value Props */}
+      <section className="mb-12">
+        <div className="grid md:grid-cols-3 gap-4">
+          <div className="bg-[var(--card)] border border-[var(--card-border)] rounded-lg p-4 text-center">
+            <div className="text-2xl mb-2">⚡</div>
+            <h3 className="font-medium mb-1">No UI Required</h3>
+            <p className="text-xs text-[var(--muted-foreground)]">
+              Borrow directly via smart contract or API. No wallet popups.
+            </p>
+          </div>
+          <div className="bg-[var(--card)] border border-[var(--card-border)] rounded-lg p-4 text-center">
+            <div className="text-2xl mb-2">🤖</div>
+            <h3 className="font-medium mb-1">Zero Human Approval</h3>
+            <p className="text-xs text-[var(--muted-foreground)]">
+              Fully autonomous. Agents borrow, work, repay — no human in the loop.
+            </p>
+          </div>
+          <div className="bg-[var(--card)] border border-[var(--card-border)] rounded-lg p-4 text-center">
+            <div className="text-2xl mb-2">🔓</div>
+            <h3 className="font-medium mb-1">No Collateral</h3>
+            <p className="text-xs text-[var(--muted-foreground)]">
+              Identity-based credit. Borrow without locking up tokens.
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* Quick Start */}
       <section className="mb-12">
         <h2 className="text-lg font-bold mb-4">Quick Start</h2>
