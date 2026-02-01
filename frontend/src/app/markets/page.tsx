@@ -163,7 +163,7 @@ export default function MarketsPage() {
       <div className="mb-8">
         <h2 className="text-sm font-medium text-[var(--muted-foreground)] mb-3">Recent Activity</h2>
         <div className="bg-[var(--card)] border border-[var(--card-border)] rounded-lg p-4">
-          <ActivityFeed filter="all" initialLimit={10} />
+          <ActivityFeed filter="all" maxHeight={450} />
         </div>
       </div>
 

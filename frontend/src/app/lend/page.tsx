@@ -444,7 +444,7 @@ export default function LendPage() {
           <h2 className="font-medium">Recent Activity</h2>
           <span className="text-xs text-[var(--muted-foreground)]">All chains</span>
         </div>
-        <ActivityFeed filter="supply" initialLimit={8} />
+        <ActivityFeed filter="supply" maxHeight={350} />
       </div>
 
       {/* Info */}

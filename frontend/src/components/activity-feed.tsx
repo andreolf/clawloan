@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { createPublicClient, http, formatUnits } from "viem";
 import { base, arbitrum, optimism } from "viem/chains";
 import { getLendingPoolAddress } from "@/config/wagmi";
@@ -59,18 +59,28 @@ function decodeAmount(data: string, offset: number = 0): bigint {
 
 export function ActivityFeed({ 
   filter = "all",
-  initialLimit = 10,
+  maxHeight = 400,
 }: { 
   filter?: "all" | "supply" | "borrow";
-  initialLimit?: number;
+  maxHeight?: number;
 }) {
-  const [allEvents, setAllEvents] = useState<ActivityEvent[]>([]);
-  const [visibleCount, setVisibleCount] = useState(initialLimit);
+  const [events, setEvents] = useState<ActivityEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [canScrollDown, setCanScrollDown] = useState(false);
+  const scrollRef = React.useRef<HTMLDivElement>(null);
 
-  const events = allEvents.slice(0, visibleCount);
-  const hasMore = allEvents.length > visibleCount;
+  const checkScroll = () => {
+    if (scrollRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
+      setCanScrollDown(scrollTop + clientHeight < scrollHeight - 10);
+    }
+  };
+
+  // Check scroll state after events load
+  useEffect(() => {
+    setTimeout(checkScroll, 100);
+  }, [events]);
 
   useEffect(() => {
     async function fetchAllChains() {
@@ -183,7 +193,7 @@ export function ActivityFeed({
         
         // Sort by timestamp descending (most recent first)
         fetchedEvents.sort((a, b) => b.timestamp - a.timestamp);
-        setAllEvents(fetchedEvents);
+        setEvents(fetchedEvents);
       } catch (err) {
         console.error("Error fetching events:", err);
         setError("Failed to load");
@@ -250,54 +260,63 @@ export function ActivityFeed({
   }
 
   return (
-    <div className="space-y-2">
-      {events.map((event, i) => (
-        <a
-          key={`${event.txHash}-${i}`}
-          href={`${event.explorer}/tx/${event.txHash}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center justify-between py-2 px-3 rounded hover:bg-[var(--muted)]/30 transition-colors text-sm group"
-        >
-          <div className="flex items-center gap-3">
-            <span className="text-base">{getEventIcon(event.type)}</span>
-            <div>
-              <span className={`font-medium ${getEventColor(event.type)}`}>
-                {getEventLabel(event.type)}
-              </span>
-              <span className="text-[var(--muted-foreground)] ml-2">
-                ${Number(event.amount).toLocaleString(undefined, { maximumFractionDigits: 2 })}
-              </span>
-              {event.botId && (
-                <span className="text-[var(--muted-foreground)] text-xs ml-2">
-                  Bot #{event.botId}
+    <div className="relative">
+      <div 
+        ref={scrollRef}
+        onScroll={checkScroll}
+        className="space-y-2 overflow-y-auto scrollbar-thin scrollbar-thumb-[var(--muted)] scrollbar-track-transparent"
+        style={{ maxHeight: `${maxHeight}px` }}
+      >
+        {events.map((event, i) => (
+          <a
+            key={`${event.txHash}-${i}`}
+            href={`${event.explorer}/tx/${event.txHash}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-between py-2 px-3 rounded hover:bg-[var(--muted)]/30 transition-colors text-sm group"
+          >
+            <div className="flex items-center gap-3">
+              <span className="text-base">{getEventIcon(event.type)}</span>
+              <div>
+                <span className={`font-medium ${getEventColor(event.type)}`}>
+                  {getEventLabel(event.type)}
                 </span>
-              )}
+                <span className="text-[var(--muted-foreground)] ml-2">
+                  ${Number(event.amount).toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                </span>
+                {event.botId && (
+                  <span className="text-[var(--muted-foreground)] text-xs ml-2">
+                    Bot #{event.botId}
+                  </span>
+                )}
+              </div>
             </div>
-          </div>
-          <div className="flex items-center gap-2 text-xs text-[var(--muted-foreground)]">
-            <span title={event.chainName}>{event.chainIcon}</span>
-            <span 
-              title={event.isAgent ? "Agent" : "Human"} 
-              className={event.isAgent ? "text-blue-400" : "text-orange-400"}
-            >
-              {event.isAgent ? "🤖" : "👤"}
-            </span>
-            {event.address && (
-              <span className="hidden sm:inline">{shortenAddress(event.address)}</span>
-            )}
-            <span>{timeAgo(event.timestamp)}</span>
-            <span className="opacity-0 group-hover:opacity-100">↗</span>
-          </div>
-        </a>
-      ))}
-      {hasMore && (
-        <button
-          onClick={() => setVisibleCount((prev) => prev + 10)}
-          className="w-full py-2 text-sm text-[var(--primary)] hover:underline"
-        >
-          Show more ({allEvents.length - visibleCount} remaining)
-        </button>
+            <div className="flex items-center gap-2 text-xs text-[var(--muted-foreground)]">
+              <span title={event.chainName}>{event.chainIcon}</span>
+              <span 
+                title={event.isAgent ? "Agent" : "Human"} 
+                className={event.isAgent ? "text-blue-400" : "text-orange-400"}
+              >
+                {event.isAgent ? "🤖" : "👤"}
+              </span>
+              {event.address && (
+                <span className="hidden sm:inline">{shortenAddress(event.address)}</span>
+              )}
+              <span>{timeAgo(event.timestamp)}</span>
+              <span className="opacity-0 group-hover:opacity-100">↗</span>
+            </div>
+          </a>
+        ))}
+      </div>
+      {canScrollDown && (
+        <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-[var(--card)] to-transparent pointer-events-none flex items-end justify-center pb-1">
+          <span className="text-xs text-[var(--muted-foreground)] animate-bounce">↓ scroll</span>
+        </div>
+      )}
+      {events.length > 5 && (
+        <div className="text-center pt-2 text-xs text-[var(--muted-foreground)]">
+          {events.length} total events
+        </div>
       )}
     </div>
   );
