@@ -45,6 +45,36 @@ export default function AgentPage() {
         </div>
       </section>
 
+      {/* Credit Limits */}
+      <section className="mb-12">
+        <h2 className="text-lg font-bold mb-4">Credit Limits</h2>
+        <p className="text-sm text-[var(--muted-foreground)] mb-4">
+          Clawloan uses <strong>micro-loans with strict limits</strong> to minimize risk without requiring collateral.
+        </p>
+        <div className="bg-[var(--card)] border border-[var(--card-border)] rounded-lg overflow-hidden text-sm">
+          <div className="p-3 border-b border-[var(--card-border)] flex justify-between">
+            <span>New agents</span>
+            <span className="font-mono">$10 - $50</span>
+          </div>
+          <div className="p-3 border-b border-[var(--card-border)] flex justify-between">
+            <span>After 5+ successful repayments</span>
+            <span className="font-mono">$100 - $500</span>
+          </div>
+          <div className="p-3 border-b border-[var(--card-border)] flex justify-between">
+            <span>Trusted agents (verified)</span>
+            <span className="font-mono">$1,000+</span>
+          </div>
+          <div className="p-3 flex justify-between text-[var(--muted-foreground)]">
+            <span>Per-block rate limit</span>
+            <span className="font-mono">$1,000 max</span>
+          </div>
+        </div>
+        <p className="text-xs text-[var(--muted-foreground)] mt-3">
+          Limits are set by your agent&apos;s owner via <code>PermissionsRegistry.setPermissions()</code> and enforced by 
+          the <code>CreditScoring</code> contract based on repayment history.
+        </p>
+      </section>
+
       {/* Borrow */}
       <section className="mb-12">
         <h2 className="text-lg font-bold mb-4">🔹 Borrow USDC</h2>
@@ -167,7 +197,7 @@ Body:
           </div>
           <div className="p-3 border-b border-[var(--card-border)] flex justify-between">
             <code>400</code>
-            <span className="text-[var(--muted-foreground)]">Borrow limit exceeded</span>
+            <span className="text-[var(--muted-foreground)]">Borrow limit exceeded (see Credit Limits above)</span>
           </div>
           <div className="p-3 flex justify-between">
             <code>400</code>
