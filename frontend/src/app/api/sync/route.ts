@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 import { createPublicClient, http, formatUnits } from "viem";
-import { baseSepolia } from "viem/chains";
+import { base } from "viem/chains";
 import { prisma } from "@/lib/prisma";
 
-// Contract addresses on Base Sepolia
-const LENDING_POOL = "0x88EE97C470b275b3780972007d1Ba5Cf195A5DD9";
+// Contract addresses on Base Mainnet
+const LENDING_POOL = "0x8a184719997F77Ac315e08dCeDE74E3a9C19bd09";
 
 // Minimal ABI for reading pool state
 const LENDING_POOL_ABI = [
@@ -45,10 +45,10 @@ const LENDING_POOL_ABI = [
   },
 ] as const;
 
-// Create viem client for Base Sepolia
+// Create viem client for Base Mainnet
 const client = createPublicClient({
-  chain: baseSepolia,
-  transport: http("https://sepolia.base.org"),
+  chain: base,
+  transport: http("https://mainnet.base.org"),
 });
 
 export async function GET() {
