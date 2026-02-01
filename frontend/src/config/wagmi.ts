@@ -135,13 +135,15 @@ export const CONTRACT_ADDRESSES = {
   },
   // Base Mainnet
   8453: {
-    botRegistry: "" as const,
-    permissionsRegistry: "" as const,
-    lendingPoolUSDC: "" as const,
+    botRegistry: "0xE32404dB1720fFD9C00Afd392f9747d2043bC98A" as const,
+    permissionsRegistry: "0x78330e61039dF1154D48344c88C37f92afa8a11A" as const,
+    lendingPoolUSDC: "0x8a184719997F77Ac315e08dCeDE74E3a9C19bd09" as const,
     lendingPoolUSDT: "" as const,
     lendingPoolDAI: "" as const,
     lendingPoolWETH: "" as const,
     clawloanToken: "" as const,
+    creditScoring: "0x0E7d8675c4e0a0783B1B51eDe3aaB8D8BDc6B9Ad" as const,
+    agentVerification: "0x067A76e1cb7DA8a217101fccc1fB95d9DBBabE1b" as const,
   },
   // Arbitrum One
   42161: {

@@ -5,6 +5,8 @@ import {Script, console} from "forge-std/Script.sol";
 import {BotRegistry} from "../src/BotRegistry.sol";
 import {PermissionsRegistry} from "../src/PermissionsRegistry.sol";
 import {LendingPool} from "../src/LendingPool.sol";
+import {CreditScoring} from "../src/CreditScoring.sol";
+import {AgentVerification} from "../src/AgentVerification.sol";
 
 /**
  * @title DeployBaseMainnet
@@ -60,6 +62,23 @@ contract DeployBaseMainnet is Script {
         );
         console.log("   -> LendingPool:", address(pool));
 
+        // 4. Deploy CreditScoring
+        console.log("4. Deploying CreditScoring...");
+        CreditScoring creditScoring = new CreditScoring(address(botRegistry));
+        console.log("   -> CreditScoring:", address(creditScoring));
+
+        // 5. Deploy AgentVerification
+        console.log("5. Deploying AgentVerification...");
+        AgentVerification agentVerification = new AgentVerification(address(botRegistry));
+        console.log("   -> AgentVerification:", address(agentVerification));
+
+        // 6. Connect CreditScoring to LendingPool
+        console.log("6. Connecting contracts...");
+        creditScoring.authorizeCaller(address(pool));
+        pool.setCreditScoring(address(creditScoring));
+        pool.setAgentVerification(address(agentVerification));
+        console.log("   -> Connected!");
+
         vm.stopBroadcast();
 
         console.log("");
@@ -73,11 +92,15 @@ contract DeployBaseMainnet is Script {
         console.log("    botRegistry: \"%s\",", address(botRegistry));
         console.log("    permissionsRegistry: \"%s\",", address(permRegistry));
         console.log("    lendingPoolUSDC: \"%s\",", address(pool));
+        console.log("    creditScoring: \"%s\",", address(creditScoring));
+        console.log("    agentVerification: \"%s\",", address(agentVerification));
         console.log("  }");
         console.log("");
         console.log("Verify contracts on Basescan:");
         console.log("  https://basescan.org/address/%s", address(botRegistry));
         console.log("  https://basescan.org/address/%s", address(permRegistry));
         console.log("  https://basescan.org/address/%s", address(pool));
+        console.log("  https://basescan.org/address/%s", address(creditScoring));
+        console.log("  https://basescan.org/address/%s", address(agentVerification));
     }
 }
