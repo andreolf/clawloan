@@ -125,25 +125,110 @@ function borrow(uint256 botId, uint256 amount) external {
 
 ### 3.3 Interest Rate Model
 
-Clawloan uses a utilization-based interest rate model inspired by Aave V3:
+Clawloan uses a **utilization-based interest rate model** inspired by Aave V3. This creates a self-balancing market where rates automatically adjust to supply and demand.
+
+#### Parameters
+
+| Parameter | Value | Purpose |
+|-----------|-------|---------|
+| Base Rate | 2% | Minimum borrow rate (floor) |
+| Slope 1 | 4% | Gradual increase below optimal |
+| Slope 2 | 75% | Steep increase above optimal |
+| Optimal Utilization | 80% | Target utilization ratio |
+| Reserve Factor | 5% | Protocol cut from interest |
+
+#### Borrow APR Formula
 
 ```
-Base Rate: 2%
-Optimal Utilization: 80%
-Slope 1 (below optimal): 4%
-Slope 2 (above optimal): 75%
+Utilization = Total Borrows / Total Deposits
+
+If utilization ≤ 80%:
+    Borrow Rate = 2% + 4% × (utilization / 80%)
+
+If utilization > 80%:
+    Borrow Rate = 6% + 75% × ((utilization - 80%) / 20%)
 ```
 
-**Interest Rate Formula:**
+#### Borrow Rate Curve
 
 ```
-if utilization <= optimal:
-    rate = baseRate + (utilization / optimal) × slope1
-else:
-    rate = baseRate + slope1 + ((utilization - optimal) / (1 - optimal)) × slope2
+  Borrow APR (%)
+       │
+   81% ┤                                        ●
+       │                                      ╱
+   60% ┤                                    ╱
+       │                                  ╱
+   40% ┤                                ╱
+       │                              ╱
+   20% ┤                           ╱
+       │                        ╱
+    6% ┤─────────────────────●
+    4% ┤───────────●
+    2% ┤●
+       │
+       └──────────────────────────────────────────▶
+       0%   20%   40%   60%   80%  90%  100%
+                    Utilization
+                           │
+                     Optimal (80%)
 ```
 
-This incentivizes liquidity provision when utilization is high while keeping rates low during normal operation.
+**Key insight:** Below 80% utilization, rates rise gently (2% → 6%). Above 80%, rates spike steeply (6% → 81%) to:
+1. Discourage excessive borrowing when liquidity is scarce
+2. Incentivize new deposits with high yields
+3. Encourage borrowers to repay quickly
+
+#### Supply APY Formula
+
+Suppliers only earn on **utilized capital**:
+
+```
+Supply APY = Borrow APR × Utilization × (1 - Reserve Factor)
+```
+
+**Example calculations:**
+
+| Utilization | Borrow APR | Supply APY |
+|-------------|------------|------------|
+| 20% | 3.0% | 0.57% |
+| 40% | 4.0% | 1.52% |
+| 60% | 5.0% | 2.85% |
+| 80% | 6.0% | 4.56% |
+| 90% | 43.5% | 37.20% |
+| 100% | 81.0% | 76.95% |
+
+#### Supply Rate Curve
+
+```
+  Supply APY (%)
+       │
+   77% ┤                                        ●
+       │                                      ╱
+   50% ┤                                    ╱
+       │                                  ╱
+   37% ┤                               ●
+       │                             ╱
+   10% ┤                          ╱
+    5% ┤─────────────────────●
+    3% ┤───────────●
+    1% ┤●
+       │
+       └──────────────────────────────────────────▶
+       0%   20%   40%   60%   80%  90%  100%
+                    Utilization
+```
+
+#### Why This Design?
+
+| Goal | Mechanism |
+|------|-----------|
+| **Liquidity safety** | Steep rates above 80% prevent bank runs |
+| **Capital efficiency** | Low rates at low utilization attract borrowers |
+| **Fair yield** | Suppliers earn proportionally to utilization |
+| **Protocol sustainability** | 5% reserve factor funds operations |
+| **No governance needed** | Rates auto-adjust in real-time |
+
+The model ensures the pool never fully depletes while maximizing capital efficiency during normal operation.
 
 ### 3.4 Repayment
 
