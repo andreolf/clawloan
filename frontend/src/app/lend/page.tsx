@@ -18,6 +18,7 @@ export default function LendPage() {
   const { isConnected, address } = useAccount();
   const chainId = useChainId();
   const [amount, setAmount] = useState("");
+  const [withdrawAmount, setWithdrawAmount] = useState("");
   const [needsApproval, setNeedsApproval] = useState(true);
   const [selectedToken, setSelectedToken] = useState<TokenSymbol>("USDC");
 
@@ -144,6 +145,7 @@ export default function LendPage() {
       refetchPoolShares();
       refetchGlobalDeposits();
       refetchGlobalBorrows();
+      setWithdrawAmount("");
     }
   }, [isWithdrawSuccess, refetchUserDeposit, refetchPoolDeposits, refetchPoolShares, refetchGlobalDeposits, refetchGlobalBorrows]);
 
@@ -187,13 +189,26 @@ export default function LendPage() {
     });
   };
 
-  const handleWithdraw = () => {
+  const handleWithdraw = (withdrawAll: boolean = false) => {
     if (!lendingPoolAddress || !userShares) return;
+    
+    let sharesToWithdraw = userShares;
+    
+    if (!withdrawAll && withdrawAmount && poolTotalDeposits && poolTotalShares && poolTotalShares > 0n) {
+      // Convert USDC amount to shares: shares = amount * totalShares / totalDeposits
+      const amountWei = parseUnits(withdrawAmount, 6);
+      sharesToWithdraw = (amountWei * poolTotalShares) / poolTotalDeposits;
+      // Cap at user's total shares
+      if (sharesToWithdraw > userShares) {
+        sharesToWithdraw = userShares;
+      }
+    }
+    
     withdraw({
       address: lendingPoolAddress,
       abi: LENDING_POOL_ABI,
       functionName: "withdraw",
-      args: [userShares], // Withdraw all shares
+      args: [sharesToWithdraw],
     });
   };
 
@@ -369,17 +384,51 @@ export default function LendPage() {
                 </span>
               </div>
             </div>
-            <div className="flex gap-3 mt-4">
-              <Button
-                variant="outline"
-                size="sm"
-                className="flex-1"
-                onClick={handleWithdraw}
-                disabled={isWithdrawing || isWithdrawConfirming || !userShares || userShares === 0n}
-              >
-                {isWithdrawing || isWithdrawConfirming ? "Withdrawing..." : "Withdraw All"}
-              </Button>
-            </div>
+            
+            {/* Withdraw Section */}
+            {userShares && userShares > 0n && (
+              <div className="mt-4 pt-4 border-t border-[var(--card-border)]">
+                <h3 className="text-sm font-medium mb-3">Withdraw</h3>
+                <div className="relative mb-3">
+                  <input
+                    type="number"
+                    placeholder="0.00"
+                    value={withdrawAmount}
+                    onChange={(e) => setWithdrawAmount(e.target.value)}
+                    className="w-full bg-[var(--background)] border border-[var(--border)] rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[var(--ring)]"
+                  />
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                    <span className="text-xs text-[var(--muted-foreground)]">USDC</span>
+                    <button
+                      onClick={() => setWithdrawAmount(deposited)}
+                      className="text-xs text-[var(--primary)] hover:underline"
+                    >
+                      MAX
+                    </button>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex-1"
+                    onClick={() => handleWithdraw(false)}
+                    disabled={isWithdrawing || isWithdrawConfirming || !withdrawAmount || Number(withdrawAmount) <= 0}
+                  >
+                    {isWithdrawing || isWithdrawConfirming ? "Withdrawing..." : "Withdraw"}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleWithdraw(true)}
+                    disabled={isWithdrawing || isWithdrawConfirming}
+                  >
+                    All
+                  </Button>
+                </div>
+              </div>
+            )}
+            
             {isWithdrawSuccess && (
               <p className="text-xs text-[var(--success)] mt-2 text-center">
                 ✓ Withdrawal successful!
