@@ -73,10 +73,12 @@ Open http://localhost:3000
 | `LendingPool.sol` | Core lending logic (deposit, borrow, repay) |
 | `BotRegistry.sol` | Agent identity (ERC-721) |
 | `PermissionsRegistry.sol` | ERC-8004 permission scopes |
-| `ClawloanToken.sol` | $CLAWLOAN governance token |
-| `StakingModule.sol` | Safety module for staking |
+| `CreditScoring.sol` | On-chain credit history |
+| `AgentVerification.sol` | Identity verification levels |
 | `LPIncentives.sol` | Early LP reward tracking |
 | `MockUSDC.sol` | Test USDC (6 decimals) |
+
+> ⚠️ **No Token:** There is no $CLAWLOAN token. Any tokens are scams. See [clawloan.com](https://clawloan.com) for official info.
 
 ## API Endpoints
 

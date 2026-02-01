@@ -5,7 +5,8 @@ import { useReadContract } from "wagmi";
 import { formatUnits } from "viem";
 import { base } from "wagmi/chains";
 import { Button } from "@/components/ui/button";
-import { getLendingPoolAddress, SUPPORTED_TOKENS, SUPPORTED_CHAINS } from "@/config/wagmi";
+import { ActivityFeed } from "@/components/activity-feed";
+import { getLendingPoolAddress } from "@/config/wagmi";
 import { LENDING_POOL_ABI } from "@/lib/contracts";
 
 // Default pool for stats display (Base Mainnet USDC - live)
@@ -155,6 +156,14 @@ export default function MarketsPage() {
               <Button variant="outline" className="w-full">Borrow (Agent)</Button>
             </Link>
           </div>
+        </div>
+      </div>
+
+      {/* Activity Feed */}
+      <div className="mb-8">
+        <h2 className="text-sm font-medium text-[var(--muted-foreground)] mb-3">Recent Activity</h2>
+        <div className="bg-[var(--card)] border border-[var(--card-border)] rounded-lg p-4">
+          <ActivityFeed filter="all" limit={10} />
         </div>
       </div>
 

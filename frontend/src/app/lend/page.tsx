@@ -6,6 +6,7 @@ import { parseUnits, formatUnits } from "viem";
 import { base } from "wagmi/chains";
 import { Button } from "@/components/ui/button";
 import { ConnectButton } from "@/components/wallet/connect-button";
+import { ActivityFeed } from "@/components/activity-feed";
 import { getTokenAddress, getLendingPoolAddress, SUPPORTED_TOKENS, type TokenSymbol } from "@/config/wagmi";
 import { USDC_ABI, LENDING_POOL_ABI } from "@/lib/contracts";
 
@@ -355,6 +356,15 @@ export default function LendPage() {
           </div>
         </div>
       )}
+
+      {/* Recent Activity */}
+      <div className="mt-8 bg-[var(--card)] border border-[var(--card-border)] rounded-lg p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="font-medium">Recent Activity</h2>
+          <span className="text-xs text-[var(--muted-foreground)]">Live on Base</span>
+        </div>
+        <ActivityFeed filter="supply" limit={8} />
+      </div>
 
       {/* Info */}
       <div className="mt-8 text-center">

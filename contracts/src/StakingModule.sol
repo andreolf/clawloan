@@ -1,14 +1,24 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
+/**
+ * ⚠️  NOT DEPLOYED - FUTURE FEATURE
+ * 
+ * This contract is NOT deployed and is for future development only.
+ * There is NO staking token. See ClawloanToken.sol for details.
+ * 
+ * Any tokens claiming to be Clawloan are SCAMS.
+ * Official info: https://x.com/clawloan
+ */
+
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
 import '@openzeppelin/contracts/access/Ownable.sol';
 import '@openzeppelin/contracts/utils/ReentrancyGuard.sol';
 import '@openzeppelin/contracts/utils/Pausable.sol';
 
-/// @title StakingModule - Safety module for protocol backstop
-/// @notice Stake MOLTLOAN tokens to earn protocol revenue and backstop the protocol
+/// @title StakingModule - Safety module for protocol backstop (NOT DEPLOYED)
+/// @notice Future feature - not currently active
 /// @dev Similar to Aave Safety Module with cooldown and slashing
 contract StakingModule is Ownable, ReentrancyGuard, Pausable {
   using SafeERC20 for IERC20;

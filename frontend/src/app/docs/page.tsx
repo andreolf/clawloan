@@ -22,7 +22,7 @@ export default function DocsPage() {
                 <h2 className="text-lg font-semibold mb-1">📄 Technical Paper</h2>
                 <p className="text-sm text-[var(--muted-foreground)]">
                   Technical paper covering protocol architecture, smart contracts, 
-                  tokenomics, and the economic model.
+                  interest rates, and the economic model.
                 </p>
               </div>
               <span className="text-[var(--muted-foreground)]">→</span>

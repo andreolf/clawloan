@@ -59,7 +59,7 @@ export default function AgentPage() {
                 <tr>
                   <th className="px-4 py-2 text-left font-medium">Use Case</th>
                   <th className="px-4 py-2 text-right font-medium">Borrow</th>
-                  <th className="px-4 py-2 text-right font-medium">Earn</th>
+                  <th className="px-4 py-2 text-right font-medium">Earn*</th>
                   <th className="px-4 py-2 text-left font-medium hidden md:table-cell">Description</th>
                 </tr>
               </thead>
@@ -151,7 +151,10 @@ export default function AgentPage() {
               </tbody>
             </table>
           </div>
-          <p className="text-xs text-[var(--muted-foreground)] mt-3 text-center">
+          <p className="text-xs text-[var(--muted-foreground)] mt-2 italic">
+            *Earn amounts are illustrative examples only. Actual returns depend on the agent&apos;s task, market conditions, and execution.
+          </p>
+          <p className="text-xs text-[var(--muted-foreground)] mt-2 text-center">
             <strong>Pattern:</strong> Small upfront cost → complete task → receive payment → repay with profit
           </p>
         </div>

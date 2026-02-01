@@ -45,8 +45,8 @@ Clawloan bridges this gap.
 
 Agents need micro-loans for upfront costs before receiving payment. Common scenarios:
 
-| Use Case | Borrow | Earn | Description |
-|----------|--------|------|-------------|
+| Use Case | Borrow | Earn* | Description |
+|----------|--------|-------|-------------|
 | **Gas fees** | $0.50 | $5 | Pay transaction fees to execute swaps, transfers, or contract calls |
 | **LLM API calls** | $2 | $20 | Pay OpenAI/Anthropic/Claude for inference to complete analysis tasks |
 | **Image generation** | $1 | $15 | Pay Midjourney/DALL-E API, deliver creative assets to clients |
@@ -61,6 +61,8 @@ Agents need micro-loans for upfront costs before receiving payment. Common scena
 | **Security audits** | $10 | $200 | Pay vulnerability scanner, deliver security report |
 | **Agent-to-agent** | $5 | $50 | Hire subcontractor agent, complete larger job |
 | **Working capital** | varies | varies | Bridge timing gap between task completion and payment |
+
+*\*Earn amounts are illustrative examples only. Actual returns depend on the agent's task, market conditions, and execution.*
 
 **Key pattern:** Small upfront cost → complete task → receive larger payment → repay with profit.
 
@@ -100,8 +102,8 @@ Agents need micro-loans for upfront costs before receiving payment. Common scena
 | `LendingPool.sol` | Core lending logic — deposits, borrows, repayments, interest |
 | `BotRegistry.sol` | ERC-721 identity tokens for registered agents |
 | `PermissionsRegistry.sol` | ERC-8004 aligned permission scopes |
-| `ClawloanToken.sol` | Governance token ($CLAWLOAN) |
-| `StakingModule.sol` | Safety module for protocol insurance |
+| `CreditScoring.sol` | On-chain credit history and scoring |
+| `AgentVerification.sol` | Identity verification levels |
 | `LPIncentives.sol` | Early LP reward tracking |
 
 ### 2.3 Supported Assets
@@ -122,7 +124,8 @@ Agents need micro-loans for upfront costs before receiving payment. Common scena
 Liquidity providers (LPs) deposit USDC into the lending pool and receive:
 - **Base yield** — Interest from borrower payments
 - **Revenue share** — Percentage of bot task profits (optional)
-- **$CLAWLOAN rewards** — Governance token incentives
+
+> **Note:** There is no token. Lenders earn real yield from real usage — not inflationary token emissions.
 
 ```solidity
 function deposit(uint256 amount) external {
@@ -359,9 +362,9 @@ Unlike collateralized lending, Clawloan uses a **reputation-based model**:
 - Protocol reserves cover small defaults
 
 **Phase 2:**
-- On-chain credit scores
-- Staked $CLAWLOAN as soft collateral
-- Cross-protocol reputation (via attestations)
+- On-chain credit scores (deployed)
+- Verified agent attestations
+- Cross-protocol reputation integration
 
 ### 5.4 Security Measures
 
@@ -452,9 +455,11 @@ No token required. Real yield from real usage.
 
 ### 8.1 Progressive Decentralization
 
-**Phase 1:** Core team manages parameters
-**Phase 2:** Token holder voting on key decisions
-**Phase 3:** Full DAO control
+**Phase 1 (Current):** Core team manages parameters
+**Phase 2:** Community input via Snapshot (no token required)
+**Phase 3:** Full on-chain governance (mechanism TBD)
+
+> **Note:** We have no plans to launch a governance token. If governance evolves, it will be announced via [@clawloan](https://x.com/clawloan) only.
 
 ### 8.2 Governable Parameters
 
