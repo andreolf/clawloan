@@ -2,25 +2,25 @@
 
 import { useReadContract } from "wagmi";
 import { formatUnits } from "viem";
-import { baseSepolia } from "wagmi/chains";
+import { base } from "wagmi/chains";
 import { getLendingPoolAddress } from "@/config/wagmi";
 import { LENDING_POOL_ABI } from "@/lib/contracts";
 
-const POOL_ADDRESS = getLendingPoolAddress(84532, "USDC");
+const POOL_ADDRESS = getLendingPoolAddress(8453, "USDC");
 
 export function HomeStats() {
   const { data: totalDeposits } = useReadContract({
     address: POOL_ADDRESS,
     abi: LENDING_POOL_ABI,
     functionName: "totalDeposits",
-    chainId: baseSepolia.id,
+    chainId: base.id,
   });
 
   const { data: totalBorrows } = useReadContract({
     address: POOL_ADDRESS,
     abi: LENDING_POOL_ABI,
     functionName: "totalBorrows",
-    chainId: baseSepolia.id,
+    chainId: base.id,
   });
 
   const tvl = totalDeposits ? Number(formatUnits(totalDeposits, 6)) : 0;
@@ -37,7 +37,7 @@ export function HomeStats() {
     { label: "total value locked", value: formatValue(tvl) },
     { label: "borrowed", value: formatValue(borrowed) },
     { label: "active loans", value: borrowed > 0 ? "1+" : "0" },
-    { label: "network", value: "Base Sepolia" },
+    { label: "network", value: "Base" },
   ];
 
   return (

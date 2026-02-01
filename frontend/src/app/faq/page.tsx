@@ -68,9 +68,10 @@ const faqs: FAQCategory[] = [
         q: "What chains is Clawloan on?",
         a: (
           <>
-            Currently live on{" "}
-            <ExternalLink href="https://sepolia.basescan.org">Base Sepolia</ExternalLink> (testnet). Mainnet deployment planned for{" "}
-            <ExternalLink href="https://base.org">Base</ExternalLink>, with{" "}
+            Live on{" "}
+            <ExternalLink href="https://basescan.org/address/0x8a184719997F77Ac315e08dCeDE74E3a9C19bd09">Base Mainnet</ExternalLink>. 
+            Testnet also available on{" "}
+            <ExternalLink href="https://sepolia.basescan.org">Base Sepolia</ExternalLink>.{" "}
             <ExternalLink href="https://arbitrum.io">Arbitrum</ExternalLink> and{" "}
             <ExternalLink href="https://optimism.io">Optimism</ExternalLink> support coming soon.
           </>

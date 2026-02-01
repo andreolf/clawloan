@@ -3,14 +3,14 @@
 import { useState, useEffect } from "react";
 import { useAccount, useChainId, useReadContract, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 import { parseUnits, formatUnits } from "viem";
-import { baseSepolia } from "wagmi/chains";
+import { base } from "wagmi/chains";
 import { Button } from "@/components/ui/button";
 import { ConnectButton } from "@/components/wallet/connect-button";
 import { getTokenAddress, getLendingPoolAddress, SUPPORTED_TOKENS, type TokenSymbol } from "@/config/wagmi";
 import { USDC_ABI, LENDING_POOL_ABI } from "@/lib/contracts";
 
-// Default pool for stats display (Base Sepolia USDC)
-const DEFAULT_CHAIN_ID = 84532;
+// Default pool for stats display (Base Mainnet USDC)
+const DEFAULT_CHAIN_ID = 8453;
 const DEFAULT_TOKEN: TokenSymbol = "USDC";
 
 export default function LendPage() {
@@ -45,14 +45,14 @@ export default function LendPage() {
     query: { enabled: !!address && !!usdcAddress && !!lendingPoolAddress },
   });
 
-  // Read pool stats (always from Base Sepolia for display when no wallet)
+  // Read pool stats (always from Base Mainnet for display when no wallet)
   const defaultPoolAddress = getLendingPoolAddress(DEFAULT_CHAIN_ID, DEFAULT_TOKEN);
   
   const { data: globalTotalDeposits, refetch: refetchGlobalDeposits } = useReadContract({
     address: defaultPoolAddress,
     abi: LENDING_POOL_ABI,
     functionName: "totalDeposits",
-    chainId: baseSepolia.id,
+    chainId: base.id,
     query: { enabled: !!defaultPoolAddress },
   });
 
@@ -60,7 +60,7 @@ export default function LendPage() {
     address: defaultPoolAddress,
     abi: LENDING_POOL_ABI,
     functionName: "totalBorrows",
-    chainId: baseSepolia.id,
+    chainId: base.id,
     query: { enabled: !!defaultPoolAddress },
   });
 
@@ -213,7 +213,7 @@ export default function LendPage() {
             </span>
             {!contractsDeployed && (
               <span className="text-[var(--danger)]">
-                → Switch to Base Sepolia
+                → Switch to Base
               </span>
             )}
           </div>
@@ -253,7 +253,7 @@ export default function LendPage() {
             Contracts not deployed on this network
           </p>
           <p className="text-xs text-[var(--muted-foreground)]">
-            Switch to Base Sepolia (testnet) to test
+            Switch to Base to use the live protocol
           </p>
         </div>
       ) : (
@@ -284,7 +284,7 @@ export default function LendPage() {
                 Balance: {Number(balance).toLocaleString()} USDC
                 {Number(balance) === 0 && (
                   <span className="text-[var(--warning)] ml-2">
-                    (Switch to Base Sepolia for test USDC)
+                    (Get USDC on Base to deposit)
                   </span>
                 )}
               </p>

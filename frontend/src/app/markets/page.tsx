@@ -3,13 +3,13 @@
 import Link from "next/link";
 import { useReadContract } from "wagmi";
 import { formatUnits } from "viem";
-import { baseSepolia } from "wagmi/chains";
+import { base } from "wagmi/chains";
 import { Button } from "@/components/ui/button";
 import { getLendingPoolAddress, SUPPORTED_TOKENS, SUPPORTED_CHAINS } from "@/config/wagmi";
 import { LENDING_POOL_ABI } from "@/lib/contracts";
 
-// Default pool for stats display (Base Sepolia USDC - live)
-const DEFAULT_CHAIN_ID = 84532;
+// Default pool for stats display (Base Mainnet USDC - live)
+const DEFAULT_CHAIN_ID = 8453;
 const POOL_ADDRESS = getLendingPoolAddress(DEFAULT_CHAIN_ID, "USDC");
 
 // Token info for display
@@ -30,12 +30,12 @@ const CHAINS = [
 ];
 
 export default function MarketsPage() {
-  // Read pool stats from Base Sepolia (live pool)
+  // Read pool stats from Base Mainnet (live pool)
   const { data: totalDeposits } = useReadContract({
     address: POOL_ADDRESS,
     abi: LENDING_POOL_ABI,
     functionName: "totalDeposits",
-    chainId: baseSepolia.id,
+    chainId: base.id,
     query: { enabled: !!POOL_ADDRESS },
   });
 
@@ -43,7 +43,7 @@ export default function MarketsPage() {
     address: POOL_ADDRESS,
     abi: LENDING_POOL_ABI,
     functionName: "totalBorrows",
-    chainId: baseSepolia.id,
+    chainId: base.id,
     query: { enabled: !!POOL_ADDRESS },
   });
 
@@ -51,7 +51,7 @@ export default function MarketsPage() {
     address: POOL_ADDRESS,
     abi: LENDING_POOL_ABI,
     functionName: "getSupplyRate",
-    chainId: baseSepolia.id,
+    chainId: base.id,
     query: { enabled: !!POOL_ADDRESS },
   });
 
@@ -59,7 +59,7 @@ export default function MarketsPage() {
     address: POOL_ADDRESS,
     abi: LENDING_POOL_ABI,
     functionName: "getBorrowRate",
-    chainId: baseSepolia.id,
+    chainId: base.id,
     query: { enabled: !!POOL_ADDRESS },
   });
 
@@ -99,7 +99,7 @@ export default function MarketsPage() {
               <span className="text-2xl">💵</span>
               <div>
                 <h2 className="font-bold">USDC</h2>
-                <p className="text-xs text-[var(--muted-foreground)]">Base Sepolia</p>
+                <p className="text-xs text-[var(--muted-foreground)]">Base Mainnet</p>
               </div>
             </div>
             <div className="flex items-center gap-2">

@@ -103,22 +103,29 @@ export function ChainSwitcher() {
             <p className="px-2 py-1.5 text-[10px] text-[var(--muted-foreground)] uppercase tracking-wider font-medium">
               Mainnets
             </p>
-            {availableChains.filter(c => !c.testnet).map(chain => (
-              <button
-                key={chain.id}
-                onClick={() => {
-                  switchChain?.({ chainId: chain.id });
-                  setIsOpen(false);
-                }}
-                className={`w-full flex items-center gap-3 px-3 py-2 text-sm rounded-md hover:bg-[var(--muted)] transition-colors whitespace-nowrap opacity-60 ${
-                  chain.id === chainId ? "bg-[var(--muted)]" : ""
-                }`}
-              >
-                <span className="text-base">{chain.icon}</span>
-                <span className="flex-1 text-left">{chain.name}</span>
-                <span className="text-[10px] text-[var(--muted-foreground)]">Soon</span>
-              </button>
-            ))}
+            {availableChains.filter(c => !c.testnet).map(chain => {
+              const isLive = chain.id === 8453; // Base Mainnet is live
+              return (
+                <button
+                  key={chain.id}
+                  onClick={() => {
+                    switchChain?.({ chainId: chain.id });
+                    setIsOpen(false);
+                  }}
+                  className={`w-full flex items-center gap-3 px-3 py-2 text-sm rounded-md hover:bg-[var(--muted)] transition-colors whitespace-nowrap ${
+                    !isLive ? "opacity-60" : ""
+                  } ${chain.id === chainId ? "bg-[var(--muted)]" : ""}`}
+                >
+                  <span className="text-base">{chain.icon}</span>
+                  <span className="flex-1 text-left">{chain.name}</span>
+                  {isLive ? (
+                    <span className="text-[10px] text-green-400 font-medium">● Live</span>
+                  ) : (
+                    <span className="text-[10px] text-[var(--muted-foreground)]">Soon</span>
+                  )}
+                </button>
+              );
+            })}
           </div>
         </div>
       )}
