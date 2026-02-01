@@ -1,4 +1,5 @@
 "use client";
+// v2 - simple dropdown, no modal
 
 import { useAccount, useConnect, useDisconnect } from "wagmi";
 import { Button } from "@/components/ui/button";
