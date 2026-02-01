@@ -159,13 +159,15 @@ export const CONTRACT_ADDRESSES = {
   },
   // Optimism
   10: {
-    botRegistry: "" as const,
-    permissionsRegistry: "" as const,
-    lendingPoolUSDC: "" as const,
+    botRegistry: "0xe19320FB36d07CCBC14b239453F36Ed958DeDEF0" as const,
+    permissionsRegistry: "0x57d5f1a10262274216545F27aD3309E5A00Ff698" as const,
+    lendingPoolUSDC: "0x8a184719997F77Ac315e08dCeDE74E3a9C19bd09" as const,
     lendingPoolUSDT: "" as const,
     lendingPoolDAI: "" as const,
     lendingPoolWETH: "" as const,
     clawloanToken: "" as const,
+    creditScoring: "0xE32404dB1720fFD9C00Afd392f9747d2043bC98A" as const,
+    agentVerification: "0x78330e61039dF1154D48344c88C37f92afa8a11A" as const,
   },
   // Linea Mainnet
   59144: {
