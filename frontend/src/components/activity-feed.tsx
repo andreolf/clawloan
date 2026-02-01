@@ -2,10 +2,15 @@
 
 import { useEffect, useState } from "react";
 import { createPublicClient, http, formatUnits } from "viem";
-import { base } from "viem/chains";
+import { base, arbitrum, optimism } from "viem/chains";
+import { useChainId } from "wagmi";
 import { getLendingPoolAddress } from "@/config/wagmi";
 
-const POOL_ADDRESS = getLendingPoolAddress(8453, "USDC");
+const CHAIN_CONFIG = {
+  8453: { chain: base, rpc: "https://mainnet.base.org", explorer: "https://basescan.org", blockTime: 2 },
+  42161: { chain: arbitrum, rpc: "https://arb1.arbitrum.io/rpc", explorer: "https://arbiscan.io", blockTime: 0.25 },
+  10: { chain: optimism, rpc: "https://mainnet.optimism.io", explorer: "https://optimistic.etherscan.io", blockTime: 2 },
+};
 
 type ActivityEvent = {
   type: "deposit" | "withdraw" | "borrow" | "repay";
@@ -29,10 +34,10 @@ function shortenAddress(addr: string) {
   return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
 }
 
-function blocksAgo(currentBlock: bigint, eventBlock: bigint) {
+function blocksAgo(currentBlock: bigint, eventBlock: bigint, blockTime: number = 2) {
   const diff = Number(currentBlock - eventBlock);
-  const seconds = diff * 2; // ~2s per block on Base
-  if (seconds < 60) return `${seconds}s ago`;
+  const seconds = diff * blockTime;
+  if (seconds < 60) return `${Math.round(seconds)}s ago`;
   if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
   if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
   return `${Math.floor(seconds / 86400)}d ago`;
@@ -55,20 +60,35 @@ export function ActivityFeed({
   filter?: "all" | "supply" | "borrow";
   limit?: number;
 }) {
+  const chainId = useChainId();
   const [events, setEvents] = useState<ActivityEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [explorerUrl, setExplorerUrl] = useState("https://basescan.org");
+  const [blockTime, setBlockTime] = useState(2);
 
   useEffect(() => {
     async function fetchEvents() {
-      if (!POOL_ADDRESS) {
+      const config = CHAIN_CONFIG[chainId as keyof typeof CHAIN_CONFIG];
+      if (!config) {
         setLoading(false);
+        setError("Chain not supported");
         return;
       }
 
+      const poolAddress = getLendingPoolAddress(chainId, "USDC");
+      if (!poolAddress) {
+        setLoading(false);
+        setError("No pool on this chain");
+        return;
+      }
+
+      setExplorerUrl(config.explorer);
+      setBlockTime(config.blockTime);
+
       const client = createPublicClient({
-        chain: base,
-        transport: http("https://mainnet.base.org"),
+        chain: config.chain,
+        transport: http(config.rpc),
       });
 
       try {
@@ -89,7 +109,7 @@ export function ActivityFeed({
 
         // Fetch all logs in one call
         const logs = await client.getLogs({
-          address: POOL_ADDRESS,
+          address: poolAddress,
           fromBlock,
           toBlock: currentBlock,
         });
@@ -148,7 +168,7 @@ export function ActivityFeed({
     }
 
     fetchEvents();
-  }, [filter, limit]);
+  }, [filter, limit, chainId]);
 
   const getEventIcon = (type: string) => {
     switch (type) {
@@ -183,12 +203,14 @@ export function ActivityFeed({
   // Get current block for time display
   const [currentBlock, setCurrentBlock] = useState<bigint>(0n);
   useEffect(() => {
+    const config = CHAIN_CONFIG[chainId as keyof typeof CHAIN_CONFIG];
+    if (!config) return;
     const client = createPublicClient({
-      chain: base,
-      transport: http("https://mainnet.base.org"),
+      chain: config.chain,
+      transport: http(config.rpc),
     });
     client.getBlockNumber().then(setCurrentBlock).catch(() => {});
-  }, []);
+  }, [chainId]);
 
   if (loading) {
     return (
@@ -219,7 +241,7 @@ export function ActivityFeed({
       {events.map((event, i) => (
         <a
           key={`${event.txHash}-${i}`}
-          href={`https://basescan.org/tx/${event.txHash}`}
+          href={`${explorerUrl}/tx/${event.txHash}`}
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center justify-between py-2 px-3 rounded hover:bg-[var(--muted)]/30 transition-colors text-sm group"
@@ -244,7 +266,7 @@ export function ActivityFeed({
             {event.address && (
               <span className="hidden sm:inline">{shortenAddress(event.address)}</span>
             )}
-            <span>{currentBlock > 0n ? blocksAgo(currentBlock, event.blockNumber) : ""}</span>
+            <span>{currentBlock > 0n ? blocksAgo(currentBlock, event.blockNumber, blockTime) : ""}</span>
             <span className="opacity-0 group-hover:opacity-100">↗</span>
           </div>
         </a>

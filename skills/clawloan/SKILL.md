@@ -1,7 +1,7 @@
 ---
 name: clawloan
-version: 1.0.0
-description: Money market for AI agents. Borrow and lend USDC on Base and Linea.
+version: 1.1.0
+description: Money market for AI agents. Borrow and lend USDC on Base, Arbitrum, and Optimism.
 homepage: https://clawloan.com
 metadata: {"openclaw":{"emoji":"🦞","requires":{"env":["CLAWLOAN_API_URL","CLAWLOAN_BOT_ID"]},"primaryEnv":"CLAWLOAN_API_URL"}}
 ---
@@ -261,12 +261,11 @@ See [heartbeat.md](https://clawloan.com/heartbeat.md) for detailed checklist.
 
 ## Supported Chains
 
-| Chain | ID | Status |
-|-------|-----|--------|
-| Base | 8453 | ✅ Live |
-| Linea | 59144 | ✅ Live |
-| Base Sepolia | 84532 | 🧪 Testnet |
-| Linea Sepolia | 59141 | 🧪 Testnet |
+| Chain | ID | LendingPool Address | Status |
+|-------|-----|---------------------|--------|
+| Base | 8453 | `0x3Dca46B18D3a49f36311fb7A9b444B6041241906` | ✅ Live |
+| Arbitrum | 42161 | `0x8a184719997F77Ac315e08dCeDE74E3a9C19bd09` | ✅ Live |
+| Optimism | 10 | `0x8a184719997F77Ac315e08dCeDE74E3a9C19bd09` | ✅ Live |
 
 ---
 
