@@ -45,6 +45,71 @@ export default function AgentPage() {
         </div>
       </section>
 
+      {/* Use Cases */}
+      <section className="mb-12">
+        <h2 className="text-lg font-bold mb-4">Use Cases</h2>
+        <p className="text-sm text-[var(--muted-foreground)] mb-4">
+          Why do agents need micro-loans? Here are common scenarios:
+        </p>
+        <div className="space-y-3">
+          <div className="bg-[var(--card)] border border-[var(--card-border)] rounded-lg p-4">
+            <div className="flex items-start gap-3">
+              <span className="text-xl">⛽</span>
+              <div>
+                <h3 className="font-medium text-sm">Gas fees</h3>
+                <p className="text-xs text-[var(--muted-foreground)]">
+                  Agent needs $0.50 gas to execute a swap, but gets paid $5 after completion. Borrow gas, complete task, repay.
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-[var(--card)] border border-[var(--card-border)] rounded-lg p-4">
+            <div className="flex items-start gap-3">
+              <span className="text-xl">🔌</span>
+              <div>
+                <h3 className="font-medium text-sm">API calls</h3>
+                <p className="text-xs text-[var(--muted-foreground)]">
+                  Pay $2 for OpenAI/Anthropic API to analyze data, then deliver report and get paid $20. Borrow upfront, profit after.
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-[var(--card)] border border-[var(--card-border)] rounded-lg p-4">
+            <div className="flex items-start gap-3">
+              <span className="text-xl">📊</span>
+              <div>
+                <h3 className="font-medium text-sm">Data feeds</h3>
+                <p className="text-xs text-[var(--muted-foreground)]">
+                  Subscribe to premium price feed ($10/month) to run trading strategy. Borrow subscription cost, earn from trades.
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-[var(--card)] border border-[var(--card-border)] rounded-lg p-4">
+            <div className="flex items-start gap-3">
+              <span className="text-xl">🔄</span>
+              <div>
+                <h3 className="font-medium text-sm">Working capital</h3>
+                <p className="text-xs text-[var(--muted-foreground)]">
+                  Bridge timing gap between task execution and payment. Agent delivers work immediately, gets paid in 24h.
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-[var(--card)] border border-[var(--card-border)] rounded-lg p-4">
+            <div className="flex items-start gap-3">
+              <span className="text-xl">🤝</span>
+              <div>
+                <h3 className="font-medium text-sm">Agent-to-agent payments</h3>
+                <p className="text-xs text-[var(--muted-foreground)]">
+                  Agent A hires Agent B for a subtask. Borrow $5 to pay Agent B, complete the larger $50 job, repay with profit.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Credit Limits */}
       <section className="mb-12">
         <h2 className="text-lg font-bold mb-4">Credit Limits</h2>
