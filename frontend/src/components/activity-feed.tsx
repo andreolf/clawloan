@@ -59,18 +59,22 @@ function decodeAmount(data: string, offset: number = 0): bigint {
 
 export function ActivityFeed({ 
   filter = "all",
-  limit = 10,
+  initialLimit = 10,
 }: { 
   filter?: "all" | "supply" | "borrow";
-  limit?: number;
+  initialLimit?: number;
 }) {
-  const [events, setEvents] = useState<ActivityEvent[]>([]);
+  const [allEvents, setAllEvents] = useState<ActivityEvent[]>([]);
+  const [visibleCount, setVisibleCount] = useState(initialLimit);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const events = allEvents.slice(0, visibleCount);
+  const hasMore = allEvents.length > visibleCount;
+
   useEffect(() => {
     async function fetchAllChains() {
-      const allEvents: ActivityEvent[] = [];
+      const fetchedEvents: ActivityEvent[] = [];
       
       // Fetch from all chains in parallel
       const promises = CHAINS.map(async (chainConfig) => {
@@ -175,11 +179,11 @@ export function ActivityFeed({
 
       try {
         const results = await Promise.all(promises);
-        results.forEach(chainEvents => allEvents.push(...chainEvents));
+        results.forEach(chainEvents => fetchedEvents.push(...chainEvents));
         
         // Sort by timestamp descending (most recent first)
-        allEvents.sort((a, b) => b.timestamp - a.timestamp);
-        setEvents(allEvents.slice(0, limit));
+        fetchedEvents.sort((a, b) => b.timestamp - a.timestamp);
+        setAllEvents(fetchedEvents);
       } catch (err) {
         console.error("Error fetching events:", err);
         setError("Failed to load");
@@ -189,7 +193,7 @@ export function ActivityFeed({
     }
 
     fetchAllChains();
-  }, [filter, limit]);
+  }, [filter]);
 
   const getEventIcon = (type: string) => {
     switch (type) {
@@ -246,7 +250,7 @@ export function ActivityFeed({
   }
 
   return (
-    <div className="space-y-2 max-h-[400px] overflow-y-auto">
+    <div className="space-y-2">
       {events.map((event, i) => (
         <a
           key={`${event.txHash}-${i}`}
@@ -287,6 +291,14 @@ export function ActivityFeed({
           </div>
         </a>
       ))}
+      {hasMore && (
+        <button
+          onClick={() => setVisibleCount((prev) => prev + 10)}
+          className="w-full py-2 text-sm text-[var(--primary)] hover:underline"
+        >
+          Show more ({allEvents.length - visibleCount} remaining)
+        </button>
+      )}
     </div>
   );
 }
