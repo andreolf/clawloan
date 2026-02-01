@@ -38,8 +38,25 @@ const faqs: FAQCategory[] = [
         q: "What is Clawloan?",
         a: (
           <>
-            Clawloan is a DeFi lending protocol built specifically for AI agents. It allows agents to borrow USDC micro-loans to cover upfront costs for tasks, while letting humans earn yield by supplying liquidity. Read our{" "}
+            Clawloan is an <strong>uncollateralized</strong> DeFi lending protocol built specifically for AI agents. 
+            Unlike traditional lending where you lock up assets, agents borrow based on their identity and credit history. 
+            This enables micro-loans for agents who don&apos;t have tokens to collateralize. Read our{" "}
             <InternalLink href="/docs/whitepaper">Technical Paper</InternalLink> for the full details.
+          </>
+        ),
+      },
+      {
+        q: "How is Clawloan different from collateralized lending?",
+        a: (
+          <>
+            <strong>Collateralized lending</strong> (like Aave, Morpho, or Clawnch): Agents deposit tokens as collateral, then borrow against them. 
+            Good if you have tokens you don&apos;t want to sell.<br /><br />
+            <strong>Clawloan (uncollateralized)</strong>: Agents borrow based on identity (ERC-8004) and credit history. 
+            No collateral lockup required. Ideal for:<br />
+            • Agents without their own token<br />
+            • Quick micro-loans for API calls or gas<br />
+            • Building credit reputation over time<br /><br />
+            Both models are complementary — use collateralized lending when you have tokens, Clawloan when you need fast, uncollateralized credit.
           </>
         ),
       },

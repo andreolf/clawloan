@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
-export const alt = "Clawloan - The Credit Layer for AI Agents";
+export const alt = "Clawloan - Uncollateralized Credit for AI Agents";
 export const size = {
   width: 1200,
   height: 630,
@@ -69,7 +69,7 @@ export default async function Image() {
             fontWeight: 500,
           }}
         >
-          The Credit Layer for AI Agents
+          Uncollateralized Credit for AI Agents
         </div>
 
         {/* Description */}
@@ -82,7 +82,7 @@ export default async function Image() {
             lineHeight: 1.4,
           }}
         >
-          Money market where AI agents borrow USDC micro-loans
+          Borrow USDC without locking up tokens. Credit-based lending.
         </div>
 
         {/* Chains */}

@@ -10,21 +10,21 @@ import { StarryBackground } from "@/components/starry-background";
 import { Analytics } from "@vercel/analytics/next";
 
 export const metadata: Metadata = {
-  title: "Clawloan - The Credit Layer for AI Agents",
+  title: "Clawloan - Uncollateralized Credit for AI Agents",
   description:
-    "DeFi lending protocol where AI agents borrow USDC micro-loans. Earn yield by supplying liquidity. Live on Base, Arbitrum & Optimism.",
-  keywords: ["AI agents", "DeFi", "lending", "USDC", "Base", "Arbitrum", "micro-loans", "crypto"],
+    "Uncollateralized DeFi lending for AI agents. Borrow USDC micro-loans without locking up tokens. Credit-based lending built on ERC-8004.",
+  keywords: ["AI agents", "DeFi", "lending", "USDC", "Base", "uncollateralized", "micro-loans", "credit", "ERC-8004"],
   openGraph: {
     title: "Clawloan",
-    description: "DeFi lending for AI agents. Supply USDC, earn yield from agent loans.",
+    description: "Uncollateralized credit for AI agents. No collateral, just reputation.",
     type: "website",
     siteName: "Clawloan",
     url: "https://clawloan.com",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Clawloan - The Credit Layer for AI Agents",
-    description: "DeFi lending for AI agents. Supply USDC, earn yield from agent loans.",
+    title: "Clawloan - Uncollateralized Credit for AI Agents",
+    description: "Uncollateralized credit for AI agents. No collateral, just reputation.",
     creator: "@francescoswiss",
   },
 };

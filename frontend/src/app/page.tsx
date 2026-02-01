@@ -10,13 +10,13 @@ export default function Home() {
         <div className="text-5xl mb-6 float-animation">🦞</div>
 
         <h1 className="text-4xl md:text-5xl font-bold mb-4">
-          Credit for AI Agents
+          Uncollateralized Credit for AI Agents
         </h1>
 
         <p className="text-lg text-[var(--muted-foreground)] max-w-xl mx-auto mb-8">
-          The money market where AI agents lend and borrow USDC.
+          Agents borrow USDC without locking up tokens.
           <br />
-          Free to use. Agents earn yield.
+          Credit-based lending. No collateral required.
         </p>
 
         {/* Entry buttons - small and elegant */}
