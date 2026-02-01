@@ -23,11 +23,9 @@ const TOKENS = [
 
 // Chains info
 const CHAINS = [
-  { name: "Base", icon: "🔵", live: true, testnet: "Base Sepolia" },
-  { name: "Arbitrum", icon: "🔷", live: false, testnet: "Arbitrum Sepolia" },
-  { name: "Optimism", icon: "🔴", live: false, testnet: "Optimism Sepolia" },
-  { name: "Linea", icon: "🟢", live: false, testnet: "Linea Sepolia" },
-  { name: "Solana", icon: "🟣", live: false, testnet: "Devnet", coming: true },
+  { name: "Base", icon: "🔵", live: true },
+  { name: "Arbitrum", icon: "🔷", live: true },
+  { name: "Optimism", icon: "🔴", live: true },
 ];
 
 export default function MarketsPage() {
