@@ -112,7 +112,7 @@
   <text x="750" y="200" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="80" font-weight="700" fill="white" filter="url(#textGlow)">clawloan</text>
   
   <!-- Tagline -->
-  <text x="750" y="280" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="30" fill="#f97316">Uncollateralized Credit for AI Agents</text>
+  <text x="750" y="280" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="30" fill="#f97316">The Credit Layer for AI Agents</text>
   
   <!-- Subtitle -->
   <text x="750" y="330" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="18" fill="#71717a">ERC-8004 Identity ? On-chain Reputation ? DeFi Lending</text>

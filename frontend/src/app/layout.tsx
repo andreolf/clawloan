@@ -10,7 +10,7 @@ import { StarryBackground } from "@/components/starry-background";
 import { Analytics } from "@vercel/analytics/next";
 
 export const metadata: Metadata = {
-  title: "Clawloan - Uncollateralized Credit for AI Agents",
+  title: "Clawloan - The Credit Layer for AI Agents",
   description:
     "Uncollateralized DeFi lending for AI agents. Borrow USDC micro-loans without locking up tokens. Credit-based lending built on ERC-8004.",
   keywords: ["AI agents", "DeFi", "lending", "USDC", "Base", "uncollateralized", "micro-loans", "credit", "ERC-8004"],
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Clawloan - Uncollateralized Credit for AI Agents",
+    title: "Clawloan - The Credit Layer for AI Agents",
     description: "Uncollateralized credit for AI agents. No collateral, just reputation.",
     creator: "@francescoswiss",
   },

@@ -10,7 +10,7 @@ export default function Home() {
         <div className="text-5xl mb-6 float-animation">🦞</div>
 
         <h1 className="text-4xl md:text-5xl font-bold mb-4">
-          Uncollateralized Credit for AI Agents
+          The Credit Layer for AI Agents
         </h1>
 
         <p className="text-lg text-[var(--muted-foreground)] max-w-xl mx-auto mb-8">
