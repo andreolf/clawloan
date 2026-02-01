@@ -84,7 +84,7 @@ export function ConnectButton() {
   const injectedConnector = connectors.find((c) => c.type === "injected");
   
   // Check if on mobile (no window.ethereum usually means mobile browser)
-  const isMobile = typeof window !== "undefined" && !window.ethereum;
+  const isMobile = typeof window !== "undefined" && !(window as unknown as { ethereum?: unknown }).ethereum;
 
   // Show connector selector
   const handleConnect = () => {
