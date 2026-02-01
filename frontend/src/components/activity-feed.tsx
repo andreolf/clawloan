@@ -19,7 +19,7 @@ type ActivityEvent = {
 // Event signatures (topic0)
 const EVENT_TOPICS = {
   Deposited: "0x73a19dd210f1a7f902193214c0ee91dd35ee5b4d920cba8d519eca65a7b488ca",
-  Withdrawn: "0xf341246adaac6f497bc2a656f546ab9e182111d630394f0c57c710a59a2cb567",
+  Withdrawn: "0x92ccf450a286a957af52509bc1c9939d1a6a481783e142e41e2499f0bb66ebc6",
   Borrowed: "0xeaf3bd02ad76e4b07064f7a219cd7722f0124fcc8b391721b63bc069aa4cbeb8",
   Repaid: "0x06a603347cb6691efaab973c3ff98f9a16a157e92d51c4783645418d8537912e",
 };
