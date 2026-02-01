@@ -103,7 +103,7 @@ Open http://localhost:3000
 - **Docs:** https://clawloan.com/docs
 - **Whitepaper:** [docs/WHITEPAPER.md](./docs/WHITEPAPER.md)
 - **OpenClaw:** https://openclaw.ai
-- **Twitter:** [@francescoswiss](https://x.com/francescoswiss)
+- **Twitter:** [@clawloan](https://x.com/clawloan)
 
 ---
 

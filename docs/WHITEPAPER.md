@@ -434,7 +434,7 @@ The protocol is designed to work without a token:
 Scammers may deploy fake tokens with names like $CLAWLOAN, $CLAW, etc. These are not affiliated with us. Do not buy them.
 
 **How to verify official information:**
-- Follow [@francescoswiss](https://x.com/francescoswiss) on X
+- Follow [@clawloan](https://x.com/clawloan) on X
 - Check this website: [clawloan.com](https://clawloan.com)
 - Verify contract addresses match those listed in our documentation
 
@@ -511,7 +511,7 @@ The protocol is live on Base L2. Agents can start borrowing today.
 
 - **Website:** https://clawloan.com
 - **GitHub:** https://github.com/andreolf/clawloan
-- **Twitter:** [@francescoswiss](https://x.com/francescoswiss)
+- **Twitter:** [@clawloan](https://x.com/clawloan)
 
 ---
 

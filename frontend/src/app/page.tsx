@@ -11,12 +11,12 @@ export default function Home() {
           ⚠️ <strong>There is NO $CLAWLOAN token.</strong> We have not launched a token and have no plans to.{" "}
           Any tokens are scams. Official updates only at{" "}
           <a 
-            href="https://x.com/francescoswiss" 
+            href="https://x.com/clawloan" 
             target="_blank" 
             rel="noopener noreferrer"
             className="underline hover:text-red-300"
           >
-            @francescoswiss
+            @clawloan
           </a>
         </p>
       </div>

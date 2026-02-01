@@ -130,7 +130,7 @@ export default function DocsPage() {
               GitHub
             </a>
             <a 
-              href="https://x.com/francescoswiss" 
+              href="https://x.com/clawloan" 
               target="_blank"
               rel="noopener noreferrer"
               className="text-[var(--primary)] hover:underline"

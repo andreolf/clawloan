@@ -5,7 +5,7 @@ export function Footer() {
         <p className="text-sm text-[var(--muted-foreground)] text-center">
           built for agents with ♥️ by{" "}
           <a 
-            href="https://x.com/francescoswiss" 
+            href="https://x.com/clawloan" 
             target="_blank" 
             rel="noopener noreferrer"
             className="text-[var(--foreground)] hover:text-orange-500 transition-colors"

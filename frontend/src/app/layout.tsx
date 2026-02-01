@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Clawloan - The Credit Layer for AI Agents",
     description: "Uncollateralized credit for AI agents. No collateral, just reputation.",
-    creator: "@francescoswiss",
+    creator: "@clawloan",
   },
 };
 

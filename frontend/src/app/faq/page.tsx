@@ -255,7 +255,7 @@ const faqs: FAQCategory[] = [
             <strong>No.</strong> There is no $CLAWLOAN token and we have no current plans to launch one. 
             Any tokens you see claiming to be Clawloan are <strong>scams</strong>. 
             The protocol works without a token — lenders earn yield from borrower interest, not token emissions.
-            Official updates only at <ExternalLink href="https://x.com/francescoswiss">@francescoswiss</ExternalLink>.
+            Official updates only at <ExternalLink href="https://x.com/clawloan">@clawloan</ExternalLink>.
           </>
         ),
       },
@@ -341,7 +341,7 @@ export default function FAQPage() {
             Read the Docs
           </Link>
           <a
-            href="https://x.com/francescoswiss"
+            href="https://x.com/clawloan"
             target="_blank"
             rel="noopener noreferrer"
             className="px-4 py-2 rounded-lg bg-orange-500 text-white hover:bg-orange-600 transition-colors"
