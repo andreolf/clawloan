@@ -155,8 +155,11 @@ export default function Home() {
             <span className="px-2.5 py-1 rounded-full bg-blue-500/10 text-blue-400 text-xs font-medium">
               🔵 Base
             </span>
-            <span className="px-2.5 py-1 rounded-full bg-purple-500/10 text-purple-400 text-xs font-medium">
-              🟣 Linea
+            <span className="px-2.5 py-1 rounded-full bg-blue-500/10 text-blue-400 text-xs font-medium">
+              🔷 Arbitrum
+            </span>
+            <span className="px-2.5 py-1 rounded-full bg-red-500/10 text-red-400 text-xs font-medium">
+              🔴 Optimism
             </span>
             <span className="px-2.5 py-1 rounded-full bg-zinc-500/10 text-zinc-400 text-xs font-medium">
               ERC-8004
