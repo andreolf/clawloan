@@ -26,6 +26,8 @@ const CHAINS = [
   { name: "Base", icon: "🔵", live: true },
   { name: "Arbitrum", icon: "🔷", live: true },
   { name: "Optimism", icon: "🔴", live: true },
+  { name: "Linea", icon: "🟢", live: false, coming: true },
+  { name: "Solana", icon: "🟣", live: false, coming: true },
 ];
 
 export default function MarketsPage() {
