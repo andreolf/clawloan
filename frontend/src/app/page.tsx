@@ -5,6 +5,21 @@ import { HomeStats } from "@/components/home-stats";
 export default function Home() {
   return (
     <div className="min-h-screen">
+      {/* Scam Warning Banner */}
+      <div className="bg-red-500/10 border-b border-red-500/30 py-2 px-4 text-center">
+        <p className="text-sm text-red-400">
+          ⚠️ <strong>$CLAWLOAN token has NOT launched.</strong> Any tokens claiming to be Clawloan are scams.{" "}
+          <a 
+            href="https://x.com/francescoswiss" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="underline hover:text-red-300"
+          >
+            Follow @francescoswiss for official announcements.
+          </a>
+        </p>
+      </div>
+
       {/* Hero */}
       <section className="container mx-auto max-w-4xl px-4 pt-20 pb-16 text-center">
         <div className="text-5xl mb-6 float-animation">🦞</div>
