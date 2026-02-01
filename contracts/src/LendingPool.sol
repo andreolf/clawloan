@@ -10,6 +10,8 @@ import '@openzeppelin/contracts/utils/Pausable.sol';
 import './BotRegistry.sol';
 import './PermissionsRegistry.sol';
 import './LPIncentives.sol';
+import './CreditScoring.sol';
+import './AgentVerification.sol';
 
 /// @title LendingPool - Core lending logic for Moltloan
 /// @notice Aave V3 inspired lending pool for bot micro-loans
@@ -79,6 +81,18 @@ contract LendingPool is Ownable, ReentrancyGuard, Pausable {
   // LP Incentives (optional)
   LPIncentives public lpIncentives;
 
+  // Credit Scoring (optional)
+  CreditScoring public creditScoring;
+
+  // Agent Verification (optional)
+  AgentVerification public agentVerification;
+
+  // Whether to enforce credit-based limits
+  bool public enforceCreditLimits = false;
+
+  // Whether to require agent verification
+  bool public requireVerification = false;
+
   // ============ Events ============
 
   event Deposited(address indexed lender, uint256 amount, uint256 shares);
@@ -104,6 +118,10 @@ contract LendingPool is Ownable, ReentrancyGuard, Pausable {
   event RewardsClaimed(address indexed lender, uint256 amount);
   event ReserveFactorUpdated(uint256 oldFactor, uint256 newFactor);
   event LPIncentivesSet(address indexed incentives);
+  event CreditScoringSet(address indexed scoring);
+  event AgentVerificationSet(address indexed verification);
+  event CreditLimitsEnforcementUpdated(bool enforced);
+  event VerificationRequirementUpdated(bool required);
 
   // ============ Errors ============
 
@@ -118,6 +136,8 @@ contract LendingPool is Ownable, ReentrancyGuard, Pausable {
   error ZeroAmount();
   error RateLimitExceeded();
   error InvalidRepayAmount();
+  error ExceedsCreditLimit();
+  error VerificationRequired();
 
   // ============ Constructor ============
 
@@ -315,6 +335,17 @@ contract LendingPool is Ownable, ReentrancyGuard, Pausable {
       revert NoActivePermissions();
     if (!permissionsRegistry.canSpend(botId, amount)) revert ExceedsMaxSpend();
 
+    // Check verification requirement (if enabled)
+    if (requireVerification && address(agentVerification) != address(0)) {
+      if (!agentVerification.meetsRequirements(botId)) revert VerificationRequired();
+    }
+
+    // Check credit-based limits (if enabled)
+    if (enforceCreditLimits && address(creditScoring) != address(0)) {
+      uint256 recommendedLimit = creditScoring.getRecommendedLimit(botId);
+      if (amount > recommendedLimit) revert ExceedsCreditLimit();
+    }
+
     // Check no existing loan
     if (loans[botId].active) revert LoanAlreadyActive();
 
@@ -334,6 +365,11 @@ contract LendingPool is Ownable, ReentrancyGuard, Pausable {
     // Update state
     totalBorrows += amount;
     borrowedThisBlock += amount;
+
+    // Record loan in credit scoring (if enabled)
+    if (address(creditScoring) != address(0)) {
+      creditScoring.recordLoan(botId, amount);
+    }
 
     // Transfer USDC
     usdc.safeTransfer(msg.sender, amount);
@@ -412,6 +448,11 @@ contract LendingPool is Ownable, ReentrancyGuard, Pausable {
         rewardIndex += (profitShare * RAY) / totalShares;
       }
       emit RewardsDistributed(profitShare);
+    }
+
+    // Record repayment in credit scoring (if enabled)
+    if (address(creditScoring) != address(0)) {
+      creditScoring.recordRepayment(botId, repayAmount);
     }
 
     if (profitShare > 0) {
@@ -513,6 +554,30 @@ contract LendingPool is Ownable, ReentrancyGuard, Pausable {
   function setLPIncentives(address _incentives) external onlyOwner {
     lpIncentives = LPIncentives(_incentives);
     emit LPIncentivesSet(_incentives);
+  }
+
+  /// @notice Set credit scoring contract
+  function setCreditScoring(address _scoring) external onlyOwner {
+    creditScoring = CreditScoring(_scoring);
+    emit CreditScoringSet(_scoring);
+  }
+
+  /// @notice Set agent verification contract
+  function setAgentVerification(address _verification) external onlyOwner {
+    agentVerification = AgentVerification(_verification);
+    emit AgentVerificationSet(_verification);
+  }
+
+  /// @notice Enable/disable credit-based limit enforcement
+  function setEnforceCreditLimits(bool _enforce) external onlyOwner {
+    enforceCreditLimits = _enforce;
+    emit CreditLimitsEnforcementUpdated(_enforce);
+  }
+
+  /// @notice Enable/disable verification requirement
+  function setRequireVerification(bool _require) external onlyOwner {
+    requireVerification = _require;
+    emit VerificationRequirementUpdated(_require);
   }
 
   /// @notice Pause pool
