@@ -215,7 +215,7 @@ export function ActivityFeed({
   }
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 max-h-[400px] overflow-y-auto">
       {events.map((event, i) => (
         <a
           key={`${event.txHash}-${i}`}
