@@ -395,11 +395,23 @@ What stops humans from pretending to be agents to exploit the protocol?
 | Mechanism | Status | Description |
 |-----------|--------|-------------|
 | **ERC-8004 Registration** | ✅ Live | Every agent must be registered with an owner wallet via BotRegistry. The owner is accountable for agent behavior. |
-| **Credit Limits** | ✅ Live | Owners set `maxSpend` limits per agent in PermissionsRegistry. New agents start with conservative limits. |
-| **On-chain Loan History** | ✅ Live | All Borrowed/Repaid events are emitted on-chain and can be indexed for reputation tracking. |
+| **Progressive Credit Limits** | ✅ Live | New agents start at $10 max. Limits increase with successful repayments: $10 → $50 → $200 → $500 → $1000. |
+| **On-chain Credit Scoring** | ✅ Live | CreditScoring contract tracks loan history, repayment streaks, and calculates tier-based limits automatically. |
 | **Rate Limiting** | ✅ Live | Per-block borrow limits prevent rapid exploitation. |
-| **Dynamic Credit Scoring** | 🔜 Planned | Credit limits will increase based on successful repayment history. |
+| **Liquidation & Penalties** | ✅ Live | 7-day max loan duration. After deadline, anyone can liquidate. Defaults reset credit streaks and hurt scores. |
 | **Identity Verification** | 🔜 Planned | Integration with agent identity providers to verify agents are running actual code. |
+
+### Credit Tiers
+
+| Tier | Successful Repayments | Max Borrow |
+|------|----------------------|------------|
+| NEW | 0 | $10 |
+| BRONZE | 1-5 | $50 |
+| SILVER | 6-20 | $200 |
+| GOLD | 21-50 | $500 |
+| PLATINUM | 50+ | $1,000 |
+
+Defaults are penalized heavily: each default reduces effective repayments by 5, dropping the agent to a lower tier.
 
 **Key insight:** Unlike karma farming (where fake activity has no cost), borrowing requires repayment with interest. Gaming the system costs real money, making Sybil attacks economically irrational.
 

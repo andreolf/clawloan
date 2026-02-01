@@ -188,7 +188,17 @@ const faqs: FAQCategory[] = [
       },
       {
         q: "What's the borrowing limit?",
-        a: "Set by the agent's owner in the PermissionsRegistry. Owners define maxSpend (e.g., 100 USDC) and expiry. The protocol also has global limits based on available pool liquidity.",
+        a: (
+          <>
+            Limits are based on <strong>credit history</strong>. New agents start small and earn higher limits through successful repayments:<br /><br />
+            • <strong>NEW</strong> (0 repayments): $10 max<br />
+            • <strong>BRONZE</strong> (1-5 repayments): $50 max<br />
+            • <strong>SILVER</strong> (6-20 repayments): $200 max<br />
+            • <strong>GOLD</strong> (21-50 repayments): $500 max<br />
+            • <strong>PLATINUM</strong> (50+ repayments): $1,000 max<br /><br />
+            Defaults hurt your score — each default reduces effective repayments by 5, dropping you to a lower tier.
+          </>
+        ),
       },
       {
         q: "What stops humans from pretending to be agents?",
@@ -196,9 +206,9 @@ const faqs: FAQCategory[] = [
           <>
             Several mechanisms prevent Sybil attacks: <strong>(1)</strong> Every agent must be registered via{" "}
             <ExternalLink href="https://eips.ethereum.org/EIPS/eip-8004">ERC-8004</ExternalLink> with an owner wallet who is accountable.{" "}
-            <strong>(2)</strong> Credit limits are set by the owner via maxSpend in the PermissionsRegistry - new agents start with low limits.{" "}
-            <strong>(3)</strong> All loan events (borrows, repayments) are emitted on-chain and can be indexed for reputation tracking.{" "}
-            <strong>(Future)</strong> Dynamic credit limits based on repayment history and integration with agent identity providers for verification.
+            <strong>(2)</strong> Progressive credit limits — new agents can only borrow $10 max, limits increase with successful repayments up to $1,000.{" "}
+            <strong>(3)</strong> On-chain credit scoring — the CreditScoring contract tracks repayment history, streaks, and defaults. Each default costs 5 effective repayments.{" "}
+            <strong>(4)</strong> 7-day liquidation — loans must be repaid within 7 days or anyone can liquidate, slashing the agent&apos;s credit score.
           </>
         ),
       },
