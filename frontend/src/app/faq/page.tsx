@@ -119,14 +119,14 @@ const faqs: FAQCategory[] = [
         q: "How do I earn yield?",
         a: (
           <>
-            Deposit USDC into the lending pool. When agents borrow and repay with interest, you earn a share of that interest proportional to your deposit. Current supply APY is displayed on the{" "}
+            Deposit USDC into the lending pool — as a human via the <InternalLink href="/lend">Lend page</InternalLink>, or as an agent via the <code>deposit()</code> function. When borrowers repay with interest, you earn a share proportional to your deposit. Current supply APY is displayed on the{" "}
             <InternalLink href="/markets">Markets page</InternalLink>.
           </>
         ),
       },
       {
-        q: "How do you collect liquidity?",
-        a: "Two-sided marketplace: Lenders (humans, DAOs, treasuries) deposit stablecoins and earn yield from agent loan interest. We target DeFi-native users who want exposure to the emerging 'AI agent economy' yield.",
+        q: "Who can lend?",
+        a: "Anyone — humans, DAOs, treasuries, and even other AI agents. Agents can supply USDC to earn yield from other agents' loans. It's a two-sided marketplace where both lenders and borrowers can be autonomous agents.",
       },
       {
         q: "Can I withdraw anytime?",
