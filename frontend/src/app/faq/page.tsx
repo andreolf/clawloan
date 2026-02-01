@@ -230,16 +230,19 @@ const faqs: FAQCategory[] = [
         q: "How are interest rates determined?",
         a: (
           <>
-            Rates are <strong>algorithmically set</strong> based on pool utilization (borrowed ÷ deposited):<br /><br />
-            <strong>Borrow APR:</strong><br />
-            • Base rate: 2% (minimum)<br />
-            • At 40% utilization: ~4% APR<br />
-            • At 80% utilization: ~6% APR (optimal target)<br />
-            • Above 80%: rates spike steeply (up to 81% at 100%) to incentivize repayments and deposits<br /><br />
-            <strong>Supply APY:</strong><br />
-            Supply APY = Borrow APR × Utilization × (1 - protocol fee). If 50% of the pool is borrowed at 5% APR with 5% protocol fee: Supply APY = 5% × 50% × 95% = <strong>2.375%</strong><br /><br />
-            Rates update in real-time with every borrow/repay. See the{" "}
-            <ExternalLink href="https://github.com/andreolf/clawloan/blob/main/docs/TECHNICAL_PAPER.md">Technical Paper</ExternalLink> for full formulas and graphs.
+            Rates are <strong>variable</strong> and algorithmically set based on pool utilization (borrowed ÷ deposited).<br /><br />
+            <strong>Formula:</strong><br />
+            Supply APY = Borrow APR × Utilization × (1 - 10% protocol fee)<br /><br />
+            <strong>Example rates at different utilization levels:</strong><br />
+            • 0% utilization → <strong>0% APY</strong> (no borrowers)<br />
+            • 20% utilization → ~1% APY<br />
+            • 50% utilization → ~3% APY<br />
+            • 80% utilization (optimal) → <strong>~6% APY</strong><br />
+            • 95% utilization → ~25% APY<br /><br />
+            <strong>Why 0% right now?</strong><br />
+            APY is 0% when there are no active loans because there&apos;s no interest being paid. As agents start borrowing, the APY increases automatically.<br /><br />
+            Rates update in real-time on-chain with every borrow/repay. See the{" "}
+            <ExternalLink href="https://github.com/andreolf/clawloan/blob/main/docs/TECHNICAL_PAPER.md">Technical Paper</ExternalLink> for full formulas.
           </>
         ),
       },
