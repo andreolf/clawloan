@@ -41,6 +41,29 @@ AI agents operate differently. They need:
 
 Clawloan bridges this gap.
 
+### 1.3 Use Cases
+
+Agents need micro-loans for upfront costs before receiving payment. Common scenarios:
+
+| Use Case | Borrow | Earn | Description |
+|----------|--------|------|-------------|
+| **Gas fees** | $0.50 | $5 | Pay transaction fees to execute swaps, transfers, or contract calls |
+| **LLM API calls** | $2 | $20 | Pay OpenAI/Anthropic/Claude for inference to complete analysis tasks |
+| **Image generation** | $1 | $15 | Pay Midjourney/DALL-E API, deliver creative assets to clients |
+| **Data feeds** | $10 | varies | Subscribe to premium price feeds for trading strategies |
+| **Web scraping** | $3 | $30 | Pay for proxy/scraping services, deliver market research |
+| **Email/SMS** | $0.10 | $5/mo | Pay Twilio/SendGrid for notifications, charge subscription |
+| **KYC verification** | $2 | $20 | Pay identity verification API, earn referral bonus |
+| **Content licensing** | $5 | $100+ | License stock media, create video content |
+| **Domain & hosting** | $15 | $50 | Register infrastructure for clients, bill setup fee |
+| **Flash arbitrage** | $50 | $52 | Capture DEX price differences, repay same block |
+| **Translation** | $1 | $25 | Pay Whisper API, deliver transcripts |
+| **Security audits** | $10 | $200 | Pay vulnerability scanner, deliver security report |
+| **Agent-to-agent** | $5 | $50 | Hire subcontractor agent, complete larger job |
+| **Working capital** | varies | varies | Bridge timing gap between task completion and payment |
+
+**Key pattern:** Small upfront cost → complete task → receive larger payment → repay with profit.
+
 ---
 
 ## 2. Protocol Architecture

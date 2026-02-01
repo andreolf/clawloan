@@ -77,7 +77,19 @@ const faqs: FAQCategory[] = [
       },
       {
         q: "Why do AI agents need loans?",
-        a: "Agents need working capital to execute tasks before getting paid. For example, an agent might receive a $50 task but needs $2 upfront for API calls (OpenAI, data feeds) or gas fees. It borrows $2, completes the task, gets paid $50, repays $2 + interest, and keeps the profit. Without credit, agents can't start work that requires upfront costs.",
+        a: (
+          <>
+            Agents need <strong>working capital</strong> to execute tasks before getting paid. Common use cases:<br /><br />
+            • <strong>Gas fees</strong> — Borrow $0.50 to execute swap, earn $5<br />
+            • <strong>LLM API calls</strong> — Borrow $2 for OpenAI, deliver $20 report<br />
+            • <strong>Image generation</strong> — Borrow $1 for DALL-E, sell art for $15<br />
+            • <strong>Web scraping</strong> — Borrow $3 for proxies, deliver $30 research<br />
+            • <strong>Flash arbitrage</strong> — Borrow $50, capture DEX spread, repay $52<br />
+            • <strong>Agent-to-agent</strong> — Hire subcontractor for $5, complete $50 job<br /><br />
+            <strong>Pattern:</strong> Small upfront cost → complete task → receive payment → repay with profit.
+            Without credit, agents can&apos;t start work that requires upfront costs.
+          </>
+        ),
       },
       {
         q: "What chains is Clawloan on?",

@@ -52,160 +52,108 @@ export default function AgentPage() {
           Why do agents need micro-loans? Here are common scenarios:
         </p>
         <div className="space-y-3">
-          <div className="bg-[var(--card)] border border-[var(--card-border)] rounded-lg p-4">
-            <div className="flex items-start gap-3">
-              <span className="text-xl">⛽</span>
-              <div>
-                <h3 className="font-medium text-sm">Gas fees</h3>
-                <p className="text-xs text-[var(--muted-foreground)]">
-                  Agent needs $0.50 gas to execute a swap, but gets paid $5 after completion. Borrow gas, complete task, repay.
-                </p>
-              </div>
-            </div>
+          {/* Table format for cleaner display */}
+          <div className="bg-[var(--card)] border border-[var(--card-border)] rounded-lg overflow-hidden">
+            <table className="w-full text-sm">
+              <thead className="bg-[var(--muted)]/30">
+                <tr>
+                  <th className="px-4 py-2 text-left font-medium">Use Case</th>
+                  <th className="px-4 py-2 text-right font-medium">Borrow</th>
+                  <th className="px-4 py-2 text-right font-medium">Earn</th>
+                  <th className="px-4 py-2 text-left font-medium hidden md:table-cell">Description</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[var(--card-border)]">
+                <tr>
+                  <td className="px-4 py-3">⛽ Gas fees</td>
+                  <td className="px-4 py-3 text-right font-mono text-xs">$0.50</td>
+                  <td className="px-4 py-3 text-right font-mono text-xs text-[var(--success)]">$5</td>
+                  <td className="px-4 py-3 text-xs text-[var(--muted-foreground)] hidden md:table-cell">Pay tx fees to execute swaps/transfers</td>
+                </tr>
+                <tr>
+                  <td className="px-4 py-3">🔌 LLM API calls</td>
+                  <td className="px-4 py-3 text-right font-mono text-xs">$2</td>
+                  <td className="px-4 py-3 text-right font-mono text-xs text-[var(--success)]">$20</td>
+                  <td className="px-4 py-3 text-xs text-[var(--muted-foreground)] hidden md:table-cell">OpenAI/Anthropic inference for analysis</td>
+                </tr>
+                <tr>
+                  <td className="px-4 py-3">🖼️ Image generation</td>
+                  <td className="px-4 py-3 text-right font-mono text-xs">$1</td>
+                  <td className="px-4 py-3 text-right font-mono text-xs text-[var(--success)]">$15</td>
+                  <td className="px-4 py-3 text-xs text-[var(--muted-foreground)] hidden md:table-cell">Midjourney/DALL-E for creative assets</td>
+                </tr>
+                <tr>
+                  <td className="px-4 py-3">📊 Data feeds</td>
+                  <td className="px-4 py-3 text-right font-mono text-xs">$10</td>
+                  <td className="px-4 py-3 text-right font-mono text-xs text-[var(--success)]">varies</td>
+                  <td className="px-4 py-3 text-xs text-[var(--muted-foreground)] hidden md:table-cell">Premium price feeds for trading</td>
+                </tr>
+                <tr>
+                  <td className="px-4 py-3">🔍 Web scraping</td>
+                  <td className="px-4 py-3 text-right font-mono text-xs">$3</td>
+                  <td className="px-4 py-3 text-right font-mono text-xs text-[var(--success)]">$30</td>
+                  <td className="px-4 py-3 text-xs text-[var(--muted-foreground)] hidden md:table-cell">Proxy service for market research</td>
+                </tr>
+                <tr>
+                  <td className="px-4 py-3">📧 Email/SMS</td>
+                  <td className="px-4 py-3 text-right font-mono text-xs">$0.10</td>
+                  <td className="px-4 py-3 text-right font-mono text-xs text-[var(--success)]">$5/mo</td>
+                  <td className="px-4 py-3 text-xs text-[var(--muted-foreground)] hidden md:table-cell">Twilio alerts for monitoring service</td>
+                </tr>
+                <tr>
+                  <td className="px-4 py-3">🔐 KYC verification</td>
+                  <td className="px-4 py-3 text-right font-mono text-xs">$2</td>
+                  <td className="px-4 py-3 text-right font-mono text-xs text-[var(--success)]">$20</td>
+                  <td className="px-4 py-3 text-xs text-[var(--muted-foreground)] hidden md:table-cell">Identity API for referral bonus</td>
+                </tr>
+                <tr>
+                  <td className="px-4 py-3">🎵 Content licensing</td>
+                  <td className="px-4 py-3 text-right font-mono text-xs">$5</td>
+                  <td className="px-4 py-3 text-right font-mono text-xs text-[var(--success)]">$100+</td>
+                  <td className="px-4 py-3 text-xs text-[var(--muted-foreground)] hidden md:table-cell">Stock media for video content</td>
+                </tr>
+                <tr>
+                  <td className="px-4 py-3">🌐 Domain & hosting</td>
+                  <td className="px-4 py-3 text-right font-mono text-xs">$15</td>
+                  <td className="px-4 py-3 text-right font-mono text-xs text-[var(--success)]">$50</td>
+                  <td className="px-4 py-3 text-xs text-[var(--muted-foreground)] hidden md:table-cell">Register infra, bill setup fee</td>
+                </tr>
+                <tr>
+                  <td className="px-4 py-3">📈 Flash arbitrage</td>
+                  <td className="px-4 py-3 text-right font-mono text-xs">$50</td>
+                  <td className="px-4 py-3 text-right font-mono text-xs text-[var(--success)]">$52</td>
+                  <td className="px-4 py-3 text-xs text-[var(--muted-foreground)] hidden md:table-cell">DEX price spread, same block repay</td>
+                </tr>
+                <tr>
+                  <td className="px-4 py-3">🗣️ Translation</td>
+                  <td className="px-4 py-3 text-right font-mono text-xs">$1</td>
+                  <td className="px-4 py-3 text-right font-mono text-xs text-[var(--success)]">$25</td>
+                  <td className="px-4 py-3 text-xs text-[var(--muted-foreground)] hidden md:table-cell">Whisper API for transcripts</td>
+                </tr>
+                <tr>
+                  <td className="px-4 py-3">🛡️ Security audit</td>
+                  <td className="px-4 py-3 text-right font-mono text-xs">$10</td>
+                  <td className="px-4 py-3 text-right font-mono text-xs text-[var(--success)]">$200</td>
+                  <td className="px-4 py-3 text-xs text-[var(--muted-foreground)] hidden md:table-cell">Vulnerability scanner for reports</td>
+                </tr>
+                <tr>
+                  <td className="px-4 py-3">🤝 Agent-to-agent</td>
+                  <td className="px-4 py-3 text-right font-mono text-xs">$5</td>
+                  <td className="px-4 py-3 text-right font-mono text-xs text-[var(--success)]">$50</td>
+                  <td className="px-4 py-3 text-xs text-[var(--muted-foreground)] hidden md:table-cell">Hire subcontractor, complete larger job</td>
+                </tr>
+                <tr>
+                  <td className="px-4 py-3">🔄 Working capital</td>
+                  <td className="px-4 py-3 text-right font-mono text-xs">varies</td>
+                  <td className="px-4 py-3 text-right font-mono text-xs text-[var(--success)]">varies</td>
+                  <td className="px-4 py-3 text-xs text-[var(--muted-foreground)] hidden md:table-cell">Bridge timing gap to payment</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
-          <div className="bg-[var(--card)] border border-[var(--card-border)] rounded-lg p-4">
-            <div className="flex items-start gap-3">
-              <span className="text-xl">🔌</span>
-              <div>
-                <h3 className="font-medium text-sm">API calls</h3>
-                <p className="text-xs text-[var(--muted-foreground)]">
-                  Pay $2 for OpenAI/Anthropic API to analyze data, then deliver report and get paid $20. Borrow upfront, profit after.
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-[var(--card)] border border-[var(--card-border)] rounded-lg p-4">
-            <div className="flex items-start gap-3">
-              <span className="text-xl">📊</span>
-              <div>
-                <h3 className="font-medium text-sm">Data feeds</h3>
-                <p className="text-xs text-[var(--muted-foreground)]">
-                  Subscribe to premium price feed ($10/month) to run trading strategy. Borrow subscription cost, earn from trades.
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-[var(--card)] border border-[var(--card-border)] rounded-lg p-4">
-            <div className="flex items-start gap-3">
-              <span className="text-xl">🔄</span>
-              <div>
-                <h3 className="font-medium text-sm">Working capital</h3>
-                <p className="text-xs text-[var(--muted-foreground)]">
-                  Bridge timing gap between task execution and payment. Agent delivers work immediately, gets paid in 24h.
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-[var(--card)] border border-[var(--card-border)] rounded-lg p-4">
-            <div className="flex items-start gap-3">
-              <span className="text-xl">🤝</span>
-              <div>
-                <h3 className="font-medium text-sm">Agent-to-agent payments</h3>
-                <p className="text-xs text-[var(--muted-foreground)]">
-                  Agent A hires Agent B for a subtask. Borrow $5 to pay Agent B, complete the larger $50 job, repay with profit.
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-[var(--card)] border border-[var(--card-border)] rounded-lg p-4">
-            <div className="flex items-start gap-3">
-              <span className="text-xl">🖼️</span>
-              <div>
-                <h3 className="font-medium text-sm">Image generation</h3>
-                <p className="text-xs text-[var(--muted-foreground)]">
-                  Borrow $1 to generate images via Midjourney/DALL-E API. Deliver to client for $15. Quick turnaround, instant repay.
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-[var(--card)] border border-[var(--card-border)] rounded-lg p-4">
-            <div className="flex items-start gap-3">
-              <span className="text-xl">🔍</span>
-              <div>
-                <h3 className="font-medium text-sm">Web scraping & research</h3>
-                <p className="text-xs text-[var(--muted-foreground)]">
-                  Pay $3 for proxy service to scrape competitor data. Deliver market research report for $30.
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-[var(--card)] border border-[var(--card-border)] rounded-lg p-4">
-            <div className="flex items-start gap-3">
-              <span className="text-xl">📧</span>
-              <div>
-                <h3 className="font-medium text-sm">Email & notifications</h3>
-                <p className="text-xs text-[var(--muted-foreground)]">
-                  Borrow $0.10 to send SMS/email alerts via Twilio. Monitoring service charges $5/month per user.
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-[var(--card)] border border-[var(--card-border)] rounded-lg p-4">
-            <div className="flex items-start gap-3">
-              <span className="text-xl">🔐</span>
-              <div>
-                <h3 className="font-medium text-sm">Verification services</h3>
-                <p className="text-xs text-[var(--muted-foreground)]">
-                  Pay $2 for KYC/identity verification API. Onboard user to platform that pays $20 referral bonus.
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-[var(--card)] border border-[var(--card-border)] rounded-lg p-4">
-            <div className="flex items-start gap-3">
-              <span className="text-xl">🎵</span>
-              <div>
-                <h3 className="font-medium text-sm">Content creation</h3>
-                <p className="text-xs text-[var(--muted-foreground)]">
-                  Borrow $5 for stock music/footage license. Create video content, sell for $100+.
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-[var(--card)] border border-[var(--card-border)] rounded-lg p-4">
-            <div className="flex items-start gap-3">
-              <span className="text-xl">🌐</span>
-              <div>
-                <h3 className="font-medium text-sm">Domain & hosting</h3>
-                <p className="text-xs text-[var(--muted-foreground)]">
-                  Borrow $15 to register domain + hosting for client. Bill client $50 for setup.
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-[var(--card)] border border-[var(--card-border)] rounded-lg p-4">
-            <div className="flex items-start gap-3">
-              <span className="text-xl">📈</span>
-              <div>
-                <h3 className="font-medium text-sm">Flash arbitrage</h3>
-                <p className="text-xs text-[var(--muted-foreground)]">
-                  Borrow $50 to capture price difference between DEXs. Execute in same block, repay with $2 profit.
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-[var(--card)] border border-[var(--card-border)] rounded-lg p-4">
-            <div className="flex items-start gap-3">
-              <span className="text-xl">🗣️</span>
-              <div>
-                <h3 className="font-medium text-sm">Translation & transcription</h3>
-                <p className="text-xs text-[var(--muted-foreground)]">
-                  Pay $1 for Whisper/translation API. Deliver transcribed meeting notes for $25.
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-[var(--card)] border border-[var(--card-border)] rounded-lg p-4">
-            <div className="flex items-start gap-3">
-              <span className="text-xl">🛡️</span>
-              <div>
-                <h3 className="font-medium text-sm">Security scanning</h3>
-                <p className="text-xs text-[var(--muted-foreground)]">
-                  Borrow $10 for vulnerability scanner API. Deliver security audit report for $200.
-                </p>
-              </div>
-            </div>
-          </div>
+          <p className="text-xs text-[var(--muted-foreground)] mt-3 text-center">
+            <strong>Pattern:</strong> Small upfront cost → complete task → receive payment → repay with profit
+          </p>
         </div>
       </section>
 
