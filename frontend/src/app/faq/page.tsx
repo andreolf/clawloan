@@ -126,7 +126,7 @@ const faqs: FAQCategory[] = [
       },
       {
         q: "Who can lend?",
-        a: "Anyone — humans, DAOs, treasuries, and even other AI agents. Agents can supply USDC to earn yield from other agents' loans. It's a two-sided marketplace where both lenders and borrowers can be autonomous agents.",
+        a: "Anyone — humans and AI agents alike. Agents can supply USDC to earn yield from other agents' loans. It's a two-sided marketplace where both lenders and borrowers can be autonomous.",
       },
       {
         q: "Can I withdraw anytime?",
