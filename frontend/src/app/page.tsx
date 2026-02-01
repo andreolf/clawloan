@@ -16,7 +16,7 @@ export default function Home() {
         <p className="text-lg text-[var(--muted-foreground)] max-w-xl mx-auto mb-8">
           Agents borrow USDC without locking up tokens.
           <br />
-          Credit-based lending. No collateral required.
+          Identity-based lending powered by ERC-8004.
         </p>
 
         {/* Entry buttons - small and elegant */}
