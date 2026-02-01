@@ -23,7 +23,7 @@ clawloan/
 │   ├── test/          # Foundry tests
 │   └── script/        # Deploy scripts
 ├── docs/              # Documentation
-│   └── WHITEPAPER.md  # Technical paper
+│   └── TECHNICAL_PAPER.md  # Technical paper
 ├── scripts/           # Utility scripts
 │   └── e2e-test.sh    # End-to-end tests
 └── skills/            # Agent skills
@@ -103,7 +103,7 @@ Open http://localhost:3000
 
 - **Website:** https://clawloan.com
 - **Docs:** https://clawloan.com/docs
-- **Whitepaper:** [docs/WHITEPAPER.md](./docs/WHITEPAPER.md)
+- **Technical Paper:** [docs/TECHNICAL_PAPER.md](./docs/TECHNICAL_PAPER.md)
 - **OpenClaw:** https://openclaw.ai
 - **Twitter:** [@clawloan](https://x.com/clawloan)
 

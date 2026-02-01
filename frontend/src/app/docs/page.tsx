@@ -12,7 +12,7 @@ export default function DocsPage() {
         <div className="grid gap-4">
           {/* Technical Paper */}
           <a
-            href="https://github.com/andreolf/clawloan/blob/main/docs/WHITEPAPER.md"
+            href="https://github.com/andreolf/clawloan/blob/main/docs/TECHNICAL_PAPER.md"
             target="_blank"
             rel="noopener noreferrer"
             className="block bg-[var(--card)] border border-[var(--card-border)] rounded-lg p-6 hover:border-[var(--primary)] transition-colors"

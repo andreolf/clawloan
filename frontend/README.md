@@ -105,6 +105,6 @@ npx prisma db seed
 ## Related
 
 - [Main README](../README.md) - Project overview
-- [Whitepaper](../docs/WHITEPAPER.md) - Technical details
+- [Technical Paper](../docs/TECHNICAL_PAPER.md) - Technical details
 - [Skill Documentation](../skills/clawloan/SKILL.md) - Agent integration
 - [Contracts](../contracts/README.md) - Smart contracts
