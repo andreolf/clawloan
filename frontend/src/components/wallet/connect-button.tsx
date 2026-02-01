@@ -11,6 +11,13 @@ export function ConnectButton() {
   const { disconnect } = useDisconnect();
   const [showMenu, setShowMenu] = useState(false);
   const [showConnectors, setShowConnectors] = useState(false);
+  const [hasInjected, setHasInjected] = useState(false);
+
+  // Detect injected wallet after mount (avoids hydration mismatch)
+  useEffect(() => {
+    const w = window as unknown as { ethereum?: unknown };
+    setHasInjected(!!w.ethereum);
+  }, []);
 
   // Close on escape key
   const handleEscape = useCallback((e: KeyboardEvent) => {
@@ -79,12 +86,9 @@ export function ConnectButton() {
     );
   }
 
-  // Get available connectors - filter to useful ones
+  // Get available connectors
   const walletConnectConnector = connectors.find((c) => c.id === "walletConnect");
   const injectedConnector = connectors.find((c) => c.type === "injected");
-  
-  // Check if on mobile (no window.ethereum usually means mobile browser)
-  const isMobile = typeof window !== "undefined" && !(window as unknown as { ethereum?: unknown }).ethereum;
 
   // Show connector selector
   const handleConnect = () => {
@@ -110,42 +114,37 @@ export function ConnectButton() {
         <div className="absolute right-0 top-full mt-2 w-64 bg-[var(--card)] border border-[var(--card-border)] rounded-lg shadow-xl z-50">
           <div className="p-3 border-b border-[var(--card-border)]">
             <p className="text-sm font-medium">Connect Wallet</p>
-            {isMobile && (
-              <p className="text-xs text-[var(--muted-foreground)] mt-1">
-                Use WalletConnect for mobile
-              </p>
-            )}
           </div>
           <div className="p-2 space-y-1">
-            {/* WalletConnect - show first and prominently on mobile */}
-            {walletConnectConnector && (
-              <button
-                onClick={() => handleDirectConnect(walletConnectConnector)}
-                disabled={isPending}
-                className="w-full text-left px-3 py-3 rounded-md text-sm hover:bg-[var(--muted)] transition-colors flex items-center gap-3 border border-[var(--card-border)]"
-              >
-                <span className="text-lg">🔗</span>
-                <div>
-                  <div className="font-medium">WalletConnect</div>
-                  <div className="text-xs text-[var(--muted-foreground)]">
-                    Mobile & Desktop wallets
-                  </div>
-                </div>
-              </button>
-            )}
-            
-            {/* Injected (MetaMask, etc) - only show if available */}
-            {injectedConnector && !isMobile && (
+            {/* Browser Wallet (MetaMask, etc) - show if detected */}
+            {injectedConnector && hasInjected && (
               <button
                 onClick={() => handleDirectConnect(injectedConnector)}
                 disabled={isPending}
-                className="w-full text-left px-3 py-3 rounded-md text-sm hover:bg-[var(--muted)] transition-colors flex items-center gap-3"
+                className="w-full text-left px-3 py-3 rounded-md text-sm hover:bg-[var(--muted)] transition-colors flex items-center gap-3 border border-[var(--card-border)]"
               >
                 <span className="text-lg">🦊</span>
                 <div>
                   <div className="font-medium">Browser Wallet</div>
                   <div className="text-xs text-[var(--muted-foreground)]">
                     MetaMask, Rabby, etc.
+                  </div>
+                </div>
+              </button>
+            )}
+            
+            {/* WalletConnect - always show */}
+            {walletConnectConnector && (
+              <button
+                onClick={() => handleDirectConnect(walletConnectConnector)}
+                disabled={isPending}
+                className="w-full text-left px-3 py-3 rounded-md text-sm hover:bg-[var(--muted)] transition-colors flex items-center gap-3"
+              >
+                <span className="text-lg">🔗</span>
+                <div>
+                  <div className="font-medium">WalletConnect</div>
+                  <div className="text-xs text-[var(--muted-foreground)]">
+                    Mobile & QR code
                   </div>
                 </div>
               </button>
