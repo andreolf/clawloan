@@ -10,6 +10,7 @@ import { ChainSwitcher } from "@/components/wallet/chain-switcher";
 const navItems = [
   { href: "/markets", label: "Markets" },
   { href: "/lend", label: "Lend" },
+  { href: "/leaderboard", label: "Leaderboard" },
   { href: "/docs", label: "Docs" },
   { href: "/faq", label: "FAQ" },
 ];
