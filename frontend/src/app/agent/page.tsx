@@ -107,6 +107,105 @@ export default function AgentPage() {
               </div>
             </div>
           </div>
+          <div className="bg-[var(--card)] border border-[var(--card-border)] rounded-lg p-4">
+            <div className="flex items-start gap-3">
+              <span className="text-xl">🖼️</span>
+              <div>
+                <h3 className="font-medium text-sm">Image generation</h3>
+                <p className="text-xs text-[var(--muted-foreground)]">
+                  Borrow $1 to generate images via Midjourney/DALL-E API. Deliver to client for $15. Quick turnaround, instant repay.
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-[var(--card)] border border-[var(--card-border)] rounded-lg p-4">
+            <div className="flex items-start gap-3">
+              <span className="text-xl">🔍</span>
+              <div>
+                <h3 className="font-medium text-sm">Web scraping & research</h3>
+                <p className="text-xs text-[var(--muted-foreground)]">
+                  Pay $3 for proxy service to scrape competitor data. Deliver market research report for $30.
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-[var(--card)] border border-[var(--card-border)] rounded-lg p-4">
+            <div className="flex items-start gap-3">
+              <span className="text-xl">📧</span>
+              <div>
+                <h3 className="font-medium text-sm">Email & notifications</h3>
+                <p className="text-xs text-[var(--muted-foreground)]">
+                  Borrow $0.10 to send SMS/email alerts via Twilio. Monitoring service charges $5/month per user.
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-[var(--card)] border border-[var(--card-border)] rounded-lg p-4">
+            <div className="flex items-start gap-3">
+              <span className="text-xl">🔐</span>
+              <div>
+                <h3 className="font-medium text-sm">Verification services</h3>
+                <p className="text-xs text-[var(--muted-foreground)]">
+                  Pay $2 for KYC/identity verification API. Onboard user to platform that pays $20 referral bonus.
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-[var(--card)] border border-[var(--card-border)] rounded-lg p-4">
+            <div className="flex items-start gap-3">
+              <span className="text-xl">🎵</span>
+              <div>
+                <h3 className="font-medium text-sm">Content creation</h3>
+                <p className="text-xs text-[var(--muted-foreground)]">
+                  Borrow $5 for stock music/footage license. Create video content, sell for $100+.
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-[var(--card)] border border-[var(--card-border)] rounded-lg p-4">
+            <div className="flex items-start gap-3">
+              <span className="text-xl">🌐</span>
+              <div>
+                <h3 className="font-medium text-sm">Domain & hosting</h3>
+                <p className="text-xs text-[var(--muted-foreground)]">
+                  Borrow $15 to register domain + hosting for client. Bill client $50 for setup.
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-[var(--card)] border border-[var(--card-border)] rounded-lg p-4">
+            <div className="flex items-start gap-3">
+              <span className="text-xl">📈</span>
+              <div>
+                <h3 className="font-medium text-sm">Flash arbitrage</h3>
+                <p className="text-xs text-[var(--muted-foreground)]">
+                  Borrow $50 to capture price difference between DEXs. Execute in same block, repay with $2 profit.
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-[var(--card)] border border-[var(--card-border)] rounded-lg p-4">
+            <div className="flex items-start gap-3">
+              <span className="text-xl">🗣️</span>
+              <div>
+                <h3 className="font-medium text-sm">Translation & transcription</h3>
+                <p className="text-xs text-[var(--muted-foreground)]">
+                  Pay $1 for Whisper/translation API. Deliver transcribed meeting notes for $25.
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-[var(--card)] border border-[var(--card-border)] rounded-lg p-4">
+            <div className="flex items-start gap-3">
+              <span className="text-xl">🛡️</span>
+              <div>
+                <h3 className="font-medium text-sm">Security scanning</h3>
+                <p className="text-xs text-[var(--muted-foreground)]">
+                  Borrow $10 for vulnerability scanner API. Deliver security audit report for $200.
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
