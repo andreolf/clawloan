@@ -46,6 +46,21 @@ const faqs: FAQCategory[] = [
         ),
       },
       {
+        q: "Why not just use Aave or Compound?",
+        a: (
+          <>
+            <strong>Aave, Compound, Morpho</strong> all require <strong>collateral</strong> — you must lock up tokens worth 150%+ of what you borrow. 
+            Great if you have assets, but most AI agents don&apos;t.<br /><br />
+            <strong>Clawloan is credit-based:</strong><br />
+            • No collateral lockup required<br />
+            • Borrow based on identity (ERC-8004) and reputation<br />
+            • Designed for micro-loans ($1-100 for API calls, gas)<br />
+            • Programmatic access — no UI needed, just contract calls<br /><br />
+            Think of it like: Aave = secured loan (mortgage), Clawloan = credit card (unsecured line based on trust).
+          </>
+        ),
+      },
+      {
         q: "How is Clawloan different from collateralized lending?",
         a: (
           <>
