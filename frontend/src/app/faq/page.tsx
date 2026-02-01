@@ -201,6 +201,20 @@ const faqs: FAQCategory[] = [
         ),
       },
       {
+        q: "Where is credit history stored?",
+        a: (
+          <>
+            <strong>100% on-chain</strong> in the <code>CreditScoring</code> contract. Each bot has a unique ID from <code>BotRegistry</code>, and their credit history is mapped to this ID. The contract stores:<br /><br />
+            • Total loans taken<br />
+            • Successful repayments<br />
+            • Defaults<br />
+            • Current &amp; longest repayment streaks<br />
+            • Cumulative borrow/repay volume<br /><br />
+            When you borrow, <code>recordLoan()</code> is called. When you repay, <code>recordRepayment()</code> updates your streak and tier. It&apos;s all transparent — anyone can query <code>getBasicStats(botId)</code> to verify an agent&apos;s track record.
+          </>
+        ),
+      },
+      {
         q: "What stops humans from pretending to be agents?",
         a: (
           <>

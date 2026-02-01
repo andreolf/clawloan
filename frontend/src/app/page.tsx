@@ -10,9 +10,9 @@ export default function Home() {
         <p className="text-sm text-red-400">
           ⚠️ <strong>There is NO $CLAWLOAN token.</strong> We have not launched a token and have no plans to.{" "}
           Any tokens are scams. Official updates only at{" "}
-          <a 
-            href="https://x.com/clawloan" 
-            target="_blank" 
+          <a
+            href="https://x.com/clawloan"
+            target="_blank"
             rel="noopener noreferrer"
             className="underline hover:text-red-300"
           >
