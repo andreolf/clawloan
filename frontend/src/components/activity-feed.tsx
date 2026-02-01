@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createPublicClient, http, formatUnits, parseAbiItem } from "viem";
+import { createPublicClient, http, formatUnits } from "viem";
 import { base } from "viem/chains";
 import { getLendingPoolAddress } from "@/config/wagmi";
 
@@ -12,27 +12,40 @@ type ActivityEvent = {
   address: string;
   amount: string;
   txHash: string;
-  timestamp: number;
+  blockNumber: bigint;
   botId?: string;
 };
 
-const EVENT_ABIS = {
-  Deposited: parseAbiItem("event Deposited(address indexed lender, uint256 amount, uint256 shares)"),
-  Withdrawn: parseAbiItem("event Withdrawn(address indexed lender, uint256 amount, uint256 shares)"),
-  Borrowed: parseAbiItem("event Borrowed(uint256 indexed botId, address indexed operator, uint256 amount)"),
-  Repaid: parseAbiItem("event Repaid(uint256 indexed botId, uint256 principal, uint256 interest)"),
+// Event signatures (topic0)
+const EVENT_TOPICS = {
+  Deposited: "0x73a19dd210f1a7f902193214c0ee91dd35ee5b4d920cba8d519eca65a7b488ca",
+  Withdrawn: "0xf341246adaac6f497bc2a656f546ab9e182111d630394f0c57c710a59a2cb567",
+  Borrowed: "0xeaf3bd02ad76e4b07064f7a219cd7722f0124fcc8b391721b63bc069aa4cbeb8",
+  Repaid: "0x06a603347cb6691efaab973c3ff98f9a16a157e92d51c4783645418d8537912e",
 };
 
 function shortenAddress(addr: string) {
+  if (!addr || addr.length < 10) return addr;
   return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
 }
 
-function timeAgo(timestamp: number) {
-  const seconds = Math.floor(Date.now() / 1000 - timestamp);
+function blocksAgo(currentBlock: bigint, eventBlock: bigint) {
+  const diff = Number(currentBlock - eventBlock);
+  const seconds = diff * 2; // ~2s per block on Base
   if (seconds < 60) return `${seconds}s ago`;
   if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
   if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
   return `${Math.floor(seconds / 86400)}d ago`;
+}
+
+function decodeAddress(topic: string): string {
+  return "0x" + topic.slice(26);
+}
+
+function decodeAmount(data: string, offset: number = 0): bigint {
+  const start = 2 + offset * 64;
+  const hex = data.slice(start, start + 64);
+  return BigInt("0x" + hex);
 }
 
 export function ActivityFeed({ 
@@ -44,10 +57,14 @@ export function ActivityFeed({
 }) {
   const [events, setEvents] = useState<ActivityEvent[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchEvents() {
-      if (!POOL_ADDRESS) return;
+      if (!POOL_ADDRESS) {
+        setLoading(false);
+        return;
+      }
 
       const client = createPublicClient({
         chain: base,
@@ -55,99 +72,76 @@ export function ActivityFeed({
       });
 
       try {
-        // Get current block
         const currentBlock = await client.getBlockNumber();
-        const fromBlock = currentBlock - 50000n; // ~1 day of blocks
+        const fromBlock = currentBlock - 10000n; // ~5 hours of blocks (less to avoid rate limits)
 
         const allEvents: ActivityEvent[] = [];
 
-        // Fetch deposit events
-        if (filter === "all" || filter === "supply") {
-          const depositLogs = await client.getLogs({
-            address: POOL_ADDRESS,
-            event: EVENT_ABIS.Deposited,
-            fromBlock,
-            toBlock: currentBlock,
-          });
+        // Build topics based on filter
+        const topics: string[] = [];
+        if (filter === "all") {
+          topics.push(EVENT_TOPICS.Deposited, EVENT_TOPICS.Withdrawn, EVENT_TOPICS.Borrowed, EVENT_TOPICS.Repaid);
+        } else if (filter === "supply") {
+          topics.push(EVENT_TOPICS.Deposited, EVENT_TOPICS.Withdrawn);
+        } else {
+          topics.push(EVENT_TOPICS.Borrowed, EVENT_TOPICS.Repaid);
+        }
 
-          for (const log of depositLogs) {
-            const block = await client.getBlock({ blockNumber: log.blockNumber });
+        // Fetch all logs in one call
+        const logs = await client.getLogs({
+          address: POOL_ADDRESS,
+          fromBlock,
+          toBlock: currentBlock,
+        });
+
+        for (const log of logs) {
+          const topic0 = log.topics[0];
+          
+          if (topic0 === EVENT_TOPICS.Deposited && (filter === "all" || filter === "supply")) {
             allEvents.push({
               type: "deposit",
-              address: log.args.lender || "",
-              amount: formatUnits(log.args.amount || 0n, 6),
+              address: log.topics[1] ? decodeAddress(log.topics[1]) : "",
+              amount: formatUnits(decodeAmount(log.data, 0), 6),
               txHash: log.transactionHash,
-              timestamp: Number(block.timestamp),
+              blockNumber: log.blockNumber,
             });
-          }
-
-          const withdrawLogs = await client.getLogs({
-            address: POOL_ADDRESS,
-            event: EVENT_ABIS.Withdrawn,
-            fromBlock,
-            toBlock: currentBlock,
-          });
-
-          for (const log of withdrawLogs) {
-            const block = await client.getBlock({ blockNumber: log.blockNumber });
+          } else if (topic0 === EVENT_TOPICS.Withdrawn && (filter === "all" || filter === "supply")) {
             allEvents.push({
               type: "withdraw",
-              address: log.args.lender || "",
-              amount: formatUnits(log.args.amount || 0n, 6),
+              address: log.topics[1] ? decodeAddress(log.topics[1]) : "",
+              amount: formatUnits(decodeAmount(log.data, 0), 6),
               txHash: log.transactionHash,
-              timestamp: Number(block.timestamp),
+              blockNumber: log.blockNumber,
             });
-          }
-        }
-
-        // Fetch borrow/repay events
-        if (filter === "all" || filter === "borrow") {
-          const borrowLogs = await client.getLogs({
-            address: POOL_ADDRESS,
-            event: EVENT_ABIS.Borrowed,
-            fromBlock,
-            toBlock: currentBlock,
-          });
-
-          for (const log of borrowLogs) {
-            const block = await client.getBlock({ blockNumber: log.blockNumber });
+          } else if (topic0 === EVENT_TOPICS.Borrowed && (filter === "all" || filter === "borrow")) {
             allEvents.push({
               type: "borrow",
-              address: log.args.operator || "",
-              amount: formatUnits(log.args.amount || 0n, 6),
+              address: log.topics[2] ? decodeAddress(log.topics[2]) : "",
+              amount: formatUnits(decodeAmount(log.data, 0), 6),
               txHash: log.transactionHash,
-              timestamp: Number(block.timestamp),
-              botId: log.args.botId?.toString(),
+              blockNumber: log.blockNumber,
+              botId: log.topics[1] ? Number(BigInt(log.topics[1])).toString() : undefined,
             });
-          }
-
-          const repayLogs = await client.getLogs({
-            address: POOL_ADDRESS,
-            event: EVENT_ABIS.Repaid,
-            fromBlock,
-            toBlock: currentBlock,
-          });
-
-          for (const log of repayLogs) {
-            const block = await client.getBlock({ blockNumber: log.blockNumber });
-            const principal = log.args.principal || 0n;
-            const interest = log.args.interest || 0n;
+          } else if (topic0 === EVENT_TOPICS.Repaid && (filter === "all" || filter === "borrow")) {
+            const principal = decodeAmount(log.data, 0);
+            const interest = decodeAmount(log.data, 1);
             allEvents.push({
               type: "repay",
-              address: "", // Repay doesn't have operator in event
+              address: "",
               amount: formatUnits(principal + interest, 6),
               txHash: log.transactionHash,
-              timestamp: Number(block.timestamp),
-              botId: log.args.botId?.toString(),
+              blockNumber: log.blockNumber,
+              botId: log.topics[1] ? Number(BigInt(log.topics[1])).toString() : undefined,
             });
           }
         }
 
-        // Sort by timestamp descending
-        allEvents.sort((a, b) => b.timestamp - a.timestamp);
+        // Sort by block number descending
+        allEvents.sort((a, b) => Number(b.blockNumber - a.blockNumber));
         setEvents(allEvents.slice(0, limit));
-      } catch (error) {
-        console.error("Error fetching events:", error);
+      } catch (err) {
+        console.error("Error fetching events:", err);
+        setError("Failed to load");
       } finally {
         setLoading(false);
       }
@@ -186,10 +180,28 @@ export function ActivityFeed({
     }
   };
 
+  // Get current block for time display
+  const [currentBlock, setCurrentBlock] = useState<bigint>(0n);
+  useEffect(() => {
+    const client = createPublicClient({
+      chain: base,
+      transport: http("https://mainnet.base.org"),
+    });
+    client.getBlockNumber().then(setCurrentBlock).catch(() => {});
+  }, []);
+
   if (loading) {
     return (
       <div className="text-center py-6 text-sm text-[var(--muted-foreground)]">
         Loading activity...
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-6 text-sm text-[var(--muted-foreground)]">
+        {error}
       </div>
     );
   }
@@ -232,7 +244,7 @@ export function ActivityFeed({
             {event.address && (
               <span className="hidden sm:inline">{shortenAddress(event.address)}</span>
             )}
-            <span>{timeAgo(event.timestamp)}</span>
+            <span>{currentBlock > 0n ? blocksAgo(currentBlock, event.blockNumber) : ""}</span>
             <span className="opacity-0 group-hover:opacity-100">↗</span>
           </div>
         </a>
