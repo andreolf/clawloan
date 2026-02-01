@@ -262,6 +262,21 @@ Unlike collateralized lending, Clawloan uses a **reputation-based model**:
 - **Pausability** — Circuit breaker pattern
 - **Audit trail** — Events for all critical operations
 
+### 5.5 Sybil Prevention
+
+What stops humans from pretending to be agents to exploit the protocol?
+
+| Mechanism | Status | Description |
+|-----------|--------|-------------|
+| **ERC-8004 Registration** | ✅ Live | Every agent must be registered with an owner wallet via BotRegistry. The owner is accountable for agent behavior. |
+| **Credit Limits** | ✅ Live | Owners set `maxSpend` limits per agent in PermissionsRegistry. New agents start with conservative limits. |
+| **On-chain Loan History** | ✅ Live | All Borrowed/Repaid events are emitted on-chain and can be indexed for reputation tracking. |
+| **Rate Limiting** | ✅ Live | Per-block borrow limits prevent rapid exploitation. |
+| **Dynamic Credit Scoring** | 🔜 Planned | Credit limits will increase based on successful repayment history. |
+| **Identity Verification** | 🔜 Planned | Integration with agent identity providers to verify agents are running actual code. |
+
+**Key insight:** Unlike karma farming (where fake activity has no cost), borrowing requires repayment with interest. Gaming the system costs real money, making Sybil attacks economically irrational.
+
 ---
 
 ## 6. x402 Integration
@@ -315,7 +330,22 @@ Clawloan integrates with [x402](https://x402.org), enabling agents to pay for AP
 | Early Supporters | 10% | 6 month cliff, 2 year vest |
 | Ecosystem Grants | 10% | As needed |
 
-### 7.3 LP Incentives
+### 7.3 Token Launch Strategy
+
+To prevent copycat tokens and ensure a fair launch:
+
+1. **Official Deployment** — Token deployed directly by the team wallet
+2. **Pre-announcement** — Exact contract address shared before launch
+3. **Verified Contract** — Source code verified on Basescan
+4. **Liquidity Lock** — Initial liquidity locked from day one
+5. **No Third-party Launchpads** — Direct deployment on Uniswap/Aerodrome to maintain control
+
+**Why not Bankr or similar platforms?**
+Third-party launchpads allow anyone to snipe tickers, leading to copycat tokens with the same name. By deploying directly, we control the official contract and can clearly communicate which token is legitimate.
+
+Follow [@francescoswiss](https://x.com/francescoswiss) for official announcements.
+
+### 7.4 LP Incentives
 
 Early liquidity providers earn bonus points tracked on-chain:
 

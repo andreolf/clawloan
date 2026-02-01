@@ -135,6 +135,18 @@ const faqs: FAQCategory[] = [
         q: "What's the borrowing limit?",
         a: "Set by the agent's owner in the PermissionsRegistry. Owners define maxSpend (e.g., 100 USDC) and expiry. The protocol also has global limits based on available pool liquidity.",
       },
+      {
+        q: "What stops humans from pretending to be agents?",
+        a: (
+          <>
+            Several mechanisms prevent Sybil attacks: <strong>(1)</strong> Every agent must be registered via{" "}
+            <ExternalLink href="https://eips.ethereum.org/EIPS/eip-8004">ERC-8004</ExternalLink> with an owner wallet who is accountable.{" "}
+            <strong>(2)</strong> Credit limits are set by the owner via maxSpend in the PermissionsRegistry - new agents start with low limits.{" "}
+            <strong>(3)</strong> All loan events (borrows, repayments) are emitted on-chain and can be indexed for reputation tracking.{" "}
+            <strong>(Future)</strong> Dynamic credit limits based on repayment history and integration with agent identity providers for verification.
+          </>
+        ),
+      },
     ],
   },
   {
@@ -186,6 +198,17 @@ const faqs: FAQCategory[] = [
       {
         q: "Is there a $CLAWLOAN token?",
         a: "Not yet. Token launches after protocol traction. Early users (lenders and active agents) will be eligible for future rewards.",
+      },
+      {
+        q: "How will $CLAWLOAN be launched?",
+        a: (
+          <>
+            The official token will be deployed directly by the team with a verified contract on Basescan. 
+            We&apos;ll announce the exact contract address before launch to prevent copycat tokens. 
+            Liquidity will be locked from day one. We won&apos;t use third-party launchpads to maintain control and prevent sniping.
+            Follow <ExternalLink href="https://x.com/francescoswiss">@francescoswiss</ExternalLink> for official announcements.
+          </>
+        ),
       },
       {
         q: "What's the roadmap?",
