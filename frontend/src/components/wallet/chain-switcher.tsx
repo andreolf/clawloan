@@ -44,13 +44,10 @@ export function ChainSwitcher() {
 
   const currentChain = SUPPORTED_CHAINS.find(c => c.id === chainId);
   
-  // Filter to show only chains with deployed contracts or testnets
+  // Only show mainnets with deployed contracts
   const availableChains = SUPPORTED_CHAINS.filter(c => 
-    c.id === 84532 || // Base Sepolia (live)
-    c.id === 421614 || // Arbitrum Sepolia
-    c.id === 11155420 || // Optimism Sepolia
     c.id === 8453 || // Base Mainnet
-    c.id === 42161 || // Arbitrum
+    c.id === 42161 || // Arbitrum One
     c.id === 10 // Optimism
   );
 
@@ -69,63 +66,27 @@ export function ChainSwitcher() {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 top-full mt-2 z-50 w-52 bg-[var(--card)] border border-[var(--card-border)] rounded-lg shadow-xl">
+        <div className="absolute right-0 top-full mt-2 z-50 w-48 bg-[var(--card)] border border-[var(--card-border)] rounded-lg shadow-xl">
           <div className="p-2">
             <p className="px-2 py-1.5 text-[10px] text-[var(--muted-foreground)] uppercase tracking-wider font-medium">
-              Testnets
+              Select Network
             </p>
-            {availableChains.filter(c => c.testnet).map(chain => {
-              const isSelected = chain.id === chainId;
-              const isLive = chain.id === 84532;
-              
-              return (
-                <button
-                  key={chain.id}
-                  onClick={() => {
-                    switchChain?.({ chainId: chain.id });
-                    setIsOpen(false);
-                  }}
-                  className={`w-full flex items-center gap-3 px-3 py-2 text-sm rounded-md hover:bg-[var(--muted)] transition-colors whitespace-nowrap ${
-                    isSelected ? "bg-[var(--muted)]" : ""
-                  }`}
-                >
-                  <span className="text-base">{chain.icon}</span>
-                  <span className="flex-1 text-left">{chain.name}</span>
-                  {isLive && (
-                    <span className="text-[10px] text-green-400 font-medium">● Live</span>
-                  )}
-                </button>
-              );
-            })}
-            
-            <div className="border-t border-[var(--border)] my-2" />
-            
-            <p className="px-2 py-1.5 text-[10px] text-[var(--muted-foreground)] uppercase tracking-wider font-medium">
-              Mainnets
-            </p>
-            {availableChains.filter(c => !c.testnet).map(chain => {
-              const isLive = chain.id === 8453; // Base Mainnet is live
-              return (
-                <button
-                  key={chain.id}
-                  onClick={() => {
-                    switchChain?.({ chainId: chain.id });
-                    setIsOpen(false);
-                  }}
-                  className={`w-full flex items-center gap-3 px-3 py-2 text-sm rounded-md hover:bg-[var(--muted)] transition-colors whitespace-nowrap ${
-                    !isLive ? "opacity-60" : ""
-                  } ${chain.id === chainId ? "bg-[var(--muted)]" : ""}`}
-                >
-                  <span className="text-base">{chain.icon}</span>
-                  <span className="flex-1 text-left">{chain.name}</span>
-                  {isLive ? (
-                    <span className="text-[10px] text-green-400 font-medium">● Live</span>
-                  ) : (
-                    <span className="text-[10px] text-[var(--muted-foreground)]">Soon</span>
-                  )}
-                </button>
-              );
-            })}
+            {availableChains.map(chain => (
+              <button
+                key={chain.id}
+                onClick={() => {
+                  switchChain?.({ chainId: chain.id });
+                  setIsOpen(false);
+                }}
+                className={`w-full flex items-center gap-3 px-3 py-2 text-sm rounded-md hover:bg-[var(--muted)] transition-colors whitespace-nowrap ${
+                  chain.id === chainId ? "bg-[var(--muted)]" : ""
+                }`}
+              >
+                <span className="text-base">{chain.icon}</span>
+                <span className="flex-1 text-left">{chain.name}</span>
+                <span className="text-[10px] text-green-400 font-medium">● Live</span>
+              </button>
+            ))}
           </div>
         </div>
       )}
