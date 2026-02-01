@@ -23,6 +23,7 @@ type ActivityEvent = {
   chainName: string;
   chainIcon: string;
   explorer: string;
+  isAgent: boolean; // true if this is agent activity
 };
 
 // Event signatures (topic0)
@@ -114,6 +115,7 @@ export function ActivityFeed({
                 chainName: chainConfig.name,
                 chainIcon: chainConfig.icon,
                 explorer: chainConfig.explorer,
+                isAgent: false, // TODO: check BotRegistry for agent depositors
               });
             } else if (topic0 === EVENT_TOPICS.Withdrawn && (filter === "all" || filter === "supply")) {
               chainEvents.push({
@@ -127,6 +129,7 @@ export function ActivityFeed({
                 chainName: chainConfig.name,
                 chainIcon: chainConfig.icon,
                 explorer: chainConfig.explorer,
+                isAgent: false, // TODO: check BotRegistry for agent withdrawers
               });
             } else if (topic0 === EVENT_TOPICS.Borrowed && (filter === "all" || filter === "borrow")) {
               chainEvents.push({
@@ -141,6 +144,7 @@ export function ActivityFeed({
                 chainName: chainConfig.name,
                 chainIcon: chainConfig.icon,
                 explorer: chainConfig.explorer,
+                isAgent: true, // Borrows are always by agents
               });
             } else if (topic0 === EVENT_TOPICS.Repaid && (filter === "all" || filter === "borrow")) {
               const principal = decodeAmount(log.data, 0);
@@ -157,6 +161,7 @@ export function ActivityFeed({
                 chainName: chainConfig.name,
                 chainIcon: chainConfig.icon,
                 explorer: chainConfig.explorer,
+                isAgent: true, // Repays are always by agents
               });
             }
           }
@@ -268,6 +273,12 @@ export function ActivityFeed({
           </div>
           <div className="flex items-center gap-2 text-xs text-[var(--muted-foreground)]">
             <span title={event.chainName}>{event.chainIcon}</span>
+            <span 
+              title={event.isAgent ? "Agent" : "Human"} 
+              className={event.isAgent ? "text-blue-400" : "text-orange-400"}
+            >
+              {event.isAgent ? "🤖" : "👤"}
+            </span>
             {event.address && (
               <span className="hidden sm:inline">{shortenAddress(event.address)}</span>
             )}
