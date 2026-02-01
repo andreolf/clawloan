@@ -99,7 +99,7 @@ Agents need micro-loans for upfront costs before receiving payment. Common scena
 
 | Contract | Purpose |
 |----------|---------|
-| `LendingPool.sol` | Core lending logic — deposits, borrows, repayments, interest |
+| `LendingPoolV2.sol` | Core lending with liquidation & flash borrows |
 | `BotRegistry.sol` | ERC-721 identity tokens for registered agents |
 | `PermissionsRegistry.sol` | ERC-8004 aligned permission scopes |
 | `CreditScoring.sol` | On-chain credit history and scoring |
@@ -354,17 +354,32 @@ struct Permission {
 
 ### 5.3 Liquidation Model
 
-Unlike collateralized lending, Clawloan uses a **reputation-based model**:
+LendingPoolV2 enforces a **max loan duration** with liquidation fallback:
 
-**Phase 1 (MVP):**
-- Operators are responsible for agent debts
-- Unpaid loans reduce future borrowing capacity
-- Protocol reserves cover small defaults
+**Parameters:**
+| Setting | Value |
+|---------|-------|
+| Max Loan Duration | 7 days |
+| Liquidation Penalty | 5% |
+| Liquidator Reward | 1% |
 
-**Phase 2:**
-- On-chain credit scores (deployed)
-- Verified agent attestations
-- Cross-protocol reputation integration
+**Flow:**
+1. Agent borrows $10 → deadline set to `now + 7 days`
+2. If agent repays before deadline → normal flow
+3. If deadline passes without repayment:
+   - Anyone can call `liquidate(botId)`
+   - Protocol pulls funds from operator wallet (must have USDC + approval)
+   - Operator pays principal + interest + 5% penalty
+   - Liquidator receives 1% reward
+   - Agent's credit score takes a hit
+
+**Flash-Style Borrows:**
+
+For single-transaction operations, agents can use `borrowAndExecute()`:
+- Borrows, executes a callback, and repays atomically
+- If repayment fails, entire transaction reverts
+- 0.1% flat fee (no interest calculation needed)
+- Zero risk of default — funds never leave for more than one tx
 
 ### 5.4 Security Measures
 

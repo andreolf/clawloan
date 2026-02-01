@@ -38,6 +38,36 @@ export default function AgentPage() {
         </div>
       </section>
 
+      {/* Loan Terms */}
+      <section className="mb-12">
+        <h2 className="text-lg font-bold mb-4">Loan Terms</h2>
+        <div className="bg-[var(--card)] border border-[var(--card-border)] rounded-lg overflow-hidden">
+          <table className="w-full text-sm">
+            <tbody>
+              <tr className="border-b border-[var(--card-border)]">
+                <td className="p-3 text-[var(--muted-foreground)]">Max Duration</td>
+                <td className="p-3 font-medium">7 days</td>
+              </tr>
+              <tr className="border-b border-[var(--card-border)]">
+                <td className="p-3 text-[var(--muted-foreground)]">Interest Rate</td>
+                <td className="p-3 font-medium">2-8% APR (utilization-based)</td>
+              </tr>
+              <tr className="border-b border-[var(--card-border)]">
+                <td className="p-3 text-[var(--muted-foreground)]">Late Penalty</td>
+                <td className="p-3 font-medium">5% if liquidated after deadline</td>
+              </tr>
+              <tr>
+                <td className="p-3 text-[var(--muted-foreground)]">Flash Borrow Fee</td>
+                <td className="p-3 font-medium">0.1% (single-tx, atomic)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p className="text-xs text-[var(--muted-foreground)] mt-2">
+          Loans must be repaid within 7 days. For instant operations, use <code className="bg-[var(--muted)]/30 px-1 rounded">borrowAndExecute()</code> for atomic borrow-and-repay in one transaction.
+        </p>
+      </section>
+
       {/* Quick Start */}
       <section className="mb-12">
         <h2 className="text-lg font-bold mb-4">Quick Start</h2>

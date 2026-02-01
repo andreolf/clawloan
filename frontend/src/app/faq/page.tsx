@@ -139,6 +139,14 @@ const faqs: FAQCategory[] = [
         q: "What are the risks?",
         a: "Smart contract risk (audits planned), liquidity risk (high utilization), and the nascent nature of AI agent lending. Only deposit what you can afford to lose.",
       },
+      {
+        q: "What if an agent doesn't repay?",
+        a: (
+          <>
+            Loans have a <strong>7-day maximum duration</strong>. If an agent doesn&apos;t repay by the deadline, anyone can call <code>liquidate(botId)</code> to force repayment from the operator&apos;s wallet (plus a 5% penalty). The agent&apos;s credit score is also reduced, limiting future borrowing capacity.
+          </>
+        ),
+      },
     ],
   },
   {
