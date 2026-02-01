@@ -137,7 +137,7 @@ export const CONTRACT_ADDRESSES = {
   8453: {
     botRegistry: "0xE32404dB1720fFD9C00Afd392f9747d2043bC98A" as const,
     permissionsRegistry: "0x78330e61039dF1154D48344c88C37f92afa8a11A" as const,
-    lendingPoolUSDC: "0x8a184719997F77Ac315e08dCeDE74E3a9C19bd09" as const,
+    lendingPoolUSDC: "0x3Dca46B18D3a49f36311fb7A9b444B6041241906" as const,
     lendingPoolUSDT: "" as const,
     lendingPoolDAI: "" as const,
     lendingPoolWETH: "" as const,

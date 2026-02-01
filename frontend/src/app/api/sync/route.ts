@@ -4,7 +4,7 @@ import { base } from "viem/chains";
 import { prisma } from "@/lib/prisma";
 
 // Contract addresses on Base Mainnet
-const LENDING_POOL = "0x8a184719997F77Ac315e08dCeDE74E3a9C19bd09";
+const LENDING_POOL = "0x3Dca46B18D3a49f36311fb7A9b444B6041241906";
 
 // Minimal ABI for reading pool state
 const LENDING_POOL_ABI = [

@@ -70,7 +70,7 @@ Open http://localhost:3000
 
 | Contract | Description |
 |----------|-------------|
-| `LendingPool.sol` | Core lending logic (deposit, borrow, repay) |
+| `LendingPoolV2.sol` | Core lending logic with liquidation & flash borrows |
 | `BotRegistry.sol` | Agent identity (ERC-721) |
 | `PermissionsRegistry.sol` | ERC-8004 permission scopes |
 | `CreditScoring.sol` | On-chain credit history |
