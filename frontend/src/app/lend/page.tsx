@@ -65,6 +65,14 @@ export default function LendPage() {
     query: { enabled: !!defaultPoolAddress },
   });
 
+  const { data: supplyRate } = useReadContract({
+    address: defaultPoolAddress,
+    abi: LENDING_POOL_ABI,
+    functionName: "getSupplyRate",
+    chainId: base.id,
+    query: { enabled: !!defaultPoolAddress },
+  });
+
   // Read user's deposit (returns [shares, rewardDebt])
   const { data: userDeposit, refetch: refetchUserDeposit } = useReadContract({
     address: lendingPoolAddress,
@@ -145,6 +153,10 @@ export default function LendPage() {
   const utilization = globalTotalDeposits && globalTotalDeposits > 0n
     ? ((Number(globalTotalBorrows || 0n) / Number(globalTotalDeposits)) * 100).toFixed(1)
     : "0";
+  
+  // Supply APY calculation (rate is in RAY = 1e27)
+  const RAY = 1e27;
+  const supplyAPY = supplyRate ? ((Number(supplyRate) / RAY) * 100).toFixed(2) : "0.00";
   const balance = usdcBalance ? formatUnits(usdcBalance, 6) : "0";
   
   // Calculate user deposit value: shares * totalDeposits / totalShares
@@ -222,7 +234,13 @@ export default function LendPage() {
       </div>
 
       {/* Pool Stats */}
-      <div className="grid grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div className="bg-[var(--card)] border border-[var(--card-border)] rounded-lg p-4 text-center">
+          <p className="text-2xl font-bold text-[var(--success)]">
+            {supplyAPY}%
+          </p>
+          <p className="text-xs text-[var(--muted-foreground)]">Supply APY</p>
+        </div>
         <div className="bg-[var(--card)] border border-[var(--card-border)] rounded-lg p-4 text-center">
           <p className="text-xl font-bold text-[var(--primary)]">
             ${Number(tvl).toLocaleString(undefined, { maximumFractionDigits: 0 })}
@@ -230,7 +248,7 @@ export default function LendPage() {
           <p className="text-xs text-[var(--muted-foreground)]">TVL</p>
         </div>
         <div className="bg-[var(--card)] border border-[var(--card-border)] rounded-lg p-4 text-center">
-          <p className="text-xl font-bold text-[var(--success)]">
+          <p className="text-xl font-bold">
             ${Number(borrowed).toLocaleString(undefined, { maximumFractionDigits: 0 })}
           </p>
           <p className="text-xs text-[var(--muted-foreground)]">Borrowed</p>
@@ -240,6 +258,14 @@ export default function LendPage() {
           <p className="text-xs text-[var(--muted-foreground)]">Utilization</p>
         </div>
       </div>
+      
+      {/* APY Explanation */}
+      {Number(supplyAPY) === 0 && (
+        <div className="mb-6 text-center text-sm text-[var(--muted-foreground)] bg-[var(--muted)]/20 rounded-lg p-3">
+          <p>APY is currently 0% because there are no active loans.</p>
+          <p className="text-xs mt-1">When agents borrow, you earn up to <span className="text-[var(--success)]">~4.5% APY</span> at optimal utilization.</p>
+        </div>
+      )}
 
       {!isConnected ? (
         <div className="bg-[var(--card)] border border-[var(--card-border)] rounded-lg p-8 text-center">
@@ -333,8 +359,14 @@ export default function LendPage() {
                 <span>${Number(deposited).toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-[var(--muted-foreground)]">Shares</span>
-                <span>{userShares ? formatUnits(userShares, 6) : "0"}</span>
+                <span className="text-[var(--muted-foreground)]">Current APY</span>
+                <span className="text-[var(--success)]">{supplyAPY}%</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-[var(--muted-foreground)]">Est. yearly earnings</span>
+                <span className="text-[var(--success)]">
+                  ${(Number(deposited) * Number(supplyAPY) / 100).toFixed(2)}
+                </span>
               </div>
             </div>
             <div className="flex gap-3 mt-4">
