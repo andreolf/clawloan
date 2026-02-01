@@ -1,15 +1,47 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, ReactNode } from "react";
 
-const faqs = [
+interface FAQ {
+  q: string;
+  a: ReactNode;
+}
+
+interface FAQCategory {
+  category: string;
+  questions: FAQ[];
+}
+
+const ExternalLink = ({ href, children }: { href: string; children: ReactNode }) => (
+  <a
+    href={href}
+    target="_blank"
+    rel="noopener noreferrer"
+    className="text-orange-500 hover:text-orange-400 underline underline-offset-2"
+  >
+    {children}
+  </a>
+);
+
+const InternalLink = ({ href, children }: { href: string; children: ReactNode }) => (
+  <Link href={href} className="text-orange-500 hover:text-orange-400 underline underline-offset-2">
+    {children}
+  </Link>
+);
+
+const faqs: FAQCategory[] = [
   {
     category: "General",
     questions: [
       {
         q: "What is Clawloan?",
-        a: "Clawloan is a DeFi lending protocol built specifically for AI agents. It allows agents to borrow USDC micro-loans to cover upfront costs for tasks, while letting humans earn yield by supplying liquidity.",
+        a: (
+          <>
+            Clawloan is a DeFi lending protocol built specifically for AI agents. It allows agents to borrow USDC micro-loans to cover upfront costs for tasks, while letting humans earn yield by supplying liquidity. Read our{" "}
+            <InternalLink href="/docs/whitepaper">Technical Paper</InternalLink> for the full details.
+          </>
+        ),
       },
       {
         q: "Why do AI agents need loans?",
@@ -17,7 +49,15 @@ const faqs = [
       },
       {
         q: "What chains is Clawloan on?",
-        a: "Currently live on Base Sepolia (testnet). Mainnet deployment planned for Base, with Arbitrum and Optimism support coming soon.",
+        a: (
+          <>
+            Currently live on{" "}
+            <ExternalLink href="https://sepolia.basescan.org">Base Sepolia</ExternalLink> (testnet). Mainnet deployment planned for{" "}
+            <ExternalLink href="https://base.org">Base</ExternalLink>, with{" "}
+            <ExternalLink href="https://arbitrum.io">Arbitrum</ExternalLink> and{" "}
+            <ExternalLink href="https://optimism.io">Optimism</ExternalLink> support coming soon.
+          </>
+        ),
       },
       {
         q: "What tokens can I lend/borrow?",
@@ -30,7 +70,12 @@ const faqs = [
     questions: [
       {
         q: "How do I earn yield?",
-        a: "Deposit USDC into the lending pool. When agents borrow and repay with interest, you earn a share of that interest proportional to your deposit. Current supply APY is displayed on the Markets page.",
+        a: (
+          <>
+            Deposit USDC into the lending pool. When agents borrow and repay with interest, you earn a share of that interest proportional to your deposit. Current supply APY is displayed on the{" "}
+            <InternalLink href="/markets">Markets page</InternalLink>.
+          </>
+        ),
       },
       {
         q: "How do you collect liquidity?",
@@ -38,7 +83,12 @@ const faqs = [
       },
       {
         q: "Can I withdraw anytime?",
-        a: "Yes, as long as there's available liquidity in the pool (deposits minus active borrows). If utilization is very high, you may need to wait for repayments.",
+        a: (
+          <>
+            Yes, as long as there&apos;s available liquidity in the pool (deposits minus active borrows). If utilization is very high, you may need to wait for repayments. Start lending on the{" "}
+            <InternalLink href="/lend">Lend page</InternalLink>.
+          </>
+        ),
       },
       {
         q: "What are the risks?",
@@ -51,11 +101,22 @@ const faqs = [
     questions: [
       {
         q: "How does the agent skill work?",
-        a: "Agents use OpenClaw's AgentSkill standard. We expose a skill.md file at clawloan.com/skill.md that agents read to understand how to interact with the protocol. The skill defines how to call borrow(amount) on the LendingPool contract, required permissions, and repayment flow.",
+        a: (
+          <>
+            Agents use{" "}
+            <ExternalLink href="https://openclaw.ai">OpenClaw&apos;s</ExternalLink> AgentSkill standard. We expose a{" "}
+            <ExternalLink href="https://clawloan.com/skill.md">skill.md file</ExternalLink> that agents read to understand how to interact with the protocol. The skill defines how to call borrow(amount) on the LendingPool contract, required permissions, and repayment flow.
+          </>
+        ),
       },
       {
         q: "How do agents get permission to borrow?",
-        a: "Through ERC-8004 (Trustless Agents standard). The agent's human owner registers the bot in our BotRegistry, then sets permissions in the PermissionsRegistry: maximum spend limit, allowed tokens, and expiry time. The agent operates within these pre-approved bounds.",
+        a: (
+          <>
+            Through{" "}
+            <ExternalLink href="https://eips.ethereum.org/EIPS/eip-8004">ERC-8004</ExternalLink> (Trustless Agents standard). The agent&apos;s human owner registers the bot in our BotRegistry, then sets permissions in the PermissionsRegistry: maximum spend limit, allowed tokens, and expiry time. The agent operates within these pre-approved bounds.
+          </>
+        ),
       },
       {
         q: "Do agents hold private keys?",
@@ -63,7 +124,12 @@ const faqs = [
       },
       {
         q: "How do agents repay loans?",
-        a: "Using x402 (pay-per-request protocol). When an agent completes a task and receives payment, a portion automatically goes toward loan repayment. Agents can also explicitly call repay() with their earnings.",
+        a: (
+          <>
+            Using{" "}
+            <ExternalLink href="https://www.x402.org">x402</ExternalLink> (pay-per-request protocol). When an agent completes a task and receives payment, a portion automatically goes toward loan repayment. Agents can also explicitly call repay() with their earnings.
+          </>
+        ),
       },
       {
         q: "What's the borrowing limit?",
@@ -76,19 +142,41 @@ const faqs = [
     questions: [
       {
         q: "What standards does Clawloan use?",
-        a: "ERC-8004 for trustless agent identity and permissions, x402 for pay-per-request payments, and OpenClaw's AgentSkill format for agent integration. Built on Aave V3-style lending pool architecture.",
+        a: (
+          <>
+            <ExternalLink href="https://eips.ethereum.org/EIPS/eip-8004">ERC-8004</ExternalLink> for trustless agent identity and permissions,{" "}
+            <ExternalLink href="https://www.x402.org">x402</ExternalLink> for pay-per-request payments, and{" "}
+            <ExternalLink href="https://openclaw.ai">OpenClaw&apos;s AgentSkill</ExternalLink> format for agent integration. Built on{" "}
+            <ExternalLink href="https://aave.com">Aave V3</ExternalLink>-style lending pool architecture.
+          </>
+        ),
       },
       {
         q: "Are the contracts audited?",
-        a: "Not yet. Contracts are open source and audits are planned before mainnet launch. Use testnet for now.",
+        a: (
+          <>
+            Not yet. Contracts are open source and audits are planned before mainnet launch. Use testnet for now. View the code on{" "}
+            <ExternalLink href="https://github.com/andreolf/clawloan">GitHub</ExternalLink>.
+          </>
+        ),
       },
       {
         q: "Where can I see the code?",
-        a: "GitHub: github.com/andreolf/clawloan. Contracts are in /contracts, frontend in /frontend.",
+        a: (
+          <>
+            <ExternalLink href="https://github.com/andreolf/clawloan">github.com/andreolf/clawloan</ExternalLink>. Contracts are in /contracts, frontend in /frontend. Read the{" "}
+            <InternalLink href="/docs/whitepaper">Technical Paper</InternalLink> for architecture details.
+          </>
+        ),
       },
       {
         q: "How are interest rates determined?",
-        a: "Algorithmically based on utilization (borrowed / deposited). Higher utilization = higher rates to incentivize deposits and discourage excessive borrowing. Rates use RAY precision (1e27) for accuracy.",
+        a: (
+          <>
+            Algorithmically based on utilization (borrowed / deposited). Higher utilization = higher rates to incentivize deposits and discourage excessive borrowing. See the{" "}
+            <InternalLink href="/docs/whitepaper">Technical Paper</InternalLink> for the full interest rate model.
+          </>
+        ),
       },
     ],
   },
@@ -101,7 +189,16 @@ const faqs = [
       },
       {
         q: "What's the roadmap?",
-        a: "Phase 1: Base testnet (live). Phase 2: Base mainnet + audits. Phase 3: Multi-chain (Arbitrum, Optimism). Phase 4: Token launch and governance. Phase 5: Solana integration.",
+        a: (
+          <>
+            <strong>Phase 1:</strong> Base testnet (live) •{" "}
+            <strong>Phase 2:</strong> Base mainnet + audits •{" "}
+            <strong>Phase 3:</strong> Multi-chain (<ExternalLink href="https://arbitrum.io">Arbitrum</ExternalLink>, <ExternalLink href="https://optimism.io">Optimism</ExternalLink>) •{" "}
+            <strong>Phase 4:</strong> Token launch and governance •{" "}
+            <strong>Phase 5:</strong> <ExternalLink href="https://solana.com">Solana</ExternalLink> integration. See the{" "}
+            <InternalLink href="/docs/whitepaper">Technical Paper</InternalLink> for details.
+          </>
+        ),
       },
     ],
   },

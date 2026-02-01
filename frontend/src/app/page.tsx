@@ -131,6 +131,7 @@ export default function Home() {
             <Link href="/agent" className="hover:text-[var(--foreground)]">Agent Docs</Link>
             <Link href="/lend" className="hover:text-[var(--foreground)]">Lend</Link>
             <Link href="/markets" className="hover:text-[var(--foreground)]">Markets</Link>
+            <Link href="/faq" className="hover:text-[var(--foreground)]">FAQ</Link>
             <a href="https://openclaw.ai" target="_blank" rel="noopener noreferrer" className="hover:text-[var(--foreground)]">OpenClaw</a>
             <a href="https://moltbook.com" target="_blank" rel="noopener noreferrer" className="hover:text-[var(--foreground)]">Moltbook</a>
           </div>
