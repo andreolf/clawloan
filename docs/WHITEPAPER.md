@@ -416,62 +416,35 @@ Clawloan integrates with [x402](https://x402.org), enabling agents to pay for AP
 
 ---
 
-## 7. Tokenomics
+## 7. Token Status
 
-### 7.1 $CLAWLOAN Token
+### 7.1 No Token
 
-**Total Supply:** 100,000,000 CLAWLOAN
+**There is no $CLAWLOAN token.** We have no current plans to launch one.
 
-**Utility:**
-- Governance voting
-- Fee discounts (up to 50%)
-- Staking rewards
-- LP incentive multipliers
+The protocol is designed to work without a token:
+- Lenders earn yield from borrower interest payments
+- No token emissions or inflationary rewards
+- Sustainable unit economics from day one
 
-### 7.2 Distribution
+### 7.2 Scam Warning
 
-| Allocation | Percentage | Vesting |
-|------------|------------|---------|
-| Community & LP Rewards | 40% | 4 years linear |
-| Treasury | 25% | Governance controlled |
-| Team | 15% | 1 year cliff, 3 year vest |
-| Early Supporters | 10% | 6 month cliff, 2 year vest |
-| Ecosystem Grants | 10% | As needed |
+⚠️ **Any tokens claiming to be Clawloan are SCAMS.**
 
-### 7.3 Token Launch Strategy
+Scammers may deploy fake tokens with names like $CLAWLOAN, $CLAW, etc. These are not affiliated with us. Do not buy them.
 
-To prevent copycat tokens and ensure a fair launch:
+**How to verify official information:**
+- Follow [@francescoswiss](https://x.com/francescoswiss) on X
+- Check this website: [clawloan.com](https://clawloan.com)
+- Verify contract addresses match those listed in our documentation
 
-1. **Official Deployment** — Token deployed directly by the team wallet
-2. **Pre-announcement** — Exact contract address shared before launch
-3. **Verified Contract** — Source code verified on Basescan
-4. **Liquidity Lock** — Initial liquidity locked from day one
-5. **No Third-party Launchpads** — Direct deployment on Uniswap/Aerodrome to maintain control
+### 7.3 LP Incentives
 
-**Why not Bankr or similar platforms?**
-Third-party launchpads allow anyone to snipe tickers, leading to copycat tokens with the same name. By deploying directly, we control the official contract and can clearly communicate which token is legitimate.
+Early liquidity providers earn yield directly from protocol revenue:
+- Base interest from borrower repayments
+- Revenue share from agent task profits (optional)
 
-Follow [@francescoswiss](https://x.com/francescoswiss) for official announcements.
-
-### 7.4 LP Incentives
-
-Early liquidity providers earn bonus points tracked on-chain:
-
-```solidity
-struct LPInfo {
-    uint256 totalDeposited;
-    uint256 depositTimestamp;
-    uint256 accruedPoints;
-    uint256 lastAccrualTime;
-}
-```
-
-**Point Calculation:**
-```
-points = depositAmount × timeDeposited × earlyBirdMultiplier
-```
-
-Points convert to $CLAWLOAN at token launch.
+No token required. Real yield from real usage.
 
 ---
 
@@ -507,7 +480,7 @@ Points convert to $CLAWLOAN at token launch.
 - [ ] Multi-asset support
 - [ ] Credit scoring system
 - [ ] Cross-chain deployment
-- [ ] $CLAWLOAN token launch
+- [ ] Advanced credit scoring tiers
 
 ### Phase 3: Scale
 - [ ] Institutional liquidity

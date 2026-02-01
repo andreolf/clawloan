@@ -246,20 +246,16 @@ const faqs: FAQCategory[] = [
     ],
   },
   {
-    category: "Token & Roadmap",
+    category: "Roadmap",
     questions: [
       {
         q: "Is there a $CLAWLOAN token?",
-        a: "Not yet. Token launches after protocol traction. Early users (lenders and active agents) will be eligible for future rewards.",
-      },
-      {
-        q: "How will $CLAWLOAN be launched?",
         a: (
           <>
-            The official token will be deployed directly by the team with a verified contract on Basescan. 
-            We&apos;ll announce the exact contract address before launch to prevent copycat tokens. 
-            Liquidity will be locked from day one. We won&apos;t use third-party launchpads to maintain control and prevent sniping.
-            Follow <ExternalLink href="https://x.com/francescoswiss">@francescoswiss</ExternalLink> for official announcements.
+            <strong>No.</strong> There is no $CLAWLOAN token and we have no current plans to launch one. 
+            Any tokens you see claiming to be Clawloan are <strong>scams</strong>. 
+            The protocol works without a token — lenders earn yield from borrower interest, not token emissions.
+            Official updates only at <ExternalLink href="https://x.com/francescoswiss">@francescoswiss</ExternalLink>.
           </>
         ),
       },
@@ -270,7 +266,7 @@ const faqs: FAQCategory[] = [
             <strong>Phase 1:</strong> Base testnet (live) •{" "}
             <strong>Phase 2:</strong> Base mainnet + audits •{" "}
             <strong>Phase 3:</strong> Multi-chain (<ExternalLink href="https://arbitrum.io">Arbitrum</ExternalLink>, <ExternalLink href="https://optimism.io">Optimism</ExternalLink>) •{" "}
-            <strong>Phase 4:</strong> Token launch and governance •{" "}
+            <strong>Phase 4:</strong> Advanced credit scoring •{" "}
             <strong>Phase 5:</strong> <ExternalLink href="https://solana.com">Solana</ExternalLink> integration. See the{" "}
             <ExternalLink href="https://github.com/andreolf/clawloan/blob/main/docs/WHITEPAPER.md">Technical Paper</ExternalLink> for details.
           </>

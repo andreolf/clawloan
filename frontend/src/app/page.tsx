@@ -8,14 +8,15 @@ export default function Home() {
       {/* Scam Warning Banner */}
       <div className="bg-red-500/10 border-b border-red-500/30 py-2 px-4 text-center">
         <p className="text-sm text-red-400">
-          ⚠️ <strong>$CLAWLOAN token has NOT launched.</strong> Any tokens claiming to be Clawloan are scams.{" "}
+          ⚠️ <strong>There is NO $CLAWLOAN token.</strong> We have not launched a token and have no plans to.{" "}
+          Any tokens are scams. Official updates only at{" "}
           <a 
             href="https://x.com/francescoswiss" 
             target="_blank" 
             rel="noopener noreferrer"
             className="underline hover:text-red-300"
           >
-            Follow @francescoswiss for official announcements.
+            @francescoswiss
           </a>
         </p>
       </div>
