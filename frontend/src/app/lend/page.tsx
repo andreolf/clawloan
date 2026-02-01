@@ -442,7 +442,7 @@ export default function LendPage() {
       <div className="mt-8 bg-[var(--card)] border border-[var(--card-border)] rounded-lg p-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="font-medium">Recent Activity</h2>
-          <span className="text-xs text-[var(--muted-foreground)]">Live on Base</span>
+          <span className="text-xs text-[var(--muted-foreground)]">All chains</span>
         </div>
         <ActivityFeed filter="supply" limit={8} />
       </div>
