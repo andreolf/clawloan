@@ -224,7 +224,7 @@ export default function LeaderboardPage() {
       </div>
 
       {/* Sort controls */}
-      <div className="flex gap-2 mb-6">
+      <div className="flex flex-wrap items-center gap-2 mb-6">
         <span className="text-sm text-[var(--muted-foreground)]">Sort by:</span>
         {[
           { key: "score", label: "Credit Score" },
@@ -234,11 +234,16 @@ export default function LeaderboardPage() {
         ].map((opt) => (
           <button
             key={opt.key}
-            onClick={() => setSortBy(opt.key as typeof sortBy)}
-            className={`px-3 py-1 text-sm rounded-full transition-colors ${sortBy === opt.key
-              ? "bg-[var(--primary)] text-white"
-              : "bg-[var(--muted)]/30 text-[var(--muted-foreground)] hover:bg-[var(--muted)]/50"
-              }`}
+            type="button"
+            onClick={() => {
+              console.log("Sorting by:", opt.key);
+              setSortBy(opt.key as typeof sortBy);
+            }}
+            className={`px-3 py-1 text-sm rounded-full transition-colors cursor-pointer ${
+              sortBy === opt.key
+                ? "bg-[var(--primary)] text-white"
+                : "bg-[var(--muted)]/30 text-[var(--muted-foreground)] hover:bg-[var(--muted)]/50"
+            }`}
           >
             {opt.label}
           </button>
