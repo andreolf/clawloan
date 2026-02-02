@@ -6,23 +6,30 @@ import { base, arbitrum, optimism } from "viem/chains";
 import Link from "next/link";
 
 const CHAINS = [
-  { id: 8453, chain: base, name: "Base", icon: "🔵", rpc: "https://mainnet.base.org", 
+  {
+    id: 8453, chain: base, name: "Base", icon: "🔵", rpc: "https://mainnet.base.org",
     botRegistry: "0xE32404dB1720fFD9C00Afd392f9747d2043bC98A",
     creditScoring: "0x0E7d8675c4e0a0783B1B51eDe3aaB8D8BDc6B9Ad",
-    explorer: "https://basescan.org" },
-  { id: 42161, chain: arbitrum, name: "Arbitrum", icon: "🔷", rpc: "https://arb1.arbitrum.io/rpc",
+    explorer: "https://basescan.org"
+  },
+  {
+    id: 42161, chain: arbitrum, name: "Arbitrum", icon: "🔷", rpc: "https://arb1.arbitrum.io/rpc",
     botRegistry: "0xe19320FB36d07CCBC14b239453F36Ed958DeDEF0",
     creditScoring: "0xE32404dB1720fFD9C00Afd392f9747d2043bC98A",
-    explorer: "https://arbiscan.io" },
-  { id: 10, chain: optimism, name: "Optimism", icon: "🔴", rpc: "https://mainnet.optimism.io",
+    explorer: "https://arbiscan.io"
+  },
+  {
+    id: 10, chain: optimism, name: "Optimism", icon: "🔴", rpc: "https://mainnet.optimism.io",
     botRegistry: "0xe19320FB36d07CCBC14b239453F36Ed958DeDEF0",
     creditScoring: "0xE32404dB1720fFD9C00Afd392f9747d2043bC98A",
-    explorer: "https://optimistic.etherscan.io" },
+    explorer: "https://optimistic.etherscan.io"
+  },
 ];
 
 const BOT_REGISTRY_ABI = [
   { name: "nextBotId", type: "function", stateMutability: "view", inputs: [], outputs: [{ type: "uint256" }] },
-  { name: "getBot", type: "function", stateMutability: "view", 
+  {
+    name: "getBot", type: "function", stateMutability: "view",
     inputs: [{ name: "botId", type: "uint256" }],
     outputs: [
       { name: "metadataHash", type: "string" },
@@ -34,7 +41,8 @@ const BOT_REGISTRY_ABI = [
 ] as const;
 
 const CREDIT_SCORING_ABI = [
-  { name: "getBasicStats", type: "function", stateMutability: "view",
+  {
+    name: "getBasicStats", type: "function", stateMutability: "view",
     inputs: [{ name: "botId", type: "uint256" }],
     outputs: [
       { name: "totalLoans", type: "uint256" },
@@ -44,11 +52,13 @@ const CREDIT_SCORING_ABI = [
       { name: "creditTier", type: "uint256" }
     ]
   },
-  { name: "getCreditScore", type: "function", stateMutability: "view",
+  {
+    name: "getCreditScore", type: "function", stateMutability: "view",
     inputs: [{ name: "botId", type: "uint256" }],
     outputs: [{ name: "score", type: "uint256" }]
   },
-  { name: "getVolumeStats", type: "function", stateMutability: "view",
+  {
+    name: "getVolumeStats", type: "function", stateMutability: "view",
     inputs: [{ name: "botId", type: "uint256" }],
     outputs: [
       { name: "totalBorrowed", type: "uint256" },
@@ -80,7 +90,7 @@ type AgentStats = {
 const TIER_NAMES = ["NEW", "BRONZE", "SILVER", "GOLD", "PLATINUM"];
 const TIER_COLORS = [
   "text-zinc-400",
-  "text-orange-400", 
+  "text-orange-400",
   "text-slate-300",
   "text-yellow-400",
   "text-purple-400"
@@ -94,7 +104,7 @@ function shortenAddress(addr: string) {
 export default function LeaderboardPage() {
   const [agents, setAgents] = useState<AgentStats[]>([]);
   const [loading, setLoading] = useState(true);
-  const [sortBy, setSortBy] = useState<"score" | "repayments" | "volume">("score");
+  const [sortBy, setSortBy] = useState<"score" | "rate" | "repayments" | "volume">("score");
 
   useEffect(() => {
     async function fetchAllAgents() {
@@ -182,9 +192,13 @@ export default function LeaderboardPage() {
     fetchAllAgents();
   }, []);
 
+  const getSuccessRate = (agent: AgentStats) =>
+    agent.totalLoans > 0 ? agent.successfulRepayments / agent.totalLoans : 0;
+
   const sortedAgents = [...agents].sort((a, b) => {
     switch (sortBy) {
       case "score": return b.creditScore - a.creditScore;
+      case "rate": return getSuccessRate(b) - getSuccessRate(a);
       case "repayments": return b.successfulRepayments - a.successfulRepayments;
       case "volume": return b.totalRepaid - a.totalRepaid;
       default: return 0;
@@ -205,17 +219,17 @@ export default function LeaderboardPage() {
         <span className="text-sm text-[var(--muted-foreground)]">Sort by:</span>
         {[
           { key: "score", label: "Credit Score" },
+          { key: "rate", label: "Success Rate" },
           { key: "repayments", label: "Repayments" },
           { key: "volume", label: "Volume" },
         ].map((opt) => (
           <button
             key={opt.key}
             onClick={() => setSortBy(opt.key as typeof sortBy)}
-            className={`px-3 py-1 text-sm rounded-full transition-colors ${
-              sortBy === opt.key
-                ? "bg-[var(--primary)] text-white"
-                : "bg-[var(--muted)]/30 text-[var(--muted-foreground)] hover:bg-[var(--muted)]/50"
-            }`}
+            className={`px-3 py-1 text-sm rounded-full transition-colors ${sortBy === opt.key
+              ? "bg-[var(--primary)] text-white"
+              : "bg-[var(--muted)]/30 text-[var(--muted-foreground)] hover:bg-[var(--muted)]/50"
+              }`}
           >
             {opt.label}
           </button>
@@ -240,14 +254,15 @@ export default function LeaderboardPage() {
                 <th className="px-4 py-3">Chain</th>
                 <th className="px-4 py-3">Tier</th>
                 <th className="px-4 py-3 text-right">Score</th>
-                <th className="px-4 py-3 text-right">Repayments</th>
+                <th className="px-4 py-3 text-right">Success Rate</th>
+                <th className="px-4 py-3 text-right">Loans</th>
                 <th className="px-4 py-3 text-right">Volume</th>
                 <th className="px-4 py-3 text-right">Streak</th>
               </tr>
             </thead>
             <tbody>
               {sortedAgents.map((agent, index) => (
-                <tr 
+                <tr
                   key={`${agent.chainId}-${agent.botId}`}
                   className="border-t border-[var(--card-border)] hover:bg-[var(--muted)]/10 transition-colors"
                 >
@@ -257,7 +272,7 @@ export default function LeaderboardPage() {
                   <td className="px-4 py-3">
                     <div className="flex flex-col">
                       <span className="font-medium">Bot #{agent.botId}</span>
-                      <a 
+                      <a
                         href={`${agent.explorer}/address/${agent.operator}`}
                         target="_blank"
                         rel="noopener noreferrer"
@@ -279,9 +294,26 @@ export default function LeaderboardPage() {
                     {agent.creditScore}
                   </td>
                   <td className="px-4 py-3 text-right">
+                    {agent.totalLoans > 0 ? (
+                      <span className={
+                        agent.totalLoans === agent.successfulRepayments
+                          ? "text-green-400 font-medium"
+                          : agent.defaults > 0
+                            ? "text-red-400"
+                            : "text-yellow-400"
+                      }>
+                        {((agent.successfulRepayments / agent.totalLoans) * 100).toFixed(0)}%
+                      </span>
+                    ) : (
+                      <span className="text-[var(--muted-foreground)]">—</span>
+                    )}
+                  </td>
+                  <td className="px-4 py-3 text-right">
                     <span className="text-green-400">{agent.successfulRepayments}</span>
+                    <span className="text-[var(--muted-foreground)]">/</span>
+                    <span className="text-[var(--muted-foreground)]">{agent.totalLoans}</span>
                     {agent.defaults > 0 && (
-                      <span className="text-red-400 ml-1">/ {agent.defaults}❌</span>
+                      <span className="text-red-400 ml-1">({agent.defaults}❌)</span>
                     )}
                   </td>
                   <td className="px-4 py-3 text-right font-mono">
