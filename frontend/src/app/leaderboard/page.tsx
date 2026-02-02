@@ -239,11 +239,10 @@ export default function LeaderboardPage() {
               console.log("Sorting by:", opt.key);
               setSortBy(opt.key as typeof sortBy);
             }}
-            className={`px-3 py-1 text-sm rounded-full transition-colors cursor-pointer ${
-              sortBy === opt.key
+            className={`px-3 py-1 text-sm rounded-full transition-colors cursor-pointer ${sortBy === opt.key
                 ? "bg-[var(--primary)] text-white"
                 : "bg-[var(--muted)]/30 text-[var(--muted-foreground)] hover:bg-[var(--muted)]/50"
-            }`}
+              }`}
           >
             {opt.label}
           </button>
@@ -276,73 +275,73 @@ export default function LeaderboardPage() {
                     <th className="px-2 sm:px-4 py-3 text-right">Streak</th>
                   </tr>
                 </thead>
-            <tbody>
-              {sortedAgents.map((agent, index) => (
-                <tr
-                  key={`${agent.chainId}-${agent.botId}`}
-                  className="border-t border-[var(--card-border)] hover:bg-[var(--muted)]/10 transition-colors text-xs sm:text-sm"
-                >
-                  <td className="px-2 sm:px-4 py-2 sm:py-3 text-[var(--muted-foreground)]">
-                    {index + 1}
-                  </td>
-                  <td className="px-2 sm:px-4 py-2 sm:py-3">
-                    <div className="flex flex-col">
-                      <span className="font-medium text-xs sm:text-sm">Bot #{agent.botId}</span>
-                      <a
-                        href={`${agent.explorer}/address/${agent.operator}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-[10px] sm:text-xs text-[var(--muted-foreground)] hover:text-[var(--primary)]"
-                      >
-                        {shortenAddress(agent.operator)}
-                      </a>
-                    </div>
-                  </td>
-                  <td className="px-2 sm:px-4 py-2 sm:py-3">
-                    <span title={agent.chainName}>{agent.chainIcon}</span>
-                  </td>
-                  <td className="px-2 sm:px-4 py-2 sm:py-3">
-                    <span className={`font-medium text-xs sm:text-sm ${TIER_COLORS[agent.creditTier]}`}>
-                      {TIER_NAMES[agent.creditTier]}
-                    </span>
-                  </td>
-                  <td className="px-2 sm:px-4 py-2 sm:py-3 text-right font-mono">
-                    {agent.creditScore}
-                  </td>
-                  <td className="px-2 sm:px-4 py-2 sm:py-3 text-right hidden sm:table-cell">
-                    {agent.totalLoans > 0 ? (
-                      <span className={
-                        agent.totalLoans === agent.successfulRepayments
-                          ? "text-green-400 font-medium"
-                          : agent.defaults > 0
-                            ? "text-red-400"
-                            : "text-yellow-400"
-                      }>
-                        {((agent.successfulRepayments / agent.totalLoans) * 100).toFixed(0)}%
-                      </span>
-                    ) : (
-                      <span className="text-[var(--muted-foreground)]">—</span>
-                    )}
-                  </td>
-                  <td className="px-2 sm:px-4 py-2 sm:py-3 text-right">
-                    <span className="text-green-400">{agent.successfulRepayments}</span>
-                    <span className="text-[var(--muted-foreground)]">/</span>
-                    <span className="text-[var(--muted-foreground)]">{agent.totalLoans}</span>
-                  </td>
-                  <td className="px-2 sm:px-4 py-2 sm:py-3 text-right font-mono hidden sm:table-cell">
-                    ${agent.totalRepaid.toLocaleString()}
-                  </td>
-                  <td className="px-2 sm:px-4 py-2 sm:py-3 text-right">
-                    {agent.currentStreak > 0 ? (
-                      <span className="text-green-400">🔥{agent.currentStreak}</span>
-                    ) : (
-                      <span className="text-[var(--muted-foreground)]">0</span>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                <tbody>
+                  {sortedAgents.map((agent, index) => (
+                    <tr
+                      key={`${agent.chainId}-${agent.botId}`}
+                      className="border-t border-[var(--card-border)] hover:bg-[var(--muted)]/10 transition-colors text-xs sm:text-sm"
+                    >
+                      <td className="px-2 sm:px-4 py-2 sm:py-3 text-[var(--muted-foreground)]">
+                        {index + 1}
+                      </td>
+                      <td className="px-2 sm:px-4 py-2 sm:py-3">
+                        <div className="flex flex-col">
+                          <span className="font-medium text-xs sm:text-sm">Bot #{agent.botId}</span>
+                          <a
+                            href={`${agent.explorer}/address/${agent.operator}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-[10px] sm:text-xs text-[var(--muted-foreground)] hover:text-[var(--primary)]"
+                          >
+                            {shortenAddress(agent.operator)}
+                          </a>
+                        </div>
+                      </td>
+                      <td className="px-2 sm:px-4 py-2 sm:py-3">
+                        <span title={agent.chainName}>{agent.chainIcon}</span>
+                      </td>
+                      <td className="px-2 sm:px-4 py-2 sm:py-3">
+                        <span className={`font-medium text-xs sm:text-sm ${TIER_COLORS[agent.creditTier]}`}>
+                          {TIER_NAMES[agent.creditTier]}
+                        </span>
+                      </td>
+                      <td className="px-2 sm:px-4 py-2 sm:py-3 text-right font-mono">
+                        {agent.creditScore}
+                      </td>
+                      <td className="px-2 sm:px-4 py-2 sm:py-3 text-right hidden sm:table-cell">
+                        {agent.totalLoans > 0 ? (
+                          <span className={
+                            agent.totalLoans === agent.successfulRepayments
+                              ? "text-green-400 font-medium"
+                              : agent.defaults > 0
+                                ? "text-red-400"
+                                : "text-yellow-400"
+                          }>
+                            {((agent.successfulRepayments / agent.totalLoans) * 100).toFixed(0)}%
+                          </span>
+                        ) : (
+                          <span className="text-[var(--muted-foreground)]">—</span>
+                        )}
+                      </td>
+                      <td className="px-2 sm:px-4 py-2 sm:py-3 text-right">
+                        <span className="text-green-400">{agent.successfulRepayments}</span>
+                        <span className="text-[var(--muted-foreground)]">/</span>
+                        <span className="text-[var(--muted-foreground)]">{agent.totalLoans}</span>
+                      </td>
+                      <td className="px-2 sm:px-4 py-2 sm:py-3 text-right font-mono hidden sm:table-cell">
+                        ${agent.totalRepaid.toLocaleString()}
+                      </td>
+                      <td className="px-2 sm:px-4 py-2 sm:py-3 text-right">
+                        {agent.currentStreak > 0 ? (
+                          <span className="text-green-400">🔥{agent.currentStreak}</span>
+                        ) : (
+                          <span className="text-[var(--muted-foreground)]">0</span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
         </div>

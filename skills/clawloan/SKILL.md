@@ -60,7 +60,58 @@ Content-Type: application/json
 
 Save `bot.id` as your `CLAWLOAN_BOT_ID`.
 
-### Step 2: Borrow USDC
+### Step 2: Set Permissions (Required)
+
+The operator wallet that registered the bot must grant borrowing permissions on-chain. This is a security feature that lets you control what your bot can borrow.
+
+**Contract addresses:**
+
+| Chain | PermissionsRegistry |
+|-------|---------------------|
+| Base | `0xF1c408Ab8F14d1AD7bb9d17231ad3A141cc3F5af` |
+| Arbitrum | `0x9E05E78db04d6b0d7Ec59F2faf0AD2dE6fd72cF4` |
+| Optimism | `0x9E05E78db04d6b0d7Ec59F2faf0AD2dE6fd72cF4` |
+
+**Call `setPermissions` from your operator wallet:**
+
+```solidity
+// Function signature
+function setPermissions(
+  uint256 botId,        // Your numeric bot ID (e.g., 1)
+  bytes32 permissionsHash,  // Use 0x0 for default
+  uint256 maxSpend,     // Max borrow in USDC (6 decimals) e.g., 100000000 = $100
+  uint256 expiry        // Unix timestamp (0 = no expiry)
+) external
+```
+
+**Using cast (Foundry):**
+
+```bash
+# Set permissions for bot #1 to borrow up to $100 USDC, expires in 30 days
+cast send 0xF1c408Ab8F14d1AD7bb9d17231ad3A141cc3F5af \
+  "setPermissions(uint256,bytes32,uint256,uint256)" \
+  1 \
+  0x0000000000000000000000000000000000000000000000000000000000000000 \
+  100000000 \
+  $(( $(date +%s) + 2592000 )) \
+  --rpc-url https://mainnet.base.org \
+  --private-key $OPERATOR_PRIVATE_KEY
+```
+
+**Using ethers.js/viem:**
+
+```javascript
+await permissionsRegistry.write.setPermissions([
+  botId,                    // Your bot ID
+  "0x0000000000000000000000000000000000000000000000000000000000000000",
+  100000000n,               // $100 max
+  BigInt(Math.floor(Date.now()/1000) + 30*24*60*60)  // 30 days
+]);
+```
+
+> ⚠️ **Important:** Only the operator wallet that registered the bot can set permissions. This transaction must be signed by that wallet.
+
+### Step 3: Borrow USDC
 
 Request a micro-loan:
 
@@ -92,7 +143,7 @@ Content-Type: application/json
 }
 ```
 
-### Step 3: Check Your Loan
+### Step 4: Check Your Loan
 
 ```http
 GET {CLAWLOAN_API_URL}/loans?botId={CLAWLOAN_BOT_ID}
@@ -111,7 +162,7 @@ GET {CLAWLOAN_API_URL}/loans?botId={CLAWLOAN_BOT_ID}
 }
 ```
 
-### Step 4: Repay with Profit Sharing
+### Step 5: Repay with Profit Sharing
 
 When your task is complete and you've earned profits:
 
@@ -227,7 +278,7 @@ X-Bot-Id: {CLAWLOAN_BOT_ID}
 | `400` | Insufficient liquidity in pool | Wait for more deposits or request less |
 | `402` | Payment required | Include x402 payment header |
 | `403` | Bot is not active | Re-activate bot or contact support |
-| `403` | No active permissions | Renew permissions (expire after 30 days) |
+| `403` | No active permissions | Set permissions first (Step 2) or renew if expired |
 | `404` | Bot not found | Register first via POST /bots |
 | `404` | No active loan found | Check botId is correct |
 
@@ -250,12 +301,13 @@ See [heartbeat.md](https://clawloan.com/heartbeat.md) for detailed checklist.
 
 ## Best Practices
 
-1. **Start small** — Test with small amounts (1-10 USDC) first
-2. **Check pool liquidity** — Before borrowing, verify sufficient liquidity
-3. **Monitor interest** — Repay promptly to minimize interest costs
-4. **Share profits** — Profit sharing builds reputation and rewards lenders
-5. **Renew permissions** — Permissions expire after 30 days
-6. **Use heartbeats** — Regular monitoring prevents surprises
+1. **Set permissions first** — After registration, call `setPermissions` from your operator wallet (Step 2)
+2. **Start small** — Test with small amounts (1-10 USDC) first
+3. **Check pool liquidity** — Before borrowing, verify sufficient liquidity
+4. **Monitor interest** — Repay promptly to minimize interest costs
+5. **Share profits** — Profit sharing builds reputation and rewards lenders
+6. **Renew permissions** — Permissions expire; set a calendar reminder
+7. **Use heartbeats** — Regular monitoring prevents surprises
 
 ---
 
