@@ -32,14 +32,10 @@ const LENDING_POOL_ABI = [
     type: "function",
     stateMutability: "view",
     inputs: [{ name: "depositor", type: "address" }],
-    outputs: [{ name: "amount", type: "uint256" }],
-  },
-  {
-    name: "shares",
-    type: "function",
-    stateMutability: "view",
-    inputs: [{ name: "depositor", type: "address" }],
-    outputs: [{ name: "shares", type: "uint256" }],
+    outputs: [
+      { name: "shares", type: "uint256" },
+      { name: "rewardDebt", type: "uint256" },
+    ],
   },
   {
     name: "totalDeposits",
@@ -86,17 +82,11 @@ export async function GET(request: NextRequest) {
         });
 
         try {
-          const [deposits, shares, totalDeposits, totalShares] = await Promise.all([
+          const [depositInfo, totalDeposits, totalShares] = await Promise.all([
             client.readContract({
               address: chainConfig.lendingPool,
               abi: LENDING_POOL_ABI,
               functionName: "deposits",
-              args: [address as `0x${string}`],
-            }),
-            client.readContract({
-              address: chainConfig.lendingPool,
-              abi: LENDING_POOL_ABI,
-              functionName: "shares",
               args: [address as `0x${string}`],
             }),
             client.readContract({
@@ -111,6 +101,9 @@ export async function GET(request: NextRequest) {
             }),
           ]);
 
+          // depositInfo is [shares, rewardDebt]
+          const shares = depositInfo[0];
+
           // Calculate current value based on share ratio
           const shareValue = totalShares > 0n
             ? (shares * totalDeposits) / totalShares
@@ -120,7 +113,6 @@ export async function GET(request: NextRequest) {
             chainId: chainConfig.id,
             chainName: chainConfig.name,
             lendingPool: chainConfig.lendingPool,
-            deposited: formatUnits(deposits, 6),
             shares: shares.toString(),
             currentValue: formatUnits(shareValue, 6),
             poolShare: totalShares > 0n 
@@ -133,7 +125,6 @@ export async function GET(request: NextRequest) {
             chainId: chainConfig.id,
             chainName: chainConfig.name,
             lendingPool: chainConfig.lendingPool,
-            deposited: "0",
             shares: "0",
             currentValue: "0",
             poolShare: "0",
@@ -144,10 +135,6 @@ export async function GET(request: NextRequest) {
     );
 
     // Calculate totals
-    const totalDeposited = positions.reduce(
-      (sum, p) => sum + parseFloat(p.deposited || "0"),
-      0
-    );
     const totalValue = positions.reduce(
       (sum, p) => sum + parseFloat(p.currentValue || "0"),
       0
@@ -157,9 +144,7 @@ export async function GET(request: NextRequest) {
       address,
       positions,
       totals: {
-        deposited: totalDeposited.toFixed(2),
         currentValue: totalValue.toFixed(2),
-        earnings: (totalValue - totalDeposited).toFixed(2),
       },
     });
   } catch (error) {
