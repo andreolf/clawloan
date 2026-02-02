@@ -125,58 +125,67 @@ export default function LeaderboardPage() {
               functionName: "nextBotId",
             });
 
-            // Fetch each bot
-            for (let botId = 1; botId < Number(nextBotId); botId++) {
-              try {
-                const [botInfo, basicStats, creditScore, volumeStats] = await Promise.all([
-                  client.readContract({
-                    address: chainConfig.botRegistry as `0x${string}`,
-                    abi: BOT_REGISTRY_ABI,
-                    functionName: "getBot",
-                    args: [BigInt(botId)],
-                  }),
-                  client.readContract({
-                    address: chainConfig.creditScoring as `0x${string}`,
-                    abi: CREDIT_SCORING_ABI,
-                    functionName: "getBasicStats",
-                    args: [BigInt(botId)],
-                  }),
-                  client.readContract({
-                    address: chainConfig.creditScoring as `0x${string}`,
-                    abi: CREDIT_SCORING_ABI,
-                    functionName: "getCreditScore",
-                    args: [BigInt(botId)],
-                  }),
-                  client.readContract({
-                    address: chainConfig.creditScoring as `0x${string}`,
-                    abi: CREDIT_SCORING_ABI,
-                    functionName: "getVolumeStats",
-                    args: [BigInt(botId)],
-                  }),
-                ]);
+            // Fetch all bots in parallel
+            const botIds = Array.from({ length: Number(nextBotId) - 1 }, (_, i) => i + 1);
+            const botResults = await Promise.all(
+              botIds.map(async (botId) => {
+                try {
+                  const [botInfo, basicStats, creditScore, volumeStats] = await Promise.all([
+                    client.readContract({
+                      address: chainConfig.botRegistry as `0x${string}`,
+                      abi: BOT_REGISTRY_ABI,
+                      functionName: "getBot",
+                      args: [BigInt(botId)],
+                    }),
+                    client.readContract({
+                      address: chainConfig.creditScoring as `0x${string}`,
+                      abi: CREDIT_SCORING_ABI,
+                      functionName: "getBasicStats",
+                      args: [BigInt(botId)],
+                    }),
+                    client.readContract({
+                      address: chainConfig.creditScoring as `0x${string}`,
+                      abi: CREDIT_SCORING_ABI,
+                      functionName: "getCreditScore",
+                      args: [BigInt(botId)],
+                    }),
+                    client.readContract({
+                      address: chainConfig.creditScoring as `0x${string}`,
+                      abi: CREDIT_SCORING_ABI,
+                      functionName: "getVolumeStats",
+                      args: [BigInt(botId)],
+                    }),
+                  ]);
 
-                allAgents.push({
-                  botId,
-                  operator: botInfo[1],
-                  chainId: chainConfig.id,
-                  chainName: chainConfig.name,
-                  chainIcon: chainConfig.icon,
-                  explorer: chainConfig.explorer,
-                  active: botInfo[3],
-                  totalLoans: Number(basicStats[0]),
-                  successfulRepayments: Number(basicStats[1]),
-                  defaults: Number(basicStats[2]),
-                  currentStreak: Number(basicStats[3]),
-                  creditTier: Number(basicStats[4]),
-                  creditScore: Number(creditScore),
-                  totalBorrowed: Number(formatUnits(volumeStats[0], 6)),
-                  totalRepaid: Number(formatUnits(volumeStats[1], 6)),
-                });
-              } catch (err) {
-                // Bot might not exist or have no credit history
-                console.error(`Error fetching bot ${botId} on ${chainConfig.name}:`, err);
-              }
-            }
+                  return {
+                    botId,
+                    operator: botInfo[1],
+                    chainId: chainConfig.id,
+                    chainName: chainConfig.name,
+                    chainIcon: chainConfig.icon,
+                    explorer: chainConfig.explorer,
+                    active: botInfo[3],
+                    totalLoans: Number(basicStats[0]),
+                    successfulRepayments: Number(basicStats[1]),
+                    defaults: Number(basicStats[2]),
+                    currentStreak: Number(basicStats[3]),
+                    creditTier: Number(basicStats[4]),
+                    creditScore: Number(creditScore),
+                    totalBorrowed: Number(formatUnits(volumeStats[0], 6)),
+                    totalRepaid: Number(formatUnits(volumeStats[1], 6)),
+                  };
+                } catch (err) {
+                  // Bot might not exist or have no credit history
+                  console.error(`Error fetching bot ${botId} on ${chainConfig.name}:`, err);
+                  return null;
+                }
+              })
+            );
+
+            // Filter out nulls and add to allAgents
+            botResults.forEach(result => {
+              if (result) allAgents.push(result);
+            });
           } catch (err) {
             console.error(`Error fetching from ${chainConfig.name}:`, err);
           }
@@ -245,8 +254,8 @@ export default function LeaderboardPage() {
           No registered agents found
         </div>
       ) : (
-        <div className="border border-[var(--card-border)] rounded-lg overflow-hidden">
-          <table className="w-full">
+        <div className="border border-[var(--card-border)] rounded-lg overflow-x-auto">
+          <table className="w-full min-w-[700px]">
             <thead className="bg-[var(--muted)]/20">
               <tr className="text-left text-sm text-[var(--muted-foreground)]">
                 <th className="px-4 py-3">#</th>
@@ -335,7 +344,7 @@ export default function LeaderboardPage() {
 
       <div className="mt-6 text-center text-sm text-[var(--muted-foreground)]">
         <p>Data pulled directly from on-chain CreditScoring contracts</p>
-        <Link href="/faq" className="text-[var(--primary)] hover:underline">
+        <Link href="/faq#credit-history" className="text-[var(--primary)] hover:underline">
           Learn how credit scoring works →
         </Link>
       </div>

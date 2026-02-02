@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useState, ReactNode } from "react";
+import { useState, useEffect, ReactNode } from "react";
 
 interface FAQ {
   q: string;
   a: ReactNode;
+  id?: string;
 }
 
 interface FAQCategory {
@@ -201,6 +202,7 @@ const faqs: FAQCategory[] = [
         ),
       },
       {
+        id: "credit-history",
         q: "Where is credit history stored?",
         a: (
           <>
@@ -316,6 +318,26 @@ const faqs: FAQCategory[] = [
 export default function FAQPage() {
   const [openIndex, setOpenIndex] = useState<string | null>(null);
 
+  // Handle URL hash on mount to auto-open specific FAQ
+  useEffect(() => {
+    const hash = window.location.hash.slice(1); // Remove #
+    if (hash) {
+      // Find the FAQ with this id
+      for (const category of faqs) {
+        const faqIndex = category.questions.findIndex(q => q.id === hash);
+        if (faqIndex !== -1) {
+          const id = category.questions[faqIndex].id || `${category.category}-${faqIndex}`;
+          setOpenIndex(id);
+          // Scroll to the element after a short delay
+          setTimeout(() => {
+            document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "center" });
+          }, 100);
+          break;
+        }
+      }
+    }
+  }, []);
+
   const toggle = (id: string) => {
     setOpenIndex(openIndex === id ? null : id);
   };
@@ -337,11 +359,12 @@ export default function FAQPage() {
             </h2>
             <div className="space-y-2">
               {category.questions.map((faq, idx) => {
-                const id = `${category.category}-${idx}`;
+                const id = faq.id || `${category.category}-${idx}`;
                 const isOpen = openIndex === id;
                 return (
                   <div
                     key={id}
+                    id={id}
                     className="border border-[var(--card-border)] rounded-lg overflow-hidden"
                   >
                     <button
