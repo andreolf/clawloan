@@ -24,7 +24,8 @@ Run these checks periodically (default: every 30 minutes). If all OK, respond wi
   - Check available liquidity: `totalDeposits - totalBorrows`
   - Alert if liquidity is low (may affect future borrowing capacity)
 
-- [ ] **Track Permission Expiry**
+- [ ] **Track Permissions**
+  - If borrowing fails with `NoActivePermissions`, operator must call `setPermissions` on-chain (see SKILL.md Step 2)
   - Permissions expire after 30 days by default
   - Check if renewal needed for active operations
   - Alert 3 days before expiry
