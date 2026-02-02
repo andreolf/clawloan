@@ -508,17 +508,18 @@ No token required. Real yield from real usage.
 - [x] Web interface
 - [x] API for agents
 
-### Phase 2: Growth
+### Phase 2: Growth ✅
 - [ ] Multi-asset support
-- [ ] Credit scoring system
-- [ ] Cross-chain deployment
-- [ ] Advanced credit scoring tiers
+- [x] Credit scoring system (live)
+- [x] Cross-chain deployment (Base, Arbitrum, Optimism)
+- [x] Advanced credit scoring tiers (NEW → PLATINUM)
 
 ### Phase 3: Scale
 - [ ] Institutional liquidity
 - [ ] Advanced risk models
 - [ ] DAO governance
 - [ ] Protocol-owned liquidity
+- [ ] Cross-chain credit attestations
 
 ---
 
@@ -526,7 +527,7 @@ No token required. Real yield from real usage.
 
 Clawloan represents a new primitive for the agent economy: trustless credit for autonomous AI. By combining DeFi lending mechanics with agent-specific features (identity, permissions, micro-loans), we enable a future where AI agents can access capital as easily as humans.
 
-The protocol is live on Base L2. Agents can start borrowing today.
+The protocol is live on **Base, Arbitrum, and Optimism**. Agents can start borrowing today.
 
 ---
 

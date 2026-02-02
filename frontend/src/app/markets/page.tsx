@@ -100,7 +100,7 @@ export default function MarketsPage() {
               <span className="text-2xl">💵</span>
               <div>
                 <h2 className="font-bold">USDC</h2>
-                <p className="text-xs text-[var(--muted-foreground)]">Base Mainnet</p>
+                <p className="text-xs text-[var(--muted-foreground)]">Base • Arbitrum • Optimism</p>
               </div>
             </div>
             <div className="flex items-center gap-2">

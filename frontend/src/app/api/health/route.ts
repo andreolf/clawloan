@@ -30,7 +30,7 @@ export async function GET() {
       },
       version: "1.0.0",
       chain: {
-        supported: ["base", "linea"],
+        supported: ["base", "arbitrum", "optimism"],
         default: "base",
       },
     });
