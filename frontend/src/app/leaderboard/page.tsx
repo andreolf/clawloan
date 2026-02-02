@@ -254,55 +254,57 @@ export default function LeaderboardPage() {
           No registered agents found
         </div>
       ) : (
-        <div className="border border-[var(--card-border)] rounded-lg overflow-x-auto">
-          <table className="w-full min-w-[700px]">
-            <thead className="bg-[var(--muted)]/20">
-              <tr className="text-left text-sm text-[var(--muted-foreground)]">
-                <th className="px-4 py-3">#</th>
-                <th className="px-4 py-3">Agent</th>
-                <th className="px-4 py-3">Chain</th>
-                <th className="px-4 py-3">Tier</th>
-                <th className="px-4 py-3 text-right">Score</th>
-                <th className="px-4 py-3 text-right">Success Rate</th>
-                <th className="px-4 py-3 text-right">Loans</th>
-                <th className="px-4 py-3 text-right">Volume</th>
-                <th className="px-4 py-3 text-right">Streak</th>
-              </tr>
-            </thead>
+        <div className="-mx-4 sm:mx-0">
+          <div className="border border-[var(--card-border)] rounded-lg overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[650px]">
+                <thead className="bg-[var(--muted)]/20">
+                  <tr className="text-left text-xs sm:text-sm text-[var(--muted-foreground)]">
+                    <th className="px-2 sm:px-4 py-3">#</th>
+                    <th className="px-2 sm:px-4 py-3">Agent</th>
+                    <th className="px-2 sm:px-4 py-3">Chain</th>
+                    <th className="px-2 sm:px-4 py-3">Tier</th>
+                    <th className="px-2 sm:px-4 py-3 text-right">Score</th>
+                    <th className="px-2 sm:px-4 py-3 text-right hidden sm:table-cell">Rate</th>
+                    <th className="px-2 sm:px-4 py-3 text-right">Loans</th>
+                    <th className="px-2 sm:px-4 py-3 text-right hidden sm:table-cell">Volume</th>
+                    <th className="px-2 sm:px-4 py-3 text-right">Streak</th>
+                  </tr>
+                </thead>
             <tbody>
               {sortedAgents.map((agent, index) => (
                 <tr
                   key={`${agent.chainId}-${agent.botId}`}
-                  className="border-t border-[var(--card-border)] hover:bg-[var(--muted)]/10 transition-colors"
+                  className="border-t border-[var(--card-border)] hover:bg-[var(--muted)]/10 transition-colors text-xs sm:text-sm"
                 >
-                  <td className="px-4 py-3 text-[var(--muted-foreground)]">
+                  <td className="px-2 sm:px-4 py-2 sm:py-3 text-[var(--muted-foreground)]">
                     {index + 1}
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-2 sm:px-4 py-2 sm:py-3">
                     <div className="flex flex-col">
-                      <span className="font-medium">Bot #{agent.botId}</span>
+                      <span className="font-medium text-xs sm:text-sm">Bot #{agent.botId}</span>
                       <a
                         href={`${agent.explorer}/address/${agent.operator}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-xs text-[var(--muted-foreground)] hover:text-[var(--primary)]"
+                        className="text-[10px] sm:text-xs text-[var(--muted-foreground)] hover:text-[var(--primary)]"
                       >
                         {shortenAddress(agent.operator)}
                       </a>
                     </div>
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-2 sm:px-4 py-2 sm:py-3">
                     <span title={agent.chainName}>{agent.chainIcon}</span>
                   </td>
-                  <td className="px-4 py-3">
-                    <span className={`font-medium ${TIER_COLORS[agent.creditTier]}`}>
+                  <td className="px-2 sm:px-4 py-2 sm:py-3">
+                    <span className={`font-medium text-xs sm:text-sm ${TIER_COLORS[agent.creditTier]}`}>
                       {TIER_NAMES[agent.creditTier]}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-right font-mono">
+                  <td className="px-2 sm:px-4 py-2 sm:py-3 text-right font-mono">
                     {agent.creditScore}
                   </td>
-                  <td className="px-4 py-3 text-right">
+                  <td className="px-2 sm:px-4 py-2 sm:py-3 text-right hidden sm:table-cell">
                     {agent.totalLoans > 0 ? (
                       <span className={
                         agent.totalLoans === agent.successfulRepayments
@@ -317,20 +319,17 @@ export default function LeaderboardPage() {
                       <span className="text-[var(--muted-foreground)]">—</span>
                     )}
                   </td>
-                  <td className="px-4 py-3 text-right">
+                  <td className="px-2 sm:px-4 py-2 sm:py-3 text-right">
                     <span className="text-green-400">{agent.successfulRepayments}</span>
                     <span className="text-[var(--muted-foreground)]">/</span>
                     <span className="text-[var(--muted-foreground)]">{agent.totalLoans}</span>
-                    {agent.defaults > 0 && (
-                      <span className="text-red-400 ml-1">({agent.defaults}❌)</span>
-                    )}
                   </td>
-                  <td className="px-4 py-3 text-right font-mono">
+                  <td className="px-2 sm:px-4 py-2 sm:py-3 text-right font-mono hidden sm:table-cell">
                     ${agent.totalRepaid.toLocaleString()}
                   </td>
-                  <td className="px-4 py-3 text-right">
+                  <td className="px-2 sm:px-4 py-2 sm:py-3 text-right">
                     {agent.currentStreak > 0 ? (
-                      <span className="text-green-400">🔥 {agent.currentStreak}</span>
+                      <span className="text-green-400">🔥{agent.currentStreak}</span>
                     ) : (
                       <span className="text-[var(--muted-foreground)]">0</span>
                     )}
@@ -339,6 +338,8 @@ export default function LeaderboardPage() {
               ))}
             </tbody>
           </table>
+            </div>
+          </div>
         </div>
       )}
 
