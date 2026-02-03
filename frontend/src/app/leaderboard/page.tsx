@@ -109,88 +109,105 @@ export default function LeaderboardPage() {
   useEffect(() => {
     async function fetchAllAgents() {
       const allAgents: AgentStats[] = [];
+      
+      // Helper to add delay between requests to avoid rate limiting
+      const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-      await Promise.all(
-        CHAINS.map(async (chainConfig) => {
-          const client = createPublicClient({
-            chain: chainConfig.chain,
-            transport: http(chainConfig.rpc),
+      // Process chains sequentially to avoid rate limiting
+      for (const chainConfig of CHAINS) {
+        const client = createPublicClient({
+          chain: chainConfig.chain,
+          transport: http(chainConfig.rpc),
+        });
+
+        try {
+          // Get total bot count
+          const nextBotId = await client.readContract({
+            address: chainConfig.botRegistry as `0x${string}`,
+            abi: BOT_REGISTRY_ABI,
+            functionName: "nextBotId",
           });
 
-          try {
-            // Get total bot count
-            const nextBotId = await client.readContract({
-              address: chainConfig.botRegistry as `0x${string}`,
-              abi: BOT_REGISTRY_ABI,
-              functionName: "nextBotId",
-            });
+          // Fetch bots one at a time with delay to avoid rate limiting
+          for (let botId = 1; botId < Number(nextBotId); botId++) {
+            try {
+              // Small delay between requests
+              if (botId > 1) await delay(100);
+              
+              const [botInfo, basicStats, creditScore, volumeStats] = await Promise.all([
+                client.readContract({
+                  address: chainConfig.botRegistry as `0x${string}`,
+                  abi: BOT_REGISTRY_ABI,
+                  functionName: "getBot",
+                  args: [BigInt(botId)],
+                }),
+                client.readContract({
+                  address: chainConfig.creditScoring as `0x${string}`,
+                  abi: CREDIT_SCORING_ABI,
+                  functionName: "getBasicStats",
+                  args: [BigInt(botId)],
+                }),
+                client.readContract({
+                  address: chainConfig.creditScoring as `0x${string}`,
+                  abi: CREDIT_SCORING_ABI,
+                  functionName: "getCreditScore",
+                  args: [BigInt(botId)],
+                }),
+                client.readContract({
+                  address: chainConfig.creditScoring as `0x${string}`,
+                  abi: CREDIT_SCORING_ABI,
+                  functionName: "getVolumeStats",
+                  args: [BigInt(botId)],
+                }),
+              ]);
 
-            // Fetch all bots in parallel
-            const botIds = Array.from({ length: Number(nextBotId) - 1 }, (_, i) => i + 1);
-            const botResults = await Promise.all(
-              botIds.map(async (botId) => {
-                try {
-                  const [botInfo, basicStats, creditScore, volumeStats] = await Promise.all([
-                    client.readContract({
-                      address: chainConfig.botRegistry as `0x${string}`,
-                      abi: BOT_REGISTRY_ABI,
-                      functionName: "getBot",
-                      args: [BigInt(botId)],
-                    }),
-                    client.readContract({
-                      address: chainConfig.creditScoring as `0x${string}`,
-                      abi: CREDIT_SCORING_ABI,
-                      functionName: "getBasicStats",
-                      args: [BigInt(botId)],
-                    }),
-                    client.readContract({
-                      address: chainConfig.creditScoring as `0x${string}`,
-                      abi: CREDIT_SCORING_ABI,
-                      functionName: "getCreditScore",
-                      args: [BigInt(botId)],
-                    }),
-                    client.readContract({
-                      address: chainConfig.creditScoring as `0x${string}`,
-                      abi: CREDIT_SCORING_ABI,
-                      functionName: "getVolumeStats",
-                      args: [BigInt(botId)],
-                    }),
-                  ]);
-
-                  return {
-                    botId,
-                    operator: botInfo[1],
-                    chainId: chainConfig.id,
-                    chainName: chainConfig.name,
-                    chainIcon: chainConfig.icon,
-                    explorer: chainConfig.explorer,
-                    active: botInfo[3],
-                    totalLoans: Number(basicStats[0]),
-                    successfulRepayments: Number(basicStats[1]),
-                    defaults: Number(basicStats[2]),
-                    currentStreak: Number(basicStats[3]),
-                    creditTier: Number(basicStats[4]),
-                    creditScore: Number(creditScore),
-                    totalBorrowed: Number(formatUnits(volumeStats[0], 6)),
-                    totalRepaid: Number(formatUnits(volumeStats[1], 6)),
-                  };
-                } catch (err) {
-                  // Bot might not exist or have no credit history
-                  console.error(`Error fetching bot ${botId} on ${chainConfig.name}:`, err);
-                  return null;
-                }
-              })
-            );
-
-            // Filter out nulls and add to allAgents
-            botResults.forEach(result => {
-              if (result) allAgents.push(result);
-            });
-          } catch (err) {
-            console.error(`Error fetching from ${chainConfig.name}:`, err);
+              allAgents.push({
+                botId,
+                operator: botInfo[1],
+                chainId: chainConfig.id,
+                chainName: chainConfig.name,
+                chainIcon: chainConfig.icon,
+                explorer: chainConfig.explorer,
+                active: botInfo[3],
+                totalLoans: Number(basicStats[0]),
+                successfulRepayments: Number(basicStats[1]),
+                defaults: Number(basicStats[2]),
+                currentStreak: Number(basicStats[3]),
+                creditTier: Number(basicStats[4]),
+                creditScore: Number(creditScore),
+                totalBorrowed: Number(formatUnits(volumeStats[0], 6)),
+                totalRepaid: Number(formatUnits(volumeStats[1], 6)),
+              });
+            } catch (err) {
+              // Bot might not exist or have no credit history - use defaults
+              console.error(`Error fetching bot ${botId} on ${chainConfig.name}:`, err);
+              // Still add bot with default values so it shows in list
+              allAgents.push({
+                botId,
+                operator: "0x0000000000000000000000000000000000000000",
+                chainId: chainConfig.id,
+                chainName: chainConfig.name,
+                chainIcon: chainConfig.icon,
+                explorer: chainConfig.explorer,
+                active: true,
+                totalLoans: 0,
+                successfulRepayments: 0,
+                defaults: 0,
+                currentStreak: 0,
+                creditTier: 0,
+                creditScore: 500,
+                totalBorrowed: 0,
+                totalRepaid: 0,
+              });
+            }
           }
-        })
-      );
+          
+          // Delay between chains
+          await delay(200);
+        } catch (err) {
+          console.error(`Error fetching from ${chainConfig.name}:`, err);
+        }
+      }
 
       // Sort by default (credit score)
       allAgents.sort((a, b) => b.creditScore - a.creditScore);
@@ -242,8 +259,8 @@ export default function LeaderboardPage() {
               setSortBy(opt.key as typeof sortBy);
             }}
             className={`px-3 py-1 text-sm rounded-full transition-colors cursor-pointer ${sortBy === opt.key
-                ? "bg-[var(--primary)] text-white"
-                : "bg-[var(--muted)]/30 text-[var(--muted-foreground)] hover:bg-[var(--muted)]/50"
+              ? "bg-[var(--primary)] text-white"
+              : "bg-[var(--muted)]/30 text-[var(--muted-foreground)] hover:bg-[var(--muted)]/50"
               }`}
           >
             {opt.label}
