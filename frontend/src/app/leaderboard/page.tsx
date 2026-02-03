@@ -44,9 +44,10 @@ export default function LeaderboardPage() {
   useEffect(() => {
     async function fetchAgents() {
       try {
-        const response = await fetch("/api/leaderboard");
+        // Use static JSON file (updated periodically) to avoid RPC rate limits
+        const response = await fetch("/data/leaderboard.json");
         const data = await response.json();
-
+        
         if (data.agents) {
           setAgents(data.agents);
         } else {

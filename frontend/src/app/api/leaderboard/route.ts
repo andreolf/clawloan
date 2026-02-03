@@ -5,21 +5,21 @@ import { base, arbitrum, optimism } from "viem/chains";
 // Use Alchemy free tier RPCs which have better rate limits
 const CHAINS = [
   {
-    id: 8453, chain: base, name: "Base", icon: "🔵", 
+    id: 8453, chain: base, name: "Base", icon: "🔵",
     rpc: "https://base-mainnet.g.alchemy.com/v2/demo",
     botRegistry: "0xE32404dB1720fFD9C00Afd392f9747d2043bC98A",
     creditScoring: "0x0E7d8675c4e0a0783B1B51eDe3aaB8D8BDc6B9Ad",
     explorer: "https://basescan.org"
   },
   {
-    id: 42161, chain: arbitrum, name: "Arbitrum", icon: "🔷", 
+    id: 42161, chain: arbitrum, name: "Arbitrum", icon: "🔷",
     rpc: "https://arb-mainnet.g.alchemy.com/v2/demo",
     botRegistry: "0xe19320FB36d07CCBC14b239453F36Ed958DeDEF0",
     creditScoring: "0xE32404dB1720fFD9C00Afd392f9747d2043bC98A",
     explorer: "https://arbiscan.io"
   },
   {
-    id: 10, chain: optimism, name: "Optimism", icon: "🔴", 
+    id: 10, chain: optimism, name: "Optimism", icon: "🔴",
     rpc: "https://opt-mainnet.g.alchemy.com/v2/demo",
     botRegistry: "0xe19320FB36d07CCBC14b239453F36Ed958DeDEF0",
     creditScoring: "0xE32404dB1720fFD9C00Afd392f9747d2043bC98A",
@@ -117,7 +117,7 @@ export async function GET() {
         functionName: string;
         args: [bigint];
       }[] = [];
-      
+
       for (let botId = 1; botId <= botCount; botId++) {
         contracts.push({
           address: chainConfig.botRegistry as `0x${string}`,
@@ -152,7 +152,7 @@ export async function GET() {
       for (let i = 0; i < botCount; i++) {
         const botId = i + 1;
         const baseIdx = i * 4;
-        
+
         const botInfoResult = results[baseIdx];
         const basicStatsResult = results[baseIdx + 1];
         const creditScoreResult = results[baseIdx + 2];
@@ -215,7 +215,7 @@ export async function GET() {
   // Sort by credit score
   allAgents.sort((a, b) => b.creditScore - a.creditScore);
 
-  return NextResponse.json({ 
+  return NextResponse.json({
     agents: allAgents,
     timestamp: Date.now(),
   }, {
