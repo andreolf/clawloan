@@ -43,11 +43,15 @@ type ActivityEvent = {
   isAgent: boolean;
 };
 
-// Event signatures (topic0)
+// Event signatures (topic0) - must match LendingPoolV2.sol
 const EVENT_TOPICS = {
+  // Deposited(address indexed lender, uint256 amount, uint256 shares)
   Deposited: "0x73a19dd210f1a7f902193214c0ee91dd35ee5b4d920cba8d519eca65a7b488ca",
+  // Withdrawn(address indexed lender, uint256 amount, uint256 shares)
   Withdrawn: "0x92ccf450a286a957af52509bc1c9939d1a6a481783e142e41e2499f0bb66ebc6",
-  Borrowed: "0x68045833607620b046673ad9d71b3f95e5626241b0d4d66477a2c600ad85b716",
+  // Borrowed(uint256 indexed botId, uint256 amount, address indexed operator, uint256 deadline)
+  Borrowed: "0x6d663f6f3fa1b4b5453c6eb0b71b7198d77292351285d35c611aa1095f8c5524",
+  // Repaid(uint256 indexed botId, uint256 principal, uint256 interest)
   Repaid: "0x06a603347cb6691efaab973c3ff98f9a16a157e92d51c4783645418d8537912e",
 };
 
