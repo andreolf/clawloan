@@ -92,6 +92,9 @@ contract LendingPoolV2 is Ownable, ReentrancyGuard, Pausable {
   bool public enforceCreditLimits = false;
   bool public requireVerification = false;
 
+  // V2.1: Sybil prevention - minimum bot age
+  uint256 public minBotAge = 0; // Default 0 (disabled), can set to 7 days
+
   // ============ Events ============
 
   event Deposited(address indexed lender, uint256 amount, uint256 shares);
@@ -146,6 +149,7 @@ contract LendingPoolV2 is Ownable, ReentrancyGuard, Pausable {
   error VerificationRequired();
   error LoanNotExpired(); // V2
   error LoanExpired(); // V2
+  error BotTooNew(); // V2.1: Sybil prevention
   error ExecutionFailed(); // V2
   error RepaymentFailed(); // V2
 
@@ -327,6 +331,12 @@ contract LendingPoolV2 is Ownable, ReentrancyGuard, Pausable {
     // Verify operator
     if (!botRegistry.isOperator(botId, msg.sender)) revert NotOperator();
     if (!botRegistry.isBotActive(botId)) revert BotNotActive();
+
+    // V2.1: Check minimum bot age (Sybil prevention)
+    if (minBotAge > 0) {
+      (, , uint256 registeredAt, ) = botRegistry.getBot(botId);
+      if (block.timestamp < registeredAt + minBotAge) revert BotTooNew();
+    }
 
     // Verify permissions
     if (!permissionsRegistry.hasValidPermissions(botId)) revert NoActivePermissions();
@@ -662,6 +672,13 @@ contract LendingPoolV2 is Ownable, ReentrancyGuard, Pausable {
 
   function setRequireVerification(bool _require) external onlyOwner {
     requireVerification = _require;
+  }
+
+  /// @notice Set minimum bot age for borrowing (Sybil prevention)
+  /// @param _minAge Minimum age in seconds (e.g., 7 days = 604800)
+  function setMinBotAge(uint256 _minAge) external onlyOwner {
+    require(_minAge <= 30 days, 'Max 30 days');
+    minBotAge = _minAge;
   }
 
   function pause() external onlyOwner {

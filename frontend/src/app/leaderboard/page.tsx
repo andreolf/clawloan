@@ -47,7 +47,7 @@ export default function LeaderboardPage() {
         // Use static JSON file (updated periodically) to avoid RPC rate limits
         const response = await fetch("/data/leaderboard.json");
         const data = await response.json();
-        
+
         if (data.agents) {
           setAgents(data.agents);
         } else {
@@ -101,8 +101,8 @@ export default function LeaderboardPage() {
             type="button"
             onClick={() => setSortBy(opt.key as typeof sortBy)}
             className={`px-3 py-1 text-sm rounded-full transition-colors cursor-pointer ${sortBy === opt.key
-                ? "bg-[var(--primary)] text-white"
-                : "bg-[var(--muted)]/30 text-[var(--muted-foreground)] hover:bg-[var(--muted)]/50"
+              ? "bg-[var(--primary)] text-white"
+              : "bg-[var(--muted)]/30 text-[var(--muted-foreground)] hover:bg-[var(--muted)]/50"
               }`}
           >
             {opt.label}
