@@ -12,6 +12,7 @@ import './PermissionsRegistry.sol';
 import './LPIncentives.sol';
 import './CreditScoring.sol';
 import './AgentVerification.sol';
+import './interfaces/IERC8004.sol';
 
 /// @title LendingPoolV2 - Core lending logic with liquidation support
 /// @notice Aave V3 inspired lending pool for bot micro-loans
@@ -95,6 +96,10 @@ contract LendingPoolV2 is Ownable, ReentrancyGuard, Pausable {
   // V2.1: Sybil prevention - minimum bot age
   uint256 public minBotAge = 0; // Default 0 (disabled), can set to 7 days
 
+  // V2.1: ERC-8004 integration for attested agents
+  IERC8004IdentityRegistry public erc8004Registry;
+  bool public require8004Attestation = false; // If true, operator must own 8004 NFT
+
   // ============ Events ============
 
   event Deposited(address indexed lender, uint256 amount, uint256 shares);
@@ -125,7 +130,11 @@ contract LendingPoolV2 is Ownable, ReentrancyGuard, Pausable {
     uint256 fee,
     address indexed target
   );
-  event InterestAccrued(uint256 newBorrowIndex, uint256 interestAccrued, uint256 timestamp);
+  event InterestAccrued(
+    uint256 newBorrowIndex,
+    uint256 interestAccrued,
+    uint256 timestamp
+  );
   event RewardsDistributed(uint256 amount);
   event RewardsClaimed(address indexed lender, uint256 amount);
   event ReserveFactorUpdated(uint256 oldFactor, uint256 newFactor);
@@ -150,6 +159,7 @@ contract LendingPoolV2 is Ownable, ReentrancyGuard, Pausable {
   error LoanNotExpired(); // V2
   error LoanExpired(); // V2
   error BotTooNew(); // V2.1: Sybil prevention
+  error No8004Attestation(); // V2.1: Operator not attested in ERC-8004
   error ExecutionFailed(); // V2
   error RepaymentFailed(); // V2
 
@@ -224,14 +234,20 @@ contract LendingPoolV2 is Ownable, ReentrancyGuard, Pausable {
   }
 
   /// @notice Get loan details including deadline
-  function getLoanDetails(uint256 botId) external view returns (
-    uint256 principal,
-    uint256 amountOwed,
-    uint256 startTime,
-    uint256 deadline,
-    bool active,
-    bool expired
-  ) {
+  function getLoanDetails(
+    uint256 botId
+  )
+    external
+    view
+    returns (
+      uint256 principal,
+      uint256 amountOwed,
+      uint256 startTime,
+      uint256 deadline,
+      bool active,
+      bool expired
+    )
+  {
     Loan storage loan = loans[botId];
     return (
       loan.principal,
@@ -243,14 +259,18 @@ contract LendingPoolV2 is Ownable, ReentrancyGuard, Pausable {
     );
   }
 
-  function getPoolStats() external view returns (
-    uint256 _totalDeposits,
-    uint256 _totalBorrows,
-    uint256 _utilization,
-    uint256 _borrowRate,
-    uint256 _supplyRate,
-    uint256 _rewardPool
-  ) {
+  function getPoolStats()
+    external
+    view
+    returns (
+      uint256 _totalDeposits,
+      uint256 _totalBorrows,
+      uint256 _utilization,
+      uint256 _borrowRate,
+      uint256 _supplyRate,
+      uint256 _rewardPool
+    )
+  {
     return (
       totalDeposits,
       totalBorrows,
@@ -318,7 +338,10 @@ contract LendingPoolV2 is Ownable, ReentrancyGuard, Pausable {
 
   // ============ Borrow Functions ============
 
-  function borrow(uint256 botId, uint256 amount) external nonReentrant whenNotPaused {
+  function borrow(
+    uint256 botId,
+    uint256 amount
+  ) external nonReentrant whenNotPaused {
     if (amount == 0) revert ZeroAmount();
 
     // Rate limiting
@@ -326,7 +349,8 @@ contract LendingPoolV2 is Ownable, ReentrancyGuard, Pausable {
       borrowedThisBlock = 0;
       lastBorrowBlock = block.number;
     }
-    if (borrowedThisBlock + amount > maxBorrowPerBlock) revert RateLimitExceeded();
+    if (borrowedThisBlock + amount > maxBorrowPerBlock)
+      revert RateLimitExceeded();
 
     // Verify operator
     if (!botRegistry.isOperator(botId, msg.sender)) revert NotOperator();
@@ -338,13 +362,20 @@ contract LendingPoolV2 is Ownable, ReentrancyGuard, Pausable {
       if (block.timestamp < registeredAt + minBotAge) revert BotTooNew();
     }
 
+    // V2.1: Check ERC-8004 attestation (operator must own 8004 agent NFT)
+    if (require8004Attestation && address(erc8004Registry) != address(0)) {
+      if (erc8004Registry.balanceOf(msg.sender) == 0) revert No8004Attestation();
+    }
+
     // Verify permissions
-    if (!permissionsRegistry.hasValidPermissions(botId)) revert NoActivePermissions();
+    if (!permissionsRegistry.hasValidPermissions(botId))
+      revert NoActivePermissions();
     if (!permissionsRegistry.canSpend(botId, amount)) revert ExceedsMaxSpend();
 
     // Check verification requirement
     if (requireVerification && address(agentVerification) != address(0)) {
-      if (!agentVerification.meetsRequirements(botId)) revert VerificationRequired();
+      if (!agentVerification.meetsRequirements(botId))
+        revert VerificationRequired();
     }
 
     // Check credit-based limits
@@ -387,7 +418,10 @@ contract LendingPoolV2 is Ownable, ReentrancyGuard, Pausable {
 
   // ============ Repay Functions ============
 
-  function repay(uint256 botId, uint256 amount) external nonReentrant whenNotPaused {
+  function repay(
+    uint256 botId,
+    uint256 amount
+  ) external nonReentrant whenNotPaused {
     _repayInternal(botId, amount, 0);
   }
 
@@ -399,7 +433,11 @@ contract LendingPoolV2 is Ownable, ReentrancyGuard, Pausable {
     _repayInternal(botId, repayAmount, profitAmount);
   }
 
-  function _repayInternal(uint256 botId, uint256 repayAmount, uint256 profitAmount) internal {
+  function _repayInternal(
+    uint256 botId,
+    uint256 repayAmount,
+    uint256 profitAmount
+  ) internal {
     if (repayAmount == 0) revert ZeroAmount();
 
     // Verify operator
@@ -471,7 +509,8 @@ contract LendingPoolV2 is Ownable, ReentrancyGuard, Pausable {
     if (!botRegistry.isBotActive(botId)) revert BotNotActive();
 
     // Verify permissions
-    if (!permissionsRegistry.hasValidPermissions(botId)) revert NoActivePermissions();
+    if (!permissionsRegistry.hasValidPermissions(botId))
+      revert NoActivePermissions();
     if (!permissionsRegistry.canSpend(botId, amount)) revert ExceedsMaxSpend();
 
     // Check no existing loan (can't flash borrow with active loan)
@@ -497,7 +536,7 @@ contract LendingPoolV2 is Ownable, ReentrancyGuard, Pausable {
     uint256 balanceBefore = usdc.balanceOf(address(this));
     usdc.safeTransferFrom(msg.sender, address(this), amountOwed);
     uint256 balanceAfter = usdc.balanceOf(address(this));
-    
+
     if (balanceAfter < balanceBefore + amountOwed) revert RepaymentFailed();
 
     // Fee goes to reserves
@@ -526,7 +565,8 @@ contract LendingPoolV2 is Ownable, ReentrancyGuard, Pausable {
 
     uint256 amountOwed = getAmountOwed(botId);
     uint256 penalty = (amountOwed * liquidationPenaltyBps) / BPS_DENOMINATOR;
-    uint256 liquidatorReward = (amountOwed * liquidatorRewardBps) / BPS_DENOMINATOR;
+    uint256 liquidatorReward = (amountOwed * liquidatorRewardBps) /
+      BPS_DENOMINATOR;
     uint256 totalRequired = amountOwed + penalty;
 
     // Get bot operator to pull funds from
@@ -640,7 +680,10 @@ contract LendingPoolV2 is Ownable, ReentrancyGuard, Pausable {
   }
 
   /// @notice Set liquidation parameters
-  function setLiquidationParams(uint256 penaltyBps, uint256 rewardBps) external onlyOwner {
+  function setLiquidationParams(
+    uint256 penaltyBps,
+    uint256 rewardBps
+  ) external onlyOwner {
     require(penaltyBps <= 2000, 'Max 20% penalty');
     require(rewardBps <= penaltyBps, 'Reward <= penalty');
     liquidationPenaltyBps = penaltyBps;
@@ -679,6 +722,18 @@ contract LendingPoolV2 is Ownable, ReentrancyGuard, Pausable {
   function setMinBotAge(uint256 _minAge) external onlyOwner {
     require(_minAge <= 30 days, 'Max 30 days');
     minBotAge = _minAge;
+  }
+
+  /// @notice Set ERC-8004 Identity Registry for attestation checks
+  /// @param _registry Address of the 8004 IdentityRegistry (e.g., 0x8004A169FB4a3325136EB29fA0ceB6D2e539a432)
+  function setERC8004Registry(address _registry) external onlyOwner {
+    erc8004Registry = IERC8004IdentityRegistry(_registry);
+  }
+
+  /// @notice Enable/disable ERC-8004 attestation requirement
+  /// @param _require True to require operators to own 8004 agent NFT
+  function setRequire8004Attestation(bool _require) external onlyOwner {
+    require8004Attestation = _require;
   }
 
   function pause() external onlyOwner {
