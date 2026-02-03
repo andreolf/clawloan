@@ -2,27 +2,27 @@ import { NextResponse } from "next/server";
 import { formatUnits } from "viem";
 
 const CHAINS = [
-  { 
-    id: 8453, 
-    explorer: "https://basescan.org", 
+  {
+    id: 8453,
+    explorer: "https://basescan.org",
     api: "https://base.blockscout.com/api",
-    name: "Base", 
+    name: "Base",
     icon: "🔵",
     lendingPool: "0x3Dca46B18D3a49f36311fb7A9b444B6041241906",
   },
-  { 
-    id: 42161, 
-    explorer: "https://arbiscan.io", 
+  {
+    id: 42161,
+    explorer: "https://arbiscan.io",
     api: "https://arbitrum.blockscout.com/api",
-    name: "Arbitrum", 
+    name: "Arbitrum",
     icon: "🔷",
     lendingPool: "0x8a184719997F77Ac315e08dCeDE74E3a9C19bd09",
   },
-  { 
-    id: 10, 
-    explorer: "https://optimistic.etherscan.io", 
+  {
+    id: 10,
+    explorer: "https://optimistic.etherscan.io",
     api: "https://optimism.blockscout.com/api",
-    name: "Optimism", 
+    name: "Optimism",
     icon: "🔴",
     lendingPool: "0x8a184719997F77Ac315e08dCeDE74E3a9C19bd09",
   },
@@ -70,26 +70,26 @@ type ActivityEvent = {
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const filter = searchParams.get("filter") || "all";
-  
+
   const fetchedEvents: ActivityEvent[] = [];
-  
+
   // Fetch from all chains in parallel (server-side, no CORS issues)
   const promises = CHAINS.map(async (chainConfig) => {
     try {
       const url = `${chainConfig.api}?module=logs&action=getLogs&address=${chainConfig.lendingPool}&fromBlock=0&toBlock=latest`;
-      
+
       const response = await fetch(url, {
         headers: { "Accept": "application/json" },
         next: { revalidate: 30 }, // Cache for 30 seconds
       });
-      
+
       const data = await response.json();
-      
+
       if (data.status !== "1" && data.message !== "OK") {
         console.log(`No logs from ${chainConfig.name}:`, data.message);
         return [];
       }
-      
+
       if (!Array.isArray(data.result)) {
         return [];
       }
@@ -99,7 +99,7 @@ export async function GET(request: Request) {
       for (const log of data.result) {
         const topic0 = log.topics?.[0];
         const timestamp = parseInt(log.timeStamp, 16);
-        
+
         if (topic0 === EVENT_TOPICS.Deposited && (filter === "all" || filter === "supply")) {
           chainEvents.push({
             type: "deposit",
@@ -173,10 +173,10 @@ export async function GET(request: Request) {
   try {
     const results = await Promise.all(promises);
     results.forEach(chainEvents => fetchedEvents.push(...chainEvents));
-    
+
     // Sort by timestamp descending (most recent first)
     fetchedEvents.sort((a, b) => b.timestamp - a.timestamp);
-    
+
     return NextResponse.json({ events: fetchedEvents });
   } catch (err) {
     console.error("Error fetching events:", err);

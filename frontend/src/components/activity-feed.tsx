@@ -30,10 +30,10 @@ function timeAgo(timestamp: number) {
   return `${Math.floor(seconds / 86400)}d ago`;
 }
 
-export function ActivityFeed({ 
+export function ActivityFeed({
   filter = "all",
   maxHeight = 400,
-}: { 
+}: {
   filter?: "all" | "supply" | "borrow";
   maxHeight?: number;
 }) {
@@ -59,7 +59,7 @@ export function ActivityFeed({
       try {
         const response = await fetch(`/api/activity?filter=${filter}`);
         const data = await response.json();
-        
+
         if (data.events) {
           setEvents(data.events);
         } else {
@@ -132,7 +132,7 @@ export function ActivityFeed({
 
   return (
     <div className="relative">
-      <div 
+      <div
         ref={scrollRef}
         onScroll={checkScroll}
         className="space-y-2 overflow-y-auto scrollbar-thin scrollbar-thumb-[var(--muted)] scrollbar-track-transparent"
@@ -164,8 +164,8 @@ export function ActivityFeed({
             </div>
             <div className="flex items-center gap-2 text-xs text-[var(--muted-foreground)]">
               <span title={event.chainName}>{event.chainIcon}</span>
-              <span 
-                title={event.isAgent ? "Agent" : "Human"} 
+              <span
+                title={event.isAgent ? "Agent" : "Human"}
                 className={event.isAgent ? "text-blue-400" : "text-orange-400"}
               >
                 {event.isAgent ? "🤖" : "👤"}
