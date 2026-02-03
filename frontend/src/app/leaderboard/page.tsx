@@ -205,13 +205,15 @@ export default function LeaderboardPage() {
     agent.totalLoans > 0 ? agent.successfulRepayments / agent.totalLoans : 0;
 
   const sortedAgents = [...agents].sort((a, b) => {
+    let diff = 0;
     switch (sortBy) {
-      case "score": return b.creditScore - a.creditScore;
-      case "rate": return getSuccessRate(b) - getSuccessRate(a);
-      case "repayments": return b.successfulRepayments - a.successfulRepayments;
-      case "volume": return b.totalRepaid - a.totalRepaid;
-      default: return 0;
+      case "score": diff = b.creditScore - a.creditScore; break;
+      case "rate": diff = getSuccessRate(b) - getSuccessRate(a); break;
+      case "repayments": diff = b.successfulRepayments - a.successfulRepayments; break;
+      case "volume": diff = b.totalRepaid - a.totalRepaid; break;
     }
+    // Secondary sort by botId for stable ordering when primary values are equal
+    return diff !== 0 ? diff : a.botId - b.botId;
   });
 
   return (

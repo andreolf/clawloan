@@ -5,25 +5,25 @@ import { formatUnits } from "viem";
 import { getLendingPoolAddress } from "@/config/wagmi";
 
 const CHAINS = [
-  { 
-    id: 8453, 
-    explorer: "https://basescan.org", 
+  {
+    id: 8453,
+    explorer: "https://basescan.org",
     api: "https://base.blockscout.com/api",
-    name: "Base", 
+    name: "Base",
     icon: "🔵",
   },
-  { 
-    id: 42161, 
-    explorer: "https://arbiscan.io", 
+  {
+    id: 42161,
+    explorer: "https://arbiscan.io",
     api: "https://arbitrum.blockscout.com/api",
-    name: "Arbitrum", 
+    name: "Arbitrum",
     icon: "🔷",
   },
-  { 
-    id: 10, 
-    explorer: "https://optimistic.etherscan.io", 
+  {
+    id: 10,
+    explorer: "https://optimistic.etherscan.io",
     api: "https://optimism.blockscout.com/api",
-    name: "Optimism", 
+    name: "Optimism",
     icon: "🔴",
   },
 ];
@@ -80,10 +80,10 @@ function decodeAmount(data: string, offset: number = 0): bigint {
   return BigInt("0x" + hex);
 }
 
-export function ActivityFeed({ 
+export function ActivityFeed({
   filter = "all",
   maxHeight = 400,
-}: { 
+}: {
   filter?: "all" | "supply" | "borrow";
   maxHeight?: number;
 }) {
@@ -107,7 +107,7 @@ export function ActivityFeed({
   useEffect(() => {
     async function fetchAllChains() {
       const fetchedEvents: ActivityEvent[] = [];
-      
+
       const promises = CHAINS.map(async (chainConfig) => {
         const poolAddress = getLendingPoolAddress(chainConfig.id, "USDC");
         if (!poolAddress) return [];
@@ -115,10 +115,10 @@ export function ActivityFeed({
         try {
           // Use block explorer API for reliable log fetching
           const url = `${chainConfig.api}?module=logs&action=getLogs&address=${poolAddress}&fromBlock=0&toBlock=latest&page=1&offset=100`;
-          
+
           const response = await fetch(url);
           const data = await response.json();
-          
+
           if (data.status !== "1" || !Array.isArray(data.result)) {
             console.log(`No logs from ${chainConfig.name}:`, data.message);
             return [];
@@ -129,7 +129,7 @@ export function ActivityFeed({
           for (const log of data.result) {
             const topic0 = log.topics?.[0];
             const timestamp = parseInt(log.timeStamp, 16);
-            
+
             if (topic0 === EVENT_TOPICS.Deposited && (filter === "all" || filter === "supply")) {
               chainEvents.push({
                 type: "deposit",
@@ -203,7 +203,7 @@ export function ActivityFeed({
       try {
         const results = await Promise.all(promises);
         results.forEach(chainEvents => fetchedEvents.push(...chainEvents));
-        
+
         // Sort by timestamp descending (most recent first)
         fetchedEvents.sort((a, b) => b.timestamp - a.timestamp);
         setEvents(fetchedEvents);
@@ -274,7 +274,7 @@ export function ActivityFeed({
 
   return (
     <div className="relative">
-      <div 
+      <div
         ref={scrollRef}
         onScroll={checkScroll}
         className="space-y-2 overflow-y-auto scrollbar-thin scrollbar-thumb-[var(--muted)] scrollbar-track-transparent"
@@ -306,8 +306,8 @@ export function ActivityFeed({
             </div>
             <div className="flex items-center gap-2 text-xs text-[var(--muted-foreground)]">
               <span title={event.chainName}>{event.chainIcon}</span>
-              <span 
-                title={event.isAgent ? "Agent" : "Human"} 
+              <span
+                title={event.isAgent ? "Agent" : "Human"}
                 className={event.isAgent ? "text-blue-400" : "text-orange-400"}
               >
                 {event.isAgent ? "🤖" : "👤"}
