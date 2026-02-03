@@ -364,7 +364,8 @@ contract LendingPoolV2 is Ownable, ReentrancyGuard, Pausable {
 
     // V2.1: Check ERC-8004 attestation (operator must own 8004 agent NFT)
     if (require8004Attestation && address(erc8004Registry) != address(0)) {
-      if (erc8004Registry.balanceOf(msg.sender) == 0) revert No8004Attestation();
+      if (erc8004Registry.balanceOf(msg.sender) == 0)
+        revert No8004Attestation();
     }
 
     // Verify permissions
