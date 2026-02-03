@@ -1,14 +1,31 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { createPublicClient, http, formatUnits } from "viem";
-import { base, arbitrum, optimism } from "viem/chains";
+import { formatUnits } from "viem";
 import { getLendingPoolAddress } from "@/config/wagmi";
 
 const CHAINS = [
-  { id: 8453, chain: base, rpc: "https://mainnet.base.org", explorer: "https://basescan.org", name: "Base", icon: "🔵", blockTime: 2 },
-  { id: 42161, chain: arbitrum, rpc: "https://arb1.arbitrum.io/rpc", explorer: "https://arbiscan.io", name: "Arbitrum", icon: "🔷", blockTime: 0.25 },
-  { id: 10, chain: optimism, rpc: "https://mainnet.optimism.io", explorer: "https://optimistic.etherscan.io", name: "Optimism", icon: "🔴", blockTime: 2 },
+  { 
+    id: 8453, 
+    explorer: "https://basescan.org", 
+    api: "https://api.basescan.org/api",
+    name: "Base", 
+    icon: "🔵",
+  },
+  { 
+    id: 42161, 
+    explorer: "https://arbiscan.io", 
+    api: "https://api.arbiscan.io/api",
+    name: "Arbitrum", 
+    icon: "🔷",
+  },
+  { 
+    id: 10, 
+    explorer: "https://optimistic.etherscan.io", 
+    api: "https://api-optimistic.etherscan.io/api",
+    name: "Optimism", 
+    icon: "🔴",
+  },
 ];
 
 type ActivityEvent = {
@@ -16,14 +33,14 @@ type ActivityEvent = {
   address: string;
   amount: string;
   txHash: string;
-  blockNumber: bigint;
-  timestamp: number; // Approximate timestamp
+  blockNumber: number;
+  timestamp: number;
   botId?: string;
   chainId: number;
   chainName: string;
   chainIcon: string;
   explorer: string;
-  isAgent: boolean; // true if this is agent activity
+  isAgent: boolean;
 };
 
 // Event signatures (topic0)
@@ -48,12 +65,14 @@ function timeAgo(timestamp: number) {
 }
 
 function decodeAddress(topic: string): string {
+  if (!topic || topic.length < 42) return "";
   return "0x" + topic.slice(26);
 }
 
 function decodeAmount(data: string, offset: number = 0): bigint {
   const start = 2 + offset * 64;
   const hex = data.slice(start, start + 64);
+  if (!hex) return 0n;
   return BigInt("0x" + hex);
 }
 
@@ -77,7 +96,6 @@ export function ActivityFeed({
     }
   };
 
-  // Check scroll state after events load
   useEffect(() => {
     setTimeout(checkScroll, 100);
   }, [events]);
@@ -86,79 +104,70 @@ export function ActivityFeed({
     async function fetchAllChains() {
       const fetchedEvents: ActivityEvent[] = [];
       
-      // Fetch from all chains in parallel
       const promises = CHAINS.map(async (chainConfig) => {
         const poolAddress = getLendingPoolAddress(chainConfig.id, "USDC");
         if (!poolAddress) return [];
 
-        const client = createPublicClient({
-          chain: chainConfig.chain,
-          transport: http(chainConfig.rpc),
-        });
-
         try {
-          const currentBlock = await client.getBlockNumber();
-          // Adjust lookback based on block time
-          const blocksToLookback = chainConfig.id === 42161 ? 100000n : 10000n;
-          const fromBlock = currentBlock - blocksToLookback;
-          const now = Math.floor(Date.now() / 1000);
-
-          const logs = await client.getLogs({
-            address: poolAddress,
-            fromBlock,
-            toBlock: currentBlock,
-          });
+          // Use block explorer API for reliable log fetching
+          const url = `${chainConfig.api}?module=logs&action=getLogs&address=${poolAddress}&fromBlock=0&toBlock=latest&page=1&offset=100`;
+          
+          const response = await fetch(url);
+          const data = await response.json();
+          
+          if (data.status !== "1" || !Array.isArray(data.result)) {
+            console.log(`No logs from ${chainConfig.name}:`, data.message);
+            return [];
+          }
 
           const chainEvents: ActivityEvent[] = [];
 
-          for (const log of logs) {
-            const topic0 = log.topics[0];
-            // Estimate timestamp based on block difference
-            const blockDiff = Number(currentBlock - log.blockNumber);
-            const estimatedTimestamp = now - Math.floor(blockDiff * chainConfig.blockTime);
+          for (const log of data.result) {
+            const topic0 = log.topics?.[0];
+            const timestamp = parseInt(log.timeStamp, 16);
             
             if (topic0 === EVENT_TOPICS.Deposited && (filter === "all" || filter === "supply")) {
               chainEvents.push({
                 type: "deposit",
-                address: log.topics[1] ? decodeAddress(log.topics[1]) : "",
+                address: log.topics?.[1] ? decodeAddress(log.topics[1]) : "",
                 amount: formatUnits(decodeAmount(log.data, 0), 6),
                 txHash: log.transactionHash,
-                blockNumber: log.blockNumber,
-                timestamp: estimatedTimestamp,
+                blockNumber: parseInt(log.blockNumber, 16),
+                timestamp,
                 chainId: chainConfig.id,
                 chainName: chainConfig.name,
                 chainIcon: chainConfig.icon,
                 explorer: chainConfig.explorer,
-                isAgent: false, // TODO: check BotRegistry for agent depositors
+                isAgent: false,
               });
             } else if (topic0 === EVENT_TOPICS.Withdrawn && (filter === "all" || filter === "supply")) {
               chainEvents.push({
                 type: "withdraw",
-                address: log.topics[1] ? decodeAddress(log.topics[1]) : "",
+                address: log.topics?.[1] ? decodeAddress(log.topics[1]) : "",
                 amount: formatUnits(decodeAmount(log.data, 0), 6),
                 txHash: log.transactionHash,
-                blockNumber: log.blockNumber,
-                timestamp: estimatedTimestamp,
+                blockNumber: parseInt(log.blockNumber, 16),
+                timestamp,
                 chainId: chainConfig.id,
                 chainName: chainConfig.name,
                 chainIcon: chainConfig.icon,
                 explorer: chainConfig.explorer,
-                isAgent: false, // TODO: check BotRegistry for agent withdrawers
+                isAgent: false,
               });
             } else if (topic0 === EVENT_TOPICS.Borrowed && (filter === "all" || filter === "borrow")) {
               chainEvents.push({
                 type: "borrow",
-                address: log.topics[2] ? decodeAddress(log.topics[2]) : "",
+                address: log.topics?.[2] ? decodeAddress(log.topics[2]) : "",
                 amount: formatUnits(decodeAmount(log.data, 0), 6),
                 txHash: log.transactionHash,
-                blockNumber: log.blockNumber,
-                timestamp: estimatedTimestamp,
-                botId: log.topics[1] ? Number(BigInt(log.topics[1])).toString() : undefined,
+                blockNumber: parseInt(log.blockNumber, 16),
+                timestamp,
+                botId: log.topics?.[1] ? Number(BigInt(log.topics[1])).toString() : undefined,
                 chainId: chainConfig.id,
                 chainName: chainConfig.name,
                 chainIcon: chainConfig.icon,
                 explorer: chainConfig.explorer,
-                isAgent: true, // Borrows are always by agents
+                isAgent: true,
               });
             } else if (topic0 === EVENT_TOPICS.Repaid && (filter === "all" || filter === "borrow")) {
               const principal = decodeAmount(log.data, 0);
@@ -168,14 +177,14 @@ export function ActivityFeed({
                 address: "",
                 amount: formatUnits(principal + interest, 6),
                 txHash: log.transactionHash,
-                blockNumber: log.blockNumber,
-                timestamp: estimatedTimestamp,
-                botId: log.topics[1] ? Number(BigInt(log.topics[1])).toString() : undefined,
+                blockNumber: parseInt(log.blockNumber, 16),
+                timestamp,
+                botId: log.topics?.[1] ? Number(BigInt(log.topics[1])).toString() : undefined,
                 chainId: chainConfig.id,
                 chainName: chainConfig.name,
                 chainIcon: chainConfig.icon,
                 explorer: chainConfig.explorer,
-                isAgent: true, // Repays are always by agents
+                isAgent: true,
               });
             }
           }
