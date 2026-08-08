@@ -532,10 +532,11 @@ contract LendingPoolV2 is Ownable, ReentrancyGuard, Pausable {
     // 3. Reward to liquidator
     usdc.safeTransfer(msg.sender, liquidatorReward);
 
-    // Record bad repayment in credit scoring (hurts bot's score)
+    // Record a default in credit scoring (hurts bot's score). Previously this
+    // called recordRepayment(botId, 0), which INCREMENTED successful repayments
+    // and the streak — so defaulting actually improved the score (audit H-2).
     if (address(creditScoring) != address(0)) {
-      // Pass 0 to indicate liquidation (not voluntary repayment)
-      creditScoring.recordRepayment(botId, 0);
+      creditScoring.recordDefault(botId, principal);
     }
 
     emit Liquidated(botId, msg.sender, amountOwed, penalty, liquidatorReward);

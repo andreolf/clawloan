@@ -7,7 +7,6 @@ import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol';
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
-import '@openzeppelin/contracts/utils/ReentrancyGuard.sol';
 
 import './BotRegistry.sol';
 import './PermissionsRegistry.sol';
@@ -23,8 +22,7 @@ contract LendingPoolV3 is
   Initializable,
   UUPSUpgradeable,
   OwnableUpgradeable,
-  ReentrancyGuard,
-  PausableUpgradeable 
+  PausableUpgradeable
 {
   using SafeERC20 for IERC20;
 
@@ -108,6 +106,16 @@ contract LendingPoolV3 is
   uint256 public currentBlockBorrows; // amount borrowed in `lastBorrowBlock`
   uint256 public lastBorrowBlock;      // block.number of the last borrow
 
+  // Upgrade-safe reentrancy guard. Implemented as a plain storage variable (not
+  // the non-upgradeable OZ ReentrancyGuard base, whose constructor never runs in
+  // a proxy and whose sequential slot shifts if inheritance order changes — audit
+  // M-1). 0 (uninitialized) is treated as "not entered".
+  uint256 private _reentrancyStatus;
+
+  // Reserved storage slots for future upgrades. Reduce this array when adding
+  // new state so the overall layout stays stable across upgrades.
+  uint256[44] private __gap;
+
   // ============ Events ============
 
   event Deposited(address indexed lp, uint256 amount, uint256 shares);
@@ -135,6 +143,19 @@ contract LendingPoolV3 is
   error BotNotActive();
   error ExceedsMaxSpend();
   error ExceedsBorrowRateLimit();
+  error ReentrantCall();
+
+  // ============ Reentrancy Guard (upgrade-safe, storage-based) ============
+
+  uint256 private constant _ENTERED = 2;
+  uint256 private constant _NOT_ENTERED = 1;
+
+  modifier nonReentrant() {
+    if (_reentrancyStatus == _ENTERED) revert ReentrantCall();
+    _reentrancyStatus = _ENTERED;
+    _;
+    _reentrancyStatus = _NOT_ENTERED;
+  }
 
   // ============ Initializer ============
 
@@ -393,37 +414,52 @@ contract LendingPoolV3 is
     emit Repaid(botId, loan.amount, interest, reward);
   }
 
-  /// @notice Liquidate an expired loan
+  /// @notice Liquidate (write off) an expired, uncollateralized loan.
+  /// @dev Loans are uncollateralized, so a defaulted principal is genuinely
+  ///      unrecoverable — the prior design required the liquidator to gift the
+  ///      pool the full debt for a reserve-funded bonus, which no rational actor
+  ///      would do, so expired loans locked liquidity forever (audit H-1).
+  ///      Instead we realize the loss: clear the loan, socialize the principal
+  ///      loss across LP deposits, record the default, and pay a capped reward
+  ///      from reserves to whoever clears the bad debt. Nothing is pulled in, so
+  ///      there is no stranded interest (audit M-2). Anyone may call this.
   function liquidate(uint256 botId) external nonReentrant {
     Loan memory loan = loans[botId];
     if (loan.amount == 0) revert NoActiveLoan();
     if (block.timestamp <= loan.deadline) revert LoanNotExpired();
-    
+
     _accrueInterest();
-    
-    // Calculate interest and bonus
-    uint256 interest = (loan.amount * (borrowIndex - loan.borrowIndex)) / loan.borrowIndex;
-    uint256 totalDue = loan.amount + interest;
-    uint256 bonus = (totalDue * liquidationBonus) / RAY;
-    
-    // Clear loan
+
+    uint256 principal = loan.amount;
+
+    // Clear the loan and remove it from outstanding borrows.
     delete loans[botId];
-    totalBorrows -= loan.amount;
-    
-    // Liquidator pays total due, receives bonus from reserves
-    usdc.safeTransferFrom(msg.sender, address(this), totalDue);
-    
-    if (bonus > 0 && reserves >= bonus) {
-      reserves -= bonus;
-      usdc.safeTransfer(msg.sender, bonus);
+    totalBorrows -= principal;
+
+    // Realize the unrecoverable loss against LP deposits (share value drops to
+    // reflect the default). Guard against underflow if accounting ever drifts.
+    if (principal <= totalDeposits) {
+      totalDeposits -= principal;
+    } else {
+      totalDeposits = 0;
     }
-    
-    // Record default
+
+    // Pay a liquidation reward from reserves only (capped at what's available),
+    // to incentivize keepers to clear bad debt. If reserves are empty the
+    // liquidation still proceeds — clearing the bad debt benefits all LPs.
+    uint256 reward = (principal * liquidationBonus) / RAY;
+    if (reward > reserves) reward = reserves;
+    if (reward > 0) {
+      reserves -= reward;
+      usdc.safeTransfer(msg.sender, reward);
+    }
+
+    // Record the default (resets streak, increments defaults, lowers tier).
     if (address(creditScoring) != address(0)) {
-      creditScoring.recordDefault(botId, loan.amount);
+      creditScoring.recordDefault(botId, principal);
     }
-    
-    emit Liquidated(botId, msg.sender, totalDue, bonus);
+
+    emit Liquidated(botId, msg.sender, principal, reward);
   }
 
   // ============ Internal Functions ============

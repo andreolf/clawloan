@@ -6,6 +6,7 @@ import '@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol';
 import '../src/MockUSDC.sol';
 import '../src/BotRegistry.sol';
 import '../src/PermissionsRegistry.sol';
+import '../src/CreditScoring.sol';
 import '../src/LendingPoolV3.sol';
 
 /// @title LendingPoolV3SecurityTest
@@ -141,6 +142,57 @@ contract LendingPoolV3SecurityTest is Test {
     pool.borrow(botId, 10_000e6); // full cap in one go, ok
     (uint256 amount, , , ) = pool.loans(botId);
     assertEq(amount, 10_000e6);
+  }
+
+  // ---- H-1 / M-2: liquidation write-off model ----
+
+  function test_Liquidate_WritesOffExpiredLoanAndSocializesLoss() public {
+    vm.prank(operator);
+    pool.borrow(botId, 5_000e6);
+
+    uint256 depositsBefore = pool.totalDeposits();
+    assertEq(pool.totalBorrows(), 5_000e6);
+
+    // Advance past the loan deadline (default maxLoanDuration = 24h).
+    vm.warp(block.timestamp + 25 hours);
+
+    // Anyone (not the operator) can clear the bad debt.
+    vm.prank(attacker);
+    pool.liquidate(botId);
+
+    (uint256 amount, , , ) = pool.loans(botId);
+    assertEq(amount, 0, 'loan cleared');
+    assertEq(pool.totalBorrows(), 0, 'borrows reduced');
+    // Principal is unrecoverable -> realized as a loss against LP deposits.
+    assertEq(pool.totalDeposits(), depositsBefore - 5_000e6, 'loss socialized');
+  }
+
+  function test_Liquidate_RevertsIfNotExpired() public {
+    vm.prank(operator);
+    pool.borrow(botId, 5_000e6);
+
+    vm.prank(attacker);
+    vm.expectRevert(LendingPoolV3.LoanNotExpired.selector);
+    pool.liquidate(botId);
+  }
+
+  function test_Liquidate_RecordsDefaultInCreditScoring() public {
+    // Wire a CreditScoring instance and authorize the pool to write to it.
+    vm.startPrank(owner);
+    CreditScoring credit = new CreditScoring(address(botRegistry));
+    credit.authorizeCaller(address(pool));
+    pool.setCreditScoring(address(credit));
+    vm.stopPrank();
+
+    vm.prank(operator);
+    pool.borrow(botId, 5_000e6);
+
+    vm.warp(block.timestamp + 25 hours);
+    vm.prank(attacker);
+    pool.liquidate(botId);
+
+    (, , uint256 defaults, , , , , ) = credit.creditHistory(botId);
+    assertEq(defaults, 1, 'default recorded, not a repayment');
   }
 
   // ---- access control on the new setter ----

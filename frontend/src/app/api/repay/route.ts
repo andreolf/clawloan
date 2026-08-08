@@ -1,11 +1,36 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { verifyAuth } from "@/lib/auth";
+
+// Require a valid signature from the bot's on-record operator. Returns a
+// NextResponse to short-circuit on failure, or null when authorized.
+async function requireBotOperator(
+  botId: string,
+  action: string,
+  params: Record<string, unknown>,
+  auth: unknown
+): Promise<NextResponse | null> {
+  const bot = await prisma.bot.findUnique({ where: { id: botId } });
+  if (!bot) {
+    return NextResponse.json({ error: "Bot not found" }, { status: 404 });
+  }
+  const result = await verifyAuth({
+    action,
+    params,
+    auth: auth as never,
+    expectedAddress: bot.operatorAddress,
+  });
+  if (!result.ok) {
+    return NextResponse.json({ error: result.error }, { status: result.status });
+  }
+  return null;
+}
 
 // POST /api/repay - Repay a loan
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { botId, amount } = body;
+    const { botId, amount, auth } = body;
 
     if (!botId || !amount) {
       return NextResponse.json(
@@ -13,6 +38,9 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
+
+    const authError = await requireBotOperator(botId, "repay", { botId, amount }, auth);
+    if (authError) return authError;
 
     // Find active loan
     const loan = await prisma.loan.findFirst({
@@ -96,7 +124,7 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     const body = await request.json();
-    const { botId, repayAmount, profitAmount } = body;
+    const { botId, repayAmount, profitAmount, auth } = body;
 
     if (!botId || !repayAmount) {
       return NextResponse.json(
@@ -104,6 +132,14 @@ export async function PUT(request: NextRequest) {
         { status: 400 }
       );
     }
+
+    const authError = await requireBotOperator(
+      botId,
+      "repay-with-profit",
+      { botId, repayAmount, profitAmount: profitAmount ?? null },
+      auth
+    );
+    if (authError) return authError;
 
     // Find active loan
     const loan = await prisma.loan.findFirst({

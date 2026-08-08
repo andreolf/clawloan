@@ -66,8 +66,25 @@ Loans have **no collateral**; the only cap is `PermissionsRegistry.maxSpend`, se
 
 ## 5. Prioritized remediation order
 
-1. **Now:** Pause the live LendingPool; stop advertising deposits. (C-1, C-2)
-2. **Now:** Run `enable_rls.sql` in Supabase. (§4)
-3. **This week:** Add SIWE auth + `CRON_SECRET`; disable/guard `/api/task` until real x402. (§4)
-4. **Before any redeploy:** Remove `borrowAndExecute`; add collateral or protocol-set limits; fix V3 `canSpend`/rate-limit/`isOperator`; fix H-1/H-2/M-1/M-2; add negative-path tests covering each finding above.
-5. **Before mainnet with real value:** independent external audit — the internal suite passed 104/104 while missing two criticals.
+1. **Now (ACTION REQUIRED — not code):** Pause the live LendingPool V2 (`0x3Dca…1906`) and stop advertising deposits. C-1 is exploitable on the immutable deployed contract; source fixes do not protect it.
+2. **Now (ACTION REQUIRED — not code):** Run `enable_rls.sql` in the Supabase SQL editor.
+3. **Before any redeploy / mainnet with real value:** independent external audit — the internal suite passed 104/104 while missing two criticals.
+
+### Remediation status (this branch)
+
+| Finding | Status |
+|---|---|
+| C-1 arbitrary-call drain | ✅ `borrowAndExecute` removed from V2 source (live contract still needs pause+migrate) |
+| C-2 uncollateralized/self-set drain | ✅ V3 `borrow` now enforces `isOperator`, `canSpend`, per-block rate limit |
+| H-1 liquidation recovers nothing | ✅ V3 `liquidate` rewritten as bad-debt write-off (loss realized, liquidity unlocked) |
+| H-2 default raises credit score | ✅ V2 liquidate now calls `recordDefault` instead of `recordRepayment(0)` |
+| M-1 non-upgradeable ReentrancyGuard | ✅ replaced with upgrade-safe storage-based guard + `__gap` |
+| M-2 V3 liquidate strands interest | ✅ resolved by the write-off model (nothing pulled in) |
+| API no auth | ✅ EIP-191 operator-signature auth on `/bots`,`/borrow`,`/repay` |
+| x402 mocked | ✅ `/task` now requires a signed payment authorization (settlement still on-chain TODO) |
+| `/api/sync` unprotected | ✅ gated behind `CRON_SECRET` |
+| Supabase RLS | ⏳ SQL provided — **must be run in the dashboard** |
+| Off-chain ledger disconnected from funds | ⚠️ architectural — still open (design decision) |
+| Collateral for loans | ⚠️ still uncollateralized — rate limit + write-off bound the damage, not eliminate it |
+
+Tests: 115 contract tests passing (incl. new `LendingPoolV3Security.t.sol`); frontend type-checks clean; auth signature round-trip verified.

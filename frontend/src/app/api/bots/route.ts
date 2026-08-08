@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { verifyAuth } from "@/lib/auth";
 
 // GET /api/bots - List bots (optionally filter by operator)
 export async function GET(request: NextRequest) {
@@ -34,13 +35,26 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, description, tags, operatorAddress, metadataHash, maxBorrowLimit } = body;
+    const { name, description, tags, operatorAddress, metadataHash, maxBorrowLimit, auth } = body;
 
     if (!name || !operatorAddress) {
       return NextResponse.json(
         { error: "Name and operator address are required" },
         { status: 400 }
       );
+    }
+
+    // Require a signature from the operator address being registered, so nobody
+    // can create bots (and self-set borrow limits) under an address they don't
+    // control.
+    const authResult = await verifyAuth({
+      action: "register-bot",
+      params: { name, operatorAddress, maxBorrowLimit: maxBorrowLimit ?? null },
+      auth,
+      expectedAddress: operatorAddress,
+    });
+    if (!authResult.ok) {
+      return NextResponse.json({ error: authResult.error }, { status: authResult.status });
     }
 
     // Create bot
