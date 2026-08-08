@@ -6,8 +6,6 @@ import '../src/MockUSDC.sol';
 import '../src/BotRegistry.sol';
 import '../src/PermissionsRegistry.sol';
 import '../src/LendingPool.sol';
-import '../src/ClawloanToken.sol';
-import '../src/StakingModule.sol';
 
 /// @title SimulateProtocol - Simulate full protocol flow
 /// @notice Demonstrates Aave-like lending/borrowing with bot agents
@@ -16,8 +14,6 @@ contract SimulateProtocol is Script {
   BotRegistry public botRegistry;
   PermissionsRegistry public permRegistry;
   LendingPool public pool;
-  ClawloanToken public clawloan;
-  StakingModule public staking;
 
   address public deployer;
   address public lender1;
@@ -52,12 +48,6 @@ contract SimulateProtocol is Script {
       address(permRegistry)
     );
     console.log('LendingPool:', address(pool));
-
-    clawloan = new ClawloanToken(deployer);
-    console.log('ClawloanToken:', address(clawloan));
-
-    staking = new StakingModule(address(clawloan), address(usdc));
-    console.log('StakingModule:', address(staking));
 
     // Increase rate limit for simulation
     pool.setMaxBorrowPerBlock(1_000_000e6);

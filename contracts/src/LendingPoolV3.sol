@@ -98,6 +98,16 @@ contract LendingPoolV3 is
   IERC8004IdentityRegistry public erc8004Registry;
   bool public require8004Attestation;
 
+  // ============ Storage appended in V3.1 (drain protection) ============
+  // IMPORTANT: these are appended at the END of storage to keep the upgradeable
+  // layout stable. Never reorder or insert storage above this point.
+
+  // Per-block borrow rate limit. 0 = disabled. Bounds how much can be borrowed
+  // in a single block, capping the damage from any borrow-and-default drain (C-2).
+  uint256 public maxBorrowPerBlock;
+  uint256 public currentBlockBorrows; // amount borrowed in `lastBorrowBlock`
+  uint256 public lastBorrowBlock;      // block.number of the last borrow
+
   // ============ Events ============
 
   event Deposited(address indexed lp, uint256 amount, uint256 shares);
@@ -121,6 +131,10 @@ contract LendingPoolV3 is
   error LoanExpired();
   error BotTooNew();
   error No8004Attestation();
+  error NotOperator();
+  error BotNotActive();
+  error ExceedsMaxSpend();
+  error ExceedsBorrowRateLimit();
 
   // ============ Initializer ============
 
@@ -150,6 +164,11 @@ contract LendingPoolV3 is
     reserveFactor = 0.1e27; // 10%
     maxLoanDuration = 24 hours;
     liquidationBonus = 0.05e27; // 5%
+    maxBorrowPerBlock = 50_000e6; // 50k USDC/block default; owner-tunable, 0 disables
+
+    // NOTE: initialize() does NOT run when upgrading an already-deployed proxy.
+    // After upgrading an existing V3 proxy, the owner MUST call
+    // setMaxBorrowPerBlock(...) to activate the per-block rate limit.
   }
 
   // ============ Upgrade Authorization ============
@@ -260,7 +279,12 @@ contract LendingPoolV3 is
   function borrow(uint256 botId, uint256 amount) external nonReentrant whenNotPaused {
     if (amount == 0) revert InvalidAmount();
     if (loans[botId].amount > 0) revert LoanAlreadyActive();
-    
+
+    // Authorization: only the bot's operator may borrow on its behalf, and the
+    // bot must be active. (C-2: V3 previously had no caller-authorization check.)
+    if (!botRegistry.isOperator(botId, msg.sender)) revert NotOperator();
+    if (!botRegistry.isBotActive(botId)) revert BotNotActive();
+
     // Check minimum bot age (Sybil prevention)
     if (minBotAge > 0) {
       (, , uint256 registeredAt, ) = botRegistry.getBot(botId);
@@ -276,7 +300,10 @@ contract LendingPoolV3 is
     if (!permissionsRegistry.hasValidPermissions(botId)) {
       revert NoActivePermissions();
     }
-    
+
+    // Enforce the permissioned per-bot spend cap (C-2: V3 previously omitted this).
+    if (!permissionsRegistry.canSpend(botId, amount)) revert ExceedsMaxSpend();
+
     // Check credit limit if enforced
     if (enforceCreditLimits && address(creditScoring) != address(0)) {
       uint256 limit = creditScoring.getRecommendedLimit(botId);
@@ -292,7 +319,18 @@ contract LendingPoolV3 is
     
     uint256 available = totalDeposits - totalBorrows;
     if (amount > available) revert InsufficientLiquidity();
-    
+
+    // Per-block borrow rate limit: bounds how much can be drained in one block
+    // (C-2 defense-in-depth). 0 = disabled.
+    if (maxBorrowPerBlock > 0) {
+      if (block.number != lastBorrowBlock) {
+        lastBorrowBlock = block.number;
+        currentBlockBorrows = 0;
+      }
+      currentBlockBorrows += amount;
+      if (currentBlockBorrows > maxBorrowPerBlock) revert ExceedsBorrowRateLimit();
+    }
+
     uint256 deadline = block.timestamp + maxLoanDuration;
     
     loans[botId] = Loan({
@@ -436,6 +474,11 @@ contract LendingPoolV3 is
   function setMaxLoanDuration(uint256 _duration) external onlyOwner {
     require(_duration >= 1 hours && _duration <= 7 days, 'Invalid duration');
     maxLoanDuration = _duration;
+  }
+
+  /// @notice Set the per-block borrow rate limit (0 disables it)
+  function setMaxBorrowPerBlock(uint256 _max) external onlyOwner {
+    maxBorrowPerBlock = _max;
   }
 
   function setMinBotAge(uint256 _minAge) external onlyOwner {

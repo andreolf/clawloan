@@ -6,8 +6,6 @@ import '../src/MockUSDC.sol';
 import '../src/BotRegistry.sol';
 import '../src/PermissionsRegistry.sol';
 import '../src/LendingPool.sol';
-import '../src/ClawloanToken.sol';
-import '../src/StakingModule.sol';
 
 /// @title SecurityTest - Comprehensive security tests
 /// @notice Tests for reentrancy, access control, overflow, and edge cases
@@ -16,8 +14,6 @@ contract SecurityTest is Test {
   BotRegistry public botRegistry;
   PermissionsRegistry public permRegistry;
   LendingPool public pool;
-  ClawloanToken public clawloan;
-  StakingModule public staking;
 
   address public owner = makeAddr('owner');
   address public attacker = makeAddr('attacker');
@@ -37,8 +33,6 @@ contract SecurityTest is Test {
       address(botRegistry),
       address(permRegistry)
     );
-    clawloan = new ClawloanToken(owner);
-    staking = new StakingModule(address(clawloan), address(usdc));
 
     vm.stopPrank();
 
@@ -374,71 +368,6 @@ contract SecurityTest is Test {
     vm.prank(operator);
     vm.expectRevert(LendingPool.RateLimitExceeded.selector);
     pool.borrow(botId, 150_000e6);
-  }
-
-  // ============ Staking Security Tests ============
-
-  function test_Staking_CooldownRequired() public {
-    vm.prank(owner);
-    clawloan.mint(attacker, 10_000e18);
-
-    vm.prank(attacker);
-    clawloan.approve(address(staking), type(uint256).max);
-
-    vm.prank(attacker);
-    staking.stake(1000e18);
-
-    // Try to unstake without cooldown
-    vm.prank(attacker);
-    vm.expectRevert(StakingModule.CooldownNotStarted.selector);
-    staking.unstake(1000e18);
-  }
-
-  function test_Staking_SlashMaxLimit() public {
-    vm.prank(owner);
-    clawloan.mint(lender, 10_000e18);
-
-    vm.prank(lender);
-    clawloan.approve(address(staking), type(uint256).max);
-
-    vm.prank(lender);
-    staking.stake(10_000e18);
-
-    // Try to slash more than 30%
-    vm.prank(owner);
-    vm.expectRevert(StakingModule.SlashExceedsMax.selector);
-    staking.slash(4000e18, 'Too much'); // 40% > 30% max
-  }
-
-  function test_Staking_OnlyOwnerCanSlash() public {
-    vm.prank(owner);
-    clawloan.mint(lender, 10_000e18);
-
-    vm.prank(lender);
-    clawloan.approve(address(staking), type(uint256).max);
-
-    vm.prank(lender);
-    staking.stake(10_000e18);
-
-    vm.prank(attacker);
-    vm.expectRevert();
-    staking.slash(1000e18, 'Malicious');
-  }
-
-  // ============ Token Security Tests ============
-
-  function test_Token_MaxSupplyEnforced() public {
-    uint256 remaining = clawloan.remainingMintableSupply();
-
-    vm.prank(owner);
-    vm.expectRevert(ClawloanToken.ExceedsMaxSupply.selector);
-    clawloan.mint(attacker, remaining + 1);
-  }
-
-  function test_Token_OnlyOwnerCanMint() public {
-    vm.prank(attacker);
-    vm.expectRevert();
-    clawloan.mint(attacker, 1000e18);
   }
 
   // ============ Interest Accrual Tests ============
