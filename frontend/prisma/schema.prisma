@@ -90,6 +90,17 @@ model Usage {
   @@index([botId])
 }
 
+// AuthNonce - single-use nonces for signed API requests (replay protection)
+model AuthNonce {
+  id        String   @id @default(cuid())
+  address   String // operator address that signed
+  nonce     String // client-supplied unique value, bound into the signed message
+  createdAt DateTime @default(now())
+
+  @@unique([address, nonce])
+  @@index([createdAt])
+}
+
 // PoolStats - Cached pool statistics
 model PoolStats {
   id            String   @id @default("main")

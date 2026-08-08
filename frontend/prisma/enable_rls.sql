@@ -20,6 +20,7 @@ ALTER TABLE public."Deposit"    ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public."Permission" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public."Usage"      ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public."PoolStats"  ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public."AuthNonce"  ENABLE ROW LEVEL SECURITY;
 
 -- Also FORCE RLS so that even a table-owner going through PostgREST is subject
 -- to policies (defense in depth). The direct Prisma connection still bypasses
@@ -30,6 +31,7 @@ ALTER TABLE public."Deposit"    FORCE ROW LEVEL SECURITY;
 ALTER TABLE public."Permission" FORCE ROW LEVEL SECURITY;
 ALTER TABLE public."Usage"      FORCE ROW LEVEL SECURITY;
 ALTER TABLE public."PoolStats"  FORCE ROW LEVEL SECURITY;
+ALTER TABLE public."AuthNonce"  FORCE ROW LEVEL SECURITY;
 
 -- Explicitly revoke the auto-granted API roles so the public REST/GraphQL API
 -- cannot touch these tables at all. (RLS with zero policies already denies all,
@@ -40,6 +42,7 @@ REVOKE ALL ON public."Deposit"    FROM anon, authenticated;
 REVOKE ALL ON public."Permission" FROM anon, authenticated;
 REVOKE ALL ON public."Usage"      FROM anon, authenticated;
 REVOKE ALL ON public."PoolStats"  FROM anon, authenticated;
+REVOKE ALL ON public."AuthNonce"  FROM anon, authenticated;
 
 -- NOTE: We intentionally create NO policies. All access to this data must go
 -- through the Next.js API routes (server-side, via Prisma). If you ever want

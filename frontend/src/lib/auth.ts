@@ -1,17 +1,17 @@
 import { verifyMessage, isAddress, getAddress } from "viem";
+import { prisma } from "@/lib/prisma";
 
 // Replay window for signed requests. A signature is only accepted within this
-// window of its embedded timestamp. This bounds replay without a nonce store;
-// for stronger guarantees add a persisted nonce table (see NOTE below).
+// window of its embedded timestamp. Combined with the single-use nonce store
+// below, this both prevents replay AND bounds how long nonces must be retained.
 const MAX_SKEW_MS = 5 * 60 * 1000; // 5 minutes
 
-// NOTE (follow-up): timestamp-windowing allows replay within MAX_SKEW_MS. For
-// full protection, persist a per-address nonce (e.g. a Prisma `Nonce` row) and
-// require each signature to carry an unused nonce. Tracked as a hardening TODO.
+const MAX_NONCE_LEN = 128;
 
 export type AuthEnvelope = {
   address?: string; // claimed signer (must be an operator address)
   timestamp?: number; // ms since epoch, embedded in the signed message
+  nonce?: string; // single-use value, embedded in the signed message
   signature?: `0x${string}`;
 };
 
@@ -28,13 +28,15 @@ export function buildAuthMessage(
   action: string,
   params: Record<string, unknown>,
   address: string,
-  timestamp: number
+  timestamp: number,
+  nonce: string
 ): string {
   return [
     "Clawloan API request",
     `action: ${action}`,
     `address: ${getAddress(address)}`,
     `timestamp: ${timestamp}`,
+    `nonce: ${nonce}`,
     `params: ${stableStringify(params)}`,
   ].join("\n");
 }
@@ -54,16 +56,26 @@ export async function verifyAuth(opts: {
 }): Promise<AuthResult> {
   const { action, params, auth, expectedAddress } = opts;
 
-  if (!auth || !auth.address || !auth.signature || auth.timestamp === undefined) {
+  if (
+    !auth ||
+    !auth.address ||
+    !auth.signature ||
+    auth.timestamp === undefined ||
+    !auth.nonce
+  ) {
     return {
       ok: false,
-      error: "Missing auth: { address, timestamp, signature } required",
+      error: "Missing auth: { address, timestamp, nonce, signature } required",
       status: 401,
     };
   }
 
   if (!isAddress(auth.address)) {
     return { ok: false, error: "Invalid auth address", status: 401 };
+  }
+
+  if (typeof auth.nonce !== "string" || auth.nonce.length === 0 || auth.nonce.length > MAX_NONCE_LEN) {
+    return { ok: false, error: "Invalid nonce", status: 401 };
   }
 
   const ts = Number(auth.timestamp);
@@ -75,12 +87,13 @@ export async function verifyAuth(opts: {
     return { ok: false, error: "Signer not authorized for this resource", status: 403 };
   }
 
-  const message = buildAuthMessage(action, params, auth.address, ts);
+  const signer = getAddress(auth.address);
+  const message = buildAuthMessage(action, params, signer, ts, auth.nonce);
 
   let valid = false;
   try {
     valid = await verifyMessage({
-      address: getAddress(auth.address),
+      address: signer,
       message,
       signature: auth.signature,
     });
@@ -92,7 +105,26 @@ export async function verifyAuth(opts: {
     return { ok: false, error: "Invalid signature", status: 401 };
   }
 
-  return { ok: true, address: getAddress(auth.address) };
+  // Consume the nonce (single-use). Only done AFTER the signature is validated,
+  // so an attacker cannot burn a victim's nonces. A unique-constraint violation
+  // means this exact (signer, nonce) was already used => replay.
+  const consumed = await consumeNonce(signer, auth.nonce);
+  if (!consumed) {
+    return { ok: false, error: "Nonce already used (replay)", status: 401 };
+  }
+
+  return { ok: true, address: signer };
+}
+
+async function consumeNonce(address: string, nonce: string): Promise<boolean> {
+  try {
+    await prisma.authNonce.create({ data: { address, nonce } });
+    return true;
+  } catch {
+    // Unique violation (address, nonce) already exists, or a DB error. Either
+    // way we refuse to proceed rather than risk accepting a replay.
+    return false;
+  }
 }
 
 /** Deterministic JSON stringify (sorted keys) so client and server agree. */
