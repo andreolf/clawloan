@@ -105,7 +105,13 @@ contract DeployEthereumMainnet is Script {
         // Sybil prevention - slightly stricter for mainnet
         pool.setMinBotAge(7 days);
         pool.setEnforceCreditLimits(true);
-        
+
+        // Bond underwriting (undercollateralized-but-solvent). bondsRequired is
+        // already true from initialize(); set the tunables explicitly.
+        pool.setMaxBorrowPerBlock(50_000e6); // per-block drain cap
+        pool.setMaxCreditLine(100e6);        // $100 reserve-backed credit per operator
+        pool.setUnbondingPeriod(7 days);
+
         console.log("   -> Pool configured!");
         console.log("   -> Version:", pool.version());
 
