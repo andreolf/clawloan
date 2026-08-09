@@ -85,6 +85,6 @@ Loans have **no collateral**; the only cap is `PermissionsRegistry.maxSpend`, se
 | `/api/sync` unprotected | ✅ gated behind `CRON_SECRET` |
 | Supabase RLS | ⏳ SQL provided — **must be run in the dashboard** |
 | Off-chain ledger disconnected from funds | ⚠️ architectural — still open (design decision) |
-| Collateral for loans | ⚠️ still uncollateralized — rate limit + write-off bound the damage, not eliminate it |
+| Collateral for loans | ✅ operator-bond + reserve-backed credit lines (solvency invariant `totalUnbacked ≤ reserves`); see [DESIGN_bond_underwriting.md](docs/DESIGN_bond_underwriting.md) |
 
-Tests: 115 contract tests passing (incl. new `LendingPoolV3Security.t.sol`); frontend type-checks clean; auth signature round-trip verified.
+Tests: 123 contract tests passing (incl. `LendingPoolV3Security.t.sol` — C-2 gates, bond limits, solvency invariant, bond+reserve liquidation recovery, unbonding); frontend type-checks clean; auth signature round-trip verified.
