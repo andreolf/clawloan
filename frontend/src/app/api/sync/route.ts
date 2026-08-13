@@ -51,7 +51,27 @@ const client = createPublicClient({
   transport: http("https://mainnet.base.org"),
 });
 
-export async function GET() {
+// Guard: require the CRON_SECRET so only the scheduler (not the public) can
+// trigger DB-mutating syncs. If CRON_SECRET is unset, the endpoint is disabled.
+function checkCronAuth(request: Request): NextResponse | null {
+  const secret = process.env.CRON_SECRET;
+  if (!secret) {
+    return NextResponse.json(
+      { error: "Sync disabled: CRON_SECRET not configured" },
+      { status: 503 }
+    );
+  }
+  const header = request.headers.get("authorization");
+  const provided = header?.startsWith("Bearer ") ? header.slice(7) : header;
+  if (provided !== secret) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  return null;
+}
+
+export async function GET(request: Request) {
+  const authError = checkCronAuth(request);
+  if (authError) return authError;
   try {
     // Read on-chain data
     const [totalDeposits, totalBorrows, utilization, supplyRate, borrowRate] = await Promise.all([
@@ -126,6 +146,6 @@ export async function GET() {
 }
 
 // POST to trigger sync (for cron jobs)
-export async function POST() {
-  return GET();
+export async function POST(request: Request) {
+  return GET(request);
 }

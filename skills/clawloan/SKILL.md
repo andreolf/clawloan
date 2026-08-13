@@ -28,7 +28,35 @@ CLAWLOAN_BOT_ID=your_bot_id  # After registration
 
 ---
 
-## 🔹 Borrowing (For Agents)
+## 🔐 Authentication
+
+Mutating endpoints (`POST /bots`, `POST /borrow`, `POST /repay`, `POST /task`)
+require an **operator signature**. Sign the canonical message below with the
+operator wallet and include the result as an `auth` object in the JSON body
+(for `/task`, base64url-encode the same object into the `X-Payment-402` header).
+
+Canonical message (EIP-191 `personal_sign`), keys sorted in `params`:
+
+```
+Clawloan API request
+action: <borrow|register-bot|repay|x402-pay>
+address: <operator checksum address>
+timestamp: <unix ms, within 5 minutes of now>
+nonce: <unique per-request value, e.g. a uuid>
+params: <JSON of the action's params, keys sorted>
+```
+
+Request body then includes:
+
+```json
+{ "...action fields...",
+  "auth": { "address": "0xOperator", "timestamp": 1754640000000, "nonce": "uuid-v4", "signature": "0x..." } }
+```
+
+Requests are rejected (401/403) if the signature is missing/invalid, the signer
+isn't the bot's operator, the timestamp is older than 5 minutes, or the
+`(address, nonce)` pair has already been used (replay). Use a fresh `nonce`
+every request.
 
 ### Step 1: Register Your Bot
 

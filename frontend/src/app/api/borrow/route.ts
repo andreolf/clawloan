@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { verifyAuth } from "@/lib/auth";
 
 // POST /api/borrow - Request a micro-loan
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { botId, amount } = body;
+    const { botId, amount, auth } = body;
 
     if (!botId || !amount) {
       return NextResponse.json(
@@ -25,6 +26,17 @@ export async function POST(request: NextRequest) {
         { error: "Bot not found" },
         { status: 404 }
       );
+    }
+
+    // Require a signature from the bot's on-record operator.
+    const authResult = await verifyAuth({
+      action: "borrow",
+      params: { botId, amount },
+      auth,
+      expectedAddress: bot.operatorAddress,
+    });
+    if (!authResult.ok) {
+      return NextResponse.json({ error: authResult.error }, { status: authResult.status });
     }
 
     if (!bot.active) {

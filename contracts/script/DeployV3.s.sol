@@ -49,7 +49,13 @@ contract DeployV3 is Script {
         pool.setMinBotAge(7 days);
         pool.setRequire8004Attestation(true);
         pool.setEnforceCreditLimits(true);
-        
+
+        // Bond underwriting (undercollateralized-but-solvent). bondsRequired is
+        // already true from initialize(); set the tunables explicitly.
+        pool.setMaxBorrowPerBlock(50_000e6);
+        pool.setMaxCreditLine(100e6); // $100 reserve-backed credit per operator
+        pool.setUnbondingPeriod(7 days);
+
         console.log("Pool configured with Sybil prevention enabled");
         console.log("Version:", pool.version());
 

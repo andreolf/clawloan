@@ -124,12 +124,6 @@ contract LendingPoolV2 is Ownable, ReentrancyGuard, Pausable {
     uint256 penalty,
     uint256 liquidatorReward
   );
-  event FlashBorrow(
-    uint256 indexed botId,
-    uint256 amount,
-    uint256 fee,
-    address indexed target
-  );
   event InterestAccrued(
     uint256 newBorrowIndex,
     uint256 interestAccrued,
@@ -160,8 +154,6 @@ contract LendingPoolV2 is Ownable, ReentrancyGuard, Pausable {
   error LoanExpired(); // V2
   error BotTooNew(); // V2.1: Sybil prevention
   error No8004Attestation(); // V2.1: Operator not attested in ERC-8004
-  error ExecutionFailed(); // V2
-  error RepaymentFailed(); // V2
 
   // ============ Constructor ============
 
@@ -491,66 +483,12 @@ contract LendingPoolV2 is Ownable, ReentrancyGuard, Pausable {
 
   // ============ V2: Atomic Borrow & Execute (Flash-style) ============
 
-  /// @notice Flash-loan style borrow: borrow, execute, repay in one tx
-  /// @dev If execution or repayment fails, entire transaction reverts
-  /// @param botId The registered bot ID
-  /// @param amount Amount to borrow
-  /// @param target Contract to call with borrowed funds
-  /// @param data Calldata to execute on target
-  function borrowAndExecute(
-    uint256 botId,
-    uint256 amount,
-    address target,
-    bytes calldata data
-  ) external nonReentrant whenNotPaused {
-    if (amount == 0) revert ZeroAmount();
-
-    // Verify operator
-    if (!botRegistry.isOperator(botId, msg.sender)) revert NotOperator();
-    if (!botRegistry.isBotActive(botId)) revert BotNotActive();
-
-    // Verify permissions
-    if (!permissionsRegistry.hasValidPermissions(botId))
-      revert NoActivePermissions();
-    if (!permissionsRegistry.canSpend(botId, amount)) revert ExceedsMaxSpend();
-
-    // Check no existing loan (can't flash borrow with active loan)
-    if (loans[botId].active) revert LoanAlreadyActive();
-
-    // Check liquidity
-    if (amount > usdc.balanceOf(address(this))) revert InsufficientLiquidity();
-
-    // Calculate fee (flat 0.1% for flash-style borrows)
-    uint256 fee = (amount * 10) / BPS_DENOMINATOR; // 0.1%
-    if (fee == 0) fee = 1; // Minimum 1 unit fee
-    uint256 amountOwed = amount + fee;
-
-    // Send funds to caller
-    usdc.safeTransfer(msg.sender, amount);
-
-    // Execute the callback
-    (bool success, ) = target.call(data);
-    if (!success) revert ExecutionFailed();
-
-    // Pull repayment (caller must have funds + approval)
-    // This will revert if caller doesn't have enough or hasn't approved
-    uint256 balanceBefore = usdc.balanceOf(address(this));
-    usdc.safeTransferFrom(msg.sender, address(this), amountOwed);
-    uint256 balanceAfter = usdc.balanceOf(address(this));
-
-    if (balanceAfter < balanceBefore + amountOwed) revert RepaymentFailed();
-
-    // Fee goes to reserves
-    reserves += fee;
-
-    // Record successful flash borrow in credit scoring
-    if (address(creditScoring) != address(0)) {
-      creditScoring.recordLoan(botId, amount);
-      creditScoring.recordRepayment(botId, amountOwed);
-    }
-
-    emit FlashBorrow(botId, amount, fee, target);
-  }
+  // NOTE: `borrowAndExecute` (flash-borrow-and-call) was REMOVED for security.
+  // It performed `target.call(data)` with attacker-controlled target/data while
+  // the pool was msg.sender, allowing an attacker to make the pool approve/transfer
+  // its own USDC (full-drain, audit finding C-1). The deployed instance of this
+  // contract is immutable and must be paused + migrated; this source removal
+  // prevents the vulnerability from shipping in any future deployment.
 
   // ============ V2: Liquidation ============
 
@@ -594,10 +532,11 @@ contract LendingPoolV2 is Ownable, ReentrancyGuard, Pausable {
     // 3. Reward to liquidator
     usdc.safeTransfer(msg.sender, liquidatorReward);
 
-    // Record bad repayment in credit scoring (hurts bot's score)
+    // Record a default in credit scoring (hurts bot's score). Previously this
+    // called recordRepayment(botId, 0), which INCREMENTED successful repayments
+    // and the streak — so defaulting actually improved the score (audit H-2).
     if (address(creditScoring) != address(0)) {
-      // Pass 0 to indicate liquidation (not voluntary repayment)
-      creditScoring.recordRepayment(botId, 0);
+      creditScoring.recordDefault(botId, principal);
     }
 
     emit Liquidated(botId, msg.sender, amountOwed, penalty, liquidatorReward);
