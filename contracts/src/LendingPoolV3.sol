@@ -551,8 +551,14 @@ contract LendingPoolV3 is
   /// @notice Bond (stake) USDC to unlock borrowing capacity. Cancels any pending unbond.
   function bond(uint256 amount) external nonReentrant whenNotPaused {
     if (amount == 0) revert InvalidAmount();
+    // More stake reduces this operator's unbacked exposure; keep totalUnbacked in
+    // sync (symmetric with unbond/repay/liquidate). Omitting this left totalUnbacked
+    // permanently overstated, bricking withdrawReserves and reserve-backed credit.
+    uint256 debt = operatorDebt[msg.sender];
+    uint256 beforeU = _unbacked(debt, stake[msg.sender]);
     stake[msg.sender] += amount;
     totalStaked += amount;
+    totalUnbacked -= (beforeU - _unbacked(debt, stake[msg.sender])); // beforeU >= afterU
     unbondAt[msg.sender] = 0; // bonding cancels a pending unbond request
     usdc.safeTransferFrom(msg.sender, address(this), amount);
     emit Bonded(msg.sender, amount, stake[msg.sender]);

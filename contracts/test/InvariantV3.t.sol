@@ -129,6 +129,10 @@ contract LendingPoolV3Handler is Test {
     secs = bound(secs, 1 hours, 20 days);
     vm.warp(block.timestamp + secs);
   }
+
+  function operatorList() external view returns (address[] memory) {
+    return operators;
+  }
 }
 
 /// @title InvariantV3Test
@@ -167,6 +171,20 @@ contract InvariantV3Test is StdInvariant, Test {
   /// @notice THE solvency invariant: unbacked exposure is always covered by reserves.
   function invariant_unbackedWithinReserves() public view {
     assertLe(pool.totalUnbacked(), pool.reserves());
+  }
+
+  /// @notice The accumulator matches ground truth Σ max(0, debt - stake). Catches
+  ///         accounting drift in any of bond/unbond/borrow/repay/liquidate (a stale
+  ///         totalUnbacked stays <= reserves, so the invariant above alone misses it).
+  function invariant_totalUnbackedExact() public view {
+    address[] memory ops = handler.operatorList();
+    uint256 sum;
+    for (uint256 i = 0; i < ops.length; i++) {
+      uint256 d = pool.operatorDebt(ops[i]);
+      uint256 s = pool.stake(ops[i]);
+      if (d > s) sum += d - s;
+    }
+    assertEq(sum, pool.totalUnbacked());
   }
 
   /// @notice Staked USDC is never lent out — the pool always physically holds at

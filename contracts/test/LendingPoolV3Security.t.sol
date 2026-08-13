@@ -280,6 +280,41 @@ contract LendingPoolV3SecurityTest is Test {
     pool.unbond(50_000e6);
   }
 
+  // ---- Regression: bond() must keep totalUnbacked in sync ----
+
+  function test_Bond_KeepsTotalUnbackedInSync() public {
+    uint256 r = _seedReserves();
+    _wireCredit();
+
+    // Fresh operator, no stake: borrow r unbacked (totalUnbacked == r).
+    address op = makeAddr('creditOp');
+    uint256 id = _registerBotOnly(op, 10_000e6);
+    vm.prank(op);
+    pool.borrow(id, r);
+    assertEq(pool.totalUnbacked(), r);
+
+    // Operator bonds enough to fully back the debt -> unbacked must drop to 0.
+    usdc.mint(op, r);
+    vm.startPrank(op);
+    usdc.approve(address(pool), type(uint256).max);
+    pool.bond(r);
+    vm.stopPrank();
+    assertEq(pool.totalUnbacked(), 0, 'bond must clear now-backed exposure');
+
+    // Repay closes the loan and leaves no phantom exposure.
+    usdc.mint(op, 1_000e6); // for interest
+    vm.warp(block.timestamp + 1 hours);
+    vm.prank(op);
+    pool.repay(id);
+    assertEq(pool.totalUnbacked(), 0, 'no residual after repay');
+
+    // withdrawReserves must NOT be bricked: owner can withdraw the full reserves.
+    uint256 reservesNow = pool.reserves();
+    vm.prank(owner);
+    pool.withdrawReserves(reservesNow);
+    assertEq(pool.reserves(), 0);
+  }
+
   // ---- Reserve withdrawal guard ----
 
   function test_WithdrawReserves_CannotBreakInvariant() public {
