@@ -166,7 +166,7 @@ export async function GET() {
         ) {
           const botInfo = botInfoResult.result as unknown as [string, string, bigint, boolean];
           const basicStats = basicStatsResult.result as unknown as [bigint, bigint, bigint, bigint, bigint];
-          const creditScore = creditScoreResult.result as bigint;
+          const creditScore = creditScoreResult.result as unknown as bigint;
           const volumeStats = volumeStatsResult.result as unknown as [bigint, bigint, bigint, bigint];
 
           allAgents.push({
