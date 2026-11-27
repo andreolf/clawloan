@@ -164,10 +164,10 @@ export async function GET() {
           creditScoreResult.status === "success" &&
           volumeStatsResult.status === "success"
         ) {
-          const botInfo = botInfoResult.result as [string, string, bigint, boolean];
-          const basicStats = basicStatsResult.result as [bigint, bigint, bigint, bigint, bigint];
+          const botInfo = botInfoResult.result as unknown as [string, string, bigint, boolean];
+          const basicStats = basicStatsResult.result as unknown as [bigint, bigint, bigint, bigint, bigint];
           const creditScore = creditScoreResult.result as bigint;
-          const volumeStats = volumeStatsResult.result as [bigint, bigint, bigint, bigint];
+          const volumeStats = volumeStatsResult.result as unknown as [bigint, bigint, bigint, bigint];
 
           allAgents.push({
             botId,

@@ -18,20 +18,18 @@
     "@radix-ui/react-tooltip": "^1.2.8",
     "@tanstack/react-query": "^5.90.20",
     "@vercel/analytics": "^1.6.1",
-    "@walletconnect/ethereum-provider": "^2.23.4",
-    "@walletconnect/modal": "^2.7.0",
-    "@web3modal/wagmi": "^5.1.11",
+    "@walletconnect/ethereum-provider": "^2.26.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "geist": "^1.5.1",
     "lucide-react": "^0.563.0",
-    "next": "16.1.6",
+    "next": "^16.4.6",
     "prisma": "^5.22.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "tailwind-merge": "^3.4.0",
-    "viem": "^2.45.1",
-    "wagmi": "^3.4.1",
+    "viem": "^2.58.8",
+    "wagmi": "^3.7.11",
     "zustand": "^5.0.10"
   },
   "devDependencies": {
@@ -40,11 +38,17 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "16.1.6",
-    "puppeteer": "^24.36.1",
-    "sharp": "^0.34.5",
+    "eslint-config-next": "^16.4.6",
+    "puppeteer": "^25.19.0",
+    "sharp": "^0.35.5",
     "tailwindcss": "^4",
     "tsx": "^4.21.0",
     "typescript": "^5"
+  },
+  "overrides": {
+    "zod": "^4.6.7"
+  },
+  "engines": {
+    "node": "24.x"
   }
 }
